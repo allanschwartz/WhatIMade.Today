@@ -29,17 +29,17 @@
 #include <Time.h>
 
 
-/*********************************
+/*---------------------------------------------------------------------
 /   Constants and Global Variables
-/*********************************/
+/----------------------------------------------------------------------*/
 // WIFI
 const char* WIFI_SSID = "ssid";         // YOUR WiFi SSID here
 const char* WIFI_PWD = "passsword";     // YOUR WiFi password here
 
 // NeoPixel Settings
-const int NEOPIXEL_PIN = D6;            // WeMos digital pin D6          
-const int NEO_NUM_LEDS = 12+24;         // two rings     
-const int BRIGHTNESS = 96;              // experiment wioth this
+const int NEOPIXEL_DATA_PIN = D6;       // WeMos digital pin D6          
+const int NEO_NUM_PIXELS = 12+24;       // two rings     
+const int BRIGHTNESS = 96;              // experiment with this
 // the minute ring is daisy-chained to the hour ring, with indexes of 12-36
 const int MINUTE_PIXEL_OFFSET = 12;
 
@@ -51,8 +51,8 @@ const int MINUTE_PIXEL_OFFSET = 12;
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(
-                NEO_NUM_LEDS, 
-                NEOPIXEL_PIN, 
+                NEO_NUM_PIXELS, 
+                NEOPIXEL_DATA_PIN, 
                 NEO_GRB + NEO_KHZ800);
 
 // TCP connection 
@@ -72,7 +72,7 @@ int clock_hour, clock_minute, clock_second, clock_milli;
 const time_t  TIMEZONEOFFSET = (2 * 60 * 60);     // Israel is GMT + 2 hours
 
 /*
- *********************************
+ ---------------------------------------------------------------------
  */
 
 
@@ -336,7 +336,7 @@ void timeKeeping()
  *      loop -- time display program for a ESP8266 and a pair of NeoPixel rings
  */
 
-// we have a time budget of one loop interation in 1000ms
+// we have a time budget of 1000ms per loop interation
 const clock_t  TIMEBUDGET_ms = 1000;
 
 void loop()
@@ -351,7 +351,7 @@ void loop()
     sprintf(timestring, "%02d:%02d:%02d.%03d", clock_hour, clock_minute, clock_second, clock_milli);
     Serial.println(timestring);
 
-    // at the bottom of loop, how long to delay?
+    // end of loop interation, how long to delay?
     clock_t  time_consumed_ms = millis() - t0_ms;
     if (time_consumed_ms < TIMEBUDGET_ms)
         delay(TIMEBUDGET_ms - time_consumed_ms);
