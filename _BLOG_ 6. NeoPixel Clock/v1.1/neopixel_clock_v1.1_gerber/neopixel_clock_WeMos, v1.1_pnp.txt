@@ -1,0 +1,26 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=neopixel_clock_WeMos, v1.1
+*Date=21:38:35
+*CreatedBy=Fritzing 0.9.3b.04.19.5c895d327c44a3114e5fcc9d8260daf0cbb52806
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;0.47mF;100 mil [THT, electrolytic];45.0001;-45.0001;0;Bottom;C1
+2;470;0805 [SMD];55.4556;-44.6118;0;Top;R1
+3;;;44.8532;-45.1467;0;Bottom;NeoPixel12
+4;;;46.0011;-9.04607;0;Bottom;TXT2
+5;;;45.0594;-80.2856;0;Bottom;TXT1
+6;;;71.0006;-44.3191;0;Bottom;WeMos D1 Mini
+7;;;75.4306;-68.6119;0;Bottom;Hole2
+8;;;15.4307;-68.6119;0;Bottom;Hole1
+9;;;45.1469;-44.8534;0;Bottom;NeoPixel24
+10;;;46.0016;-9.17279;0;Bottom;TXT2
+11;;;44.7057;-79.982;0;Bottom;TXT1

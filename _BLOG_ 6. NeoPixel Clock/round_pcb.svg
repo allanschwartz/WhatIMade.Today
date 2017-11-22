@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- hand coded by Allan Schwartz, Aug 27, 2017  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" 
+	 xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     x="0" y="0" width="80" height="80" 
+     viewBox="-40 -40 80 80" xml:space="preserve">
+<!-- User units, in width, height and viewBox are in mm -->
+  <g id="board">
+
+    <circle fill="green" stroke="none" stroke-width="0" 
+        r="40" cx="0" cy="0" />
+
+  </g>
+  <g id="silkscreen">
+  </g>
+</svg>
