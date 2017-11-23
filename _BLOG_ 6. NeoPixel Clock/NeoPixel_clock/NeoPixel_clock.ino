@@ -33,8 +33,8 @@
 /   Constants and Global Variables
 /----------------------------------------------------------------------*/
 // WIFI
-const char* WIFI_SSID = "ssid";         // YOUR WiFi SSID here
-const char* WIFI_PWD = "passsword";     // YOUR WiFi password here
+const char* WIFI_SSID = "yourssid";     // YOUR WiFi SSID here
+const char* WIFI_PWD = "password";      // YOUR WiFi password here
 
 // NeoPixel Settings
 const int NEOPIXEL_DATA_PIN = D6;       // WeMos digital pin D6
