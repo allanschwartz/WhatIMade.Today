@@ -16,11 +16,11 @@
  *
  *      3)  earlier work by Joshua Brooks
  *          https://www.instructables.com/id/Desktop-NeoPixel-Clock/
- *  
+ *
  *      4)  See my blog about this Arduino application at
  *          http://www.whatimade.today/desktop-neopixel-clock/
  */
- 
+
 #include "Adafruit_NeoPixel.h"
 #include <ESP8266WiFi.h>
 #include <stdlib.h>
@@ -37,8 +37,8 @@ const char* WIFI_SSID = "ssid";         // YOUR WiFi SSID here
 const char* WIFI_PWD = "passsword";     // YOUR WiFi password here
 
 // NeoPixel Settings
-const int NEOPIXEL_DATA_PIN = D6;       // WeMos digital pin D6          
-const int NEO_NUM_PIXELS = 12+24;       // two rings     
+const int NEOPIXEL_DATA_PIN = D6;       // WeMos digital pin D6
+const int NEO_NUM_PIXELS = 12 + 24;     // two rings
 const int BRIGHTNESS = 96;              // experiment with this
 // the minute ring is daisy-chained to the hour ring, with indexes of 12-36
 const int MINUTE_PIXEL_OFFSET = 12;
@@ -51,11 +51,11 @@ const int MINUTE_PIXEL_OFFSET = 12;
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(
-                NEO_NUM_PIXELS, 
-                NEOPIXEL_DATA_PIN, 
-                NEO_GRB + NEO_KHZ800);
+                              NEO_NUM_PIXELS,
+                              NEOPIXEL_DATA_PIN,
+                              NEO_GRB + NEO_KHZ800);
 
-// TCP connection 
+// TCP connection
 const uint16_t TCP = 13;
 const char *NistHostName = "time.nist.gov"; // our NTP server url
 IPAddress NistServerAddr(0, 0, 0, 0);       // set via DNA lookup, maybe to 129.6.15.28
@@ -64,6 +64,7 @@ IPAddress NistServerAddr(0, 0, 0, 0);       // set via DNA lookup, maybe to 129.
 time_t      clocktime_s = 0;        // seconds on the clock (since midnight)
 clock_t     clockset_at_ms = 0;     // milliseconds this program has been running,
 // ... at the moment of the clock synchronization event
+bool        clock_sync_ok = false;
 
 // global timekeeping variables
 int clock_hour, clock_minute, clock_second, clock_milli;
@@ -162,19 +163,21 @@ bool sychronizeTime(void)
     time_t  nist_time_s = getTime_from_NIST();
     if (nist_time_s < 0) {
         Serial.println("time syncronization failure");
-        return false;
+        clock_sync_ok = false;
     }
-    if (nist_time_s == 0) {
+    else if (nist_time_s == 0) {
         Serial.println("NTP packet parsing failure");
-        return false;
+        clock_sync_ok = false;
     }
-
-    // otherwise, success!
-    // remember now_s, and the current millisecond clock
-    clocktime_s = nist_time_s + TIMEZONEOFFSET;
-    clockset_at_ms = millis();
-    Serial.println("time syncronized!");
-    return true;
+    else {
+        // otherwise, success!
+        // remember now_s, and the current millisecond clock
+        clocktime_s = nist_time_s + TIMEZONEOFFSET;
+        clockset_at_ms = millis();
+        Serial.println("time syncronized!");
+        clock_sync_ok = true;
+    }
+    return clock_sync_ok;
 }
 
 
@@ -226,15 +229,20 @@ void drawMinuteHand(int minute)
                           255, 64, 0, BRIGHTNESS / 2);
             break;
         case 2:
-        case 3:
             setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 0, 0, BRIGHTNESS / 2);
+                          255, 64, 32, BRIGHTNESS / 2);
             setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
                           255, 64, 0, BRIGHTNESS);
             break;
+        case 3:
+            setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
+                          255, 64, 0, BRIGHTNESS);
+            setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
+                          255, 64, 32, BRIGHTNESS / 2);
+            break;
         case 4:
             setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 0, 0, BRIGHTNESS / 2);
+                          255, 64, 0, BRIGHTNESS / 2);
             setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
                           255, 0, 0, BRIGHTNESS);
             break;
@@ -247,8 +255,16 @@ void drawMinuteHand(int minute)
  */
 void drawHourHand(int Hour)
 {
-    for (int i = 1; i <= Hour % 12; i++)
-        setPixelColor(strip, i, 0, 255, 0, BRIGHTNESS/2);
+    Hour %= 12;
+    if (Hour == 0 ) {
+        // special case for midnight and noon
+        setPixelColor(strip, Hour, 0, 255, 0, BRIGHTNESS / 2);
+        return;
+    }
+    // for hours 1 through 11
+    for (int i = 1; i <= Hour; i++) {
+        setPixelColor(strip, i, 0, 255, 0, BRIGHTNESS / 2);
+    }
 }
 
 
@@ -320,11 +336,11 @@ void timeKeeping()
     clock_second = secs_since_midnight % 60L;
     clock_milli = now_ms % 1000L;
 
-    if (delta_ms > 3600*1000) {
+    if (delta_ms > 3600 * 1000) {
         // Once per hour sychronize the time to nist.time.gov
         sychronizeTime();
     }
-    if (clock_second == 5 && clocktime_s == 0) {
+    if (clock_second == 20 && !clock_sync_ok) {
         // if we initially failed to connect
         // keep trying once per minute to sychronize the time to nist.time.gov
         sychronizeTime();
