@@ -1,13 +1,13 @@
 /**
- * \file NeoPixel_clock
+ * @file        NeoPixel_clock.ino
  *
- *      Time display program for an ESP8266 and a pair of NeoPixel rings
+ * @brief       Time display program for an ESP8266 and a pair of NeoPixel rings
  *
- * \author Allan M Schwartz, CodeValue
- *      allans@codevalue.net
- *      November 2017
+ * @history     November 20, 2017
  *
- * \References
+ * @author      Allan Schwartz <allans@CodeValue.net>
+ *
+ * @References
  *      1)  AdaFruit's NeoPixel "Uberguide"
  *          https://learn.adafruit.com/adafruit-neopixel-uberguide/the-magic-of-neopixels
  *
@@ -50,6 +50,8 @@ const int MINUTE_PIXEL_OFFSET = 12;
 //   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+
+// create an instance of NeoPixel called 'strip'
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(
                               NEO_NUM_PIXELS,
                               NEOPIXEL_DATA_PIN,
@@ -215,36 +217,19 @@ void drawSecondHand(int sec)
 void drawMinuteHand(int minute)
 {
     int pix_index = 24 * minute / 60;       // we only have a 24-pixel ring
-    int pix_after = 24 * minute / 60 + 1;
+    pix_index += MINUTE_PIXEL_OFFSET;       // because the 12-ring is first
 
     switch (minute % 5) {
-        case 0:
-            setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 0, 0, BRIGHTNESS);
+        case 0: case 2:
+            setPixelColor(strip, pix_index, 255, 0, 0, BRIGHTNESS);
             break;
-        case 1:
-            setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 0, 0, BRIGHTNESS);
-            setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
-                          255, 64, 0, BRIGHTNESS / 2);
-            break;
-        case 2:
-            setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 64, 32, BRIGHTNESS / 2);
-            setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
-                          255, 64, 0, BRIGHTNESS);
+        case 1: case 4:
+            setPixelColor(strip, pix_index, 255, 0, 0, BRIGHTNESS);
+            setPixelColor(strip, pix_index+1, 255, 64, 0, BRIGHTNESS / 2);
             break;
         case 3:
-            setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 64, 0, BRIGHTNESS);
-            setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
-                          255, 64, 32, BRIGHTNESS / 2);
-            break;
-        case 4:
-            setPixelColor(strip, pix_index + MINUTE_PIXEL_OFFSET,
-                          255, 64, 0, BRIGHTNESS / 2);
-            setPixelColor(strip, pix_after + MINUTE_PIXEL_OFFSET,
-                          255, 0, 0, BRIGHTNESS);
+            // a different color to differentiate it from case 2
+            setPixelColor(strip, pix_index, 255, 64, 0, BRIGHTNESS);
             break;
     }
 }
@@ -340,7 +325,7 @@ void timeKeeping()
         // Once per hour sychronize the time to nist.time.gov
         sychronizeTime();
     }
-    if (clock_second == 20 && !clock_sync_ok) {
+    if (clock_second == 15 && !clock_sync_ok) {
         // if we initially failed to connect
         // keep trying once per minute to sychronize the time to nist.time.gov
         sychronizeTime();
