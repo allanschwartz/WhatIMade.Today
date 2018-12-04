@@ -33,7 +33,7 @@
 /   Constants and Global Variables
 /----------------------------------------------------------------------*/
 // WIFI
-const char* WIFI_SSID = "yourssid";     // YOUR WiFi SSID here
+const char* WIFI_SSID = "schwartz-guest";     // YOUR WiFi SSID here
 const char* WIFI_PWD = "password";      // YOUR WiFi password here
 
 // NeoPixel Settings
@@ -243,12 +243,12 @@ void drawHourHand(int Hour)
     Hour %= 12;
     if (Hour == 0 ) {
         // special case for midnight and noon
-        setPixelColor(strip, Hour, 0, 255, 0, BRIGHTNESS / 2);
+        setPixelColor(strip, Hour, 0, 255, 0, BRIGHTNESS / 3);
         return;
     }
     // for hours 1 through 11
     for (int i = 1; i <= Hour; i++) {
-        setPixelColor(strip, i, 0, 255, 0, BRIGHTNESS / 2);
+        setPixelColor(strip, i, 0, 255, 0, BRIGHTNESS / 3);
     }
 }
 
