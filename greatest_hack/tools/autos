@@ -1,0 +1,9 @@
+#! /bin/sh
+#
+#	autos, print auto-stack variables
+#
+nawk '
+/a6@/	{   for (i = 1; i <=NF; i++ ) 
+	       if( match($i,"a6@\\([-x0-9a-f]*\\)" ) )
+		   print substr($i,RSTART,RLENGTH)
+	}' $1 | sort -u

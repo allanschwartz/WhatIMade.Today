@@ -1,0 +1,23 @@
+						short 	cx_countbytes(p)
+
+						REG uchar *p;		a5
+						
+						{
+						REG short k;		d7
+
+cfn_44:		linkw	a6,#-8
+		moveml	d7/a5,sp@
+
+		movl	a6@(8),a5		
+		clrw	d7			for( k = 0; *p++ != 0xff; k++ )
+		bras	L_0x12			{
+
+L_0x10: 	addqw	#1,d7
+L_0x12: 	cmpb	#0xff,a5@+
+		bnes	L_0x10			}
+
+		movw	d7,d0			return k;
+		moveml	sp@,d7/a5
+		unlk	a6
+		rts				}
+

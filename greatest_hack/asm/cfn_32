@@ -1,0 +1,150 @@
+						cx_xr_psp_valid( psp,bd,addr)
+							
+						REG PSPPKT *psp;    a6@(8)
+								    a5
+						REG BD *bd;	    a6@(0xc)
+								    a4
+						L1_ADDR addr;          a6@(0x10)
+						  addr.l1_net	       a6@(0x10)
+						  addr.l1_host         a6@(0x14)
+						  addr.l1_host.ha_word1     x14
+						  addr.l1_host.ha_word1     x16
+						  addr.l1_host.ha_word2     x18
+						  addr.l1_sock         a6@(0x1a)
+
+						{
+						REG char *ba;    a3
+						REG char *name;     a2
+						char c;	            a6@(-1)
+						---
+
+cfn_32:		linkw	a6,#-0x14
+		moveml	a2/a3/a4/a5,sp@
+
+		movl	a6@(8),a5		psp
+		movl	a6@(0xc),a4		bd
+
+		movl	a5@(0x10),a3		ba = psp->cx_save_ba;
+
+		lea	a5@(7),a0		name = &psp->7;
+		movl	a0,a2
+
+		pea	a4@
+		jsr	cx_findetx		c = cx_findetx(bd);
+		addql	#4,sp
+		movb	d0,a6@(-1)
+		
+		cmpb	#0x55,a3@		if( (ba[0] =='U')
+		bnes	L_0xa6	
+
+		cmpb	#0x5a,a3@(1)		  && (ba[1] == 'Z' )
+		bnes	L_0xa6
+
+		movb	a5@(0x15),d0
+		cmpb	a6@(-1),d0		  && (c == psp->cx_psp_count )
+		bnes	L_0xa6
+
+		cmpb	#0x42,a2@		  && (name[0] == 'B') )
+		bnes	L_0xa6			{
+
+		movw	#0x271a,a6@(0x1a)	addr.l1_sock = 0x271a;
+
+		movl	a6@(0x18),sp@-
+		movl	a6@(0x14),sp@-
+		movl	a6@(0x10),sp@-
+		pea	0x100:w
+		jsr	cfn_update		cfn_update(256, addr)
+		lea	sp@(0x10),a7
+
+		movl	a6@(0x18),sp@-
+		movl	a6@(0x14),sp@-
+		movl	a6@(0x10),sp@-
+		pea	0x101:w
+		jsr	cfn_update		cfn_update(257, addr)
+		lea	sp@(0x10),a7
+
+		movw	#0x271b,a6@(0x1a)	addr.l1_sock = 0x271b;
+
+		movl	a6@(0x18),sp@-
+		movl	a6@(0x14),sp@-
+		movl	a6@(0x10),sp@-
+		pea	0x102:w
+		jsr	cfn_update		cfn_update(258, addr)
+		lea	sp@(0x10),a7
+
+		moveq	#1,d0			return 1;
+		bra	L_0x17a			}
+
+
+L_0xa6: 	cmpb	#0x55,a3@		if( (ba[0] == 'U')
+		bne	L_0x178
+
+		cmpb	#0x58,a3@(1)		  && (ba[1] == 'X')
+		bne	L_0x178
+
+		movb	a5@(0x15),d0
+		cmpb	a6@(-1),d0		  && (c == psp->cx_psp_count )
+		bne	L_0x178			{
+
+		movw	#0x271a,a6@(0x1a)	addr.l1_sock = 0x271a;
+
+		pea	4:w
+		movl	#0x134175,sp@-
+		pea	a2@
+		jsr	strncmp			if( strncmp(name,"B000",4) 
+		lea	sp@(0xc),a7
+		tstl	d0			    	== 0 )
+		bnes	L_0x102
+						{
+		movl	a6@(0x18),sp@-
+		movl	a6@(0x14),sp@-
+		movl	a6@(0x10),sp@-
+		pea	0x100:w
+		jsr	cfn_update		cfn_update(256, addr)
+		lea	sp@(0x10),a7
+
+		moveq	#1,d0			return 1;
+		bras	L_0x17a			}
+
+L_0x102:	pea	4:w
+		movl	#0x13417a,sp@-
+		pea	a2@
+		jsr	strncmp			if( strncmp(name,"B001",4)
+		lea	sp@(0xc),a7
+		tstl	d0				== 0 )
+		bnes	L_0x13a
+						{
+		movl	a6@(0x18),sp@-
+		movl	a6@(0x14),sp@-
+		movl	a6@(0x10),sp@-
+		pea	0x101:w
+		jsr	cfn_update		cfn_update(257, addr)
+		lea	sp@(0x10),a7
+
+		moveq	#1,d0			return 1;
+		bras	L_0x17a			}
+
+L_0x13a:	pea	4:w
+		movl	#0x13417f,sp@-
+		pea	a2@
+		jsr	strncmp			if( strncmp(name,"B002",4)
+		lea	sp@(0xc),a7
+		tstl	d0				== 0 )
+		bnes	L_0x178
+						{
+		movw	#0x271b,a6@(0x1a)	addr.l1_sock = 0x271a;
+		movl	a6@(0x18),sp@-
+		movl	a6@(0x14),sp@-
+		movl	a6@(0x10),sp@-
+		pea	0x102:w
+		jsr	cfn_update		cfn_update(258, addr)
+		lea	sp@(0x10),a7
+
+		moveq	#1,d0			return 1;
+		bras	L_0x17a			}
+						}
+L_0x178:	clrw	d0			return 0;
+
+L_0x17a:	moveml	sp@,a2/a3/a4/a5
+		unlk	a6
+		rts				}

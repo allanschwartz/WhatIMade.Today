@@ -1,0 +1,387 @@
+e01000 T _start
+#
+101028 T sminit				../sm/*.b
+10112a T smmain
+102F5A T smvtdel 
+#
+102f94 T ch_read_dir			../ch/*.b
+102fde T chinit
+1030b8 T chmain	
+104fb6 T copy_to_upper
+#
+104ff8 T req_addr			../diskio/*.b
+105940 T diinit
+10638c T diskio2
+#
+1063dc T erforidp			../error/*.b
+1064f0 T errinit
+106530 T errmain
+#
+106578 T pepinit			../pep/*.b
+1065c8 T pepmain
+106f18 T pecloseskt
+#
+106f5c T psacc				../ps/*.b
+10762a T psinit
+1076e2 T psmain
+1079bc T psstop
+#
+107a7c T getshort			../rip/*.b
+107d58 T ripinit
+107e6c T ripmain
+108402 T ri2idpmsg
+#
+108458 T uiS2Udata			../ui/*.b
+10a70a T uiDispBuf
+10a71e T uiVDispBug
+1103bc T uisprintf
+11125c T config_of_portid
+1113f8 T uiinit
+1114f2 T uiexit
+113144 T uihatoi
+#
+11315c T icinit				../ic/*.b
+1135c4 T icS2Cdata
+#
+113604 T hiinit				../hi/*.b
+11369e T hiexit
+#
+1136c0 T piinit				../pi/*.b
+1137fe T piS2Pdata
+#
+113840 T pvsendline			../pv/*.b
+1138ee T pvmain
+113cd8 T pvinit
+#
+114f6c T tmwhichsession			../tm/*.b
+117de8 T tmexit
+117e18 T tminit
+117fe2 T tmmain
+1198b0 T tmtransaddr
+119980 T PORTPTR
+#
+1199c0 T vtsendabort			../vtp/*.b
+119cbc T vtinit
+119ca8 T vtexit
+11a866 T vtbuildhdr
+#
+11a898 T spa2sctl			../spp/*.b
+11b900 T spinit
+11ba44 T spmain
+11bfea T spudattn
+#
+11c0ac T idchksum			../idp/*.b
+11c220 T idinit
+11c314 T idmain
+11c4ec T idopenskt
+11c914 T idl0net_lookup
+#
+11ca40 T sa_startcmd			../sa/*.b
+11cf3e T samain	
+11d3a0 T sainit
+11e1c2 T sa_flushCU
+#
+#
+# ... beginning of kernel
+#					../kernel/*.b
+11e280 T  passbuf		 	../kernel/buffer.b
+11e288 T  appendbuf
+11e332 T  bufinfo
+11e38e T  buflen
+11e3bc T  copybuf
+11e4a6 T  freebuf
+11e512 T  getbuf
+11e592 T  joinbuf
+11e5d0 T  padbuf
+11e5f6 T  prependbuf
+11e688 T  splitbuf
+11e76e T  unappendbuf
+11e7fc T  unprependbuf
+11e888 T  regintrpt			../kernel/interrupts.b
+11e9b2 T  central_dispatch
+11ea90 T  ke_mem_free			../kernel/kemmgmt.b
+11eb08 T  kesession_init
+11efc0 T  configinit
+11f22a T  hdr_add
+11f2c0 T  MemoryUsage
+11f3cc T  allocate_static
+11f464 T  allocate
+11f4e8 T  mfree
+11f542 T  storinit
+11f566 T  kehdrinit
+11f5ba T  mem_add
+11f610 T  meminit
+11f638 T  breceive			../kernel/mailbox.b
+11f734 T  cleanmbox
+11f7cc T  mboxcreate
+11f89c T  mboxdelete
+11f976 T  mboxon
+11fa7a T  mboxoff
+11faf0 T  notify
+11fb72 T  notifynfull
+11fc86 T  receive
+11fd14 T  regmbox
+11fdb2 T  resolve
+11fe0c T  sendmsg
+11ffea T  sreceive
+120122 T  stopnfull
+120226 T  testmbox
+120268 T  main				../kernel/main.b
+1202bc T  keInitWorld
+1203a0 T  pcbinit
+120448 T  mboxinit
+12053a T  initproc
+1205ae T  idle
+1205b6 T  mexit
+12070c T  resume			../kernel/mch68k.b
+120748 T  setenv
+12076c T  startup
+120796 T  disable	
+1207b6 T  enable
+1207d8 T  procreate			../kernel/process.b
+120a4e T  prorun
+120b00 T  propriority
+120bd6 T  rfinsert
+120c4c T  rinsert
+120ca0 T  rdelete
+120cf6 T  sched
+120d70 T  ftime				../kernel/timer.b
+120da2 T  getetime
+120e12 T  delta_timer
+120e50 T  sum_timer
+120eaa T  switch_apt
+120fb6 T  start_apt
+120ff8 T  Prttimes
+1210b0 T  setalarm
+12110a T  stopalarm
+1211a6 T  chgalarm
+1211f6 T  eachtic
+1212c0 T  inittime
+121324 T  panic				../kernel/util.b
+12134e T  strncpy
+121388 T  blt (bcopy)			../global/cutil.b
+1213ae T  clear (bzero)
+1213d0 T  allocate_clear		../global/mutil.b
+12140a T  getbuf_clear
+121446 T  freemsg
+12146a T  getalarm
+12149c T  getmaxmsg
+1214ce T  getmsg
+121504 T  copyCpacket
+1215ae T  getpacket
+121604 T  getCpacket
+1216a2 T  bch_pack
+121744 T  bch_unpack
+1217c2 T  display_xaddr
+121814 T  nm_initmap			../global/netmap.b
+12182a T  nm_enterhost
+1218aa T  update_map
+121938 T  nm_netmaptimer
+#
+# ... end of kernel
+#
+121994 T lbinit				../lb/*.b
+1219de T lbmain
+#
+121b5c T int_routine			../ed2/*.b
+121bf8 T ed2init
+121db0 T ed2nminit
+122178 T ed2main	
+122246 T ed2nmmain
+123018 T reinit_lance
+#
+123104 T bioblkcmd			../sccm/*.b
+1237bc T sa_ctrl
+1239e4 T biomain
+1240e0 T biostartup1
+1241e4 T biostartup2
+1249e8 T copy
+12495e T clear_sio
+#
+124980 T asy_forward			../sccasy/*.b
+127750 T asyi_second_vec
+#
+127790 T bscd_extn			../sccbsc/*.b
+127af4 T bsc_init
+1285b8 T bscd_xmit
+#
+1285c0 T bsci_xmit			../sccbit/*.b
+129094 T bit_init
+12998e T biti_xmit_retry
+#
+#
+#					../cfn/*.b
+1299c0 T cfn_main	cfn_0		cfn_main()
+129aaa T cfn_initworld  cfn_1		cfn_initworld()
+129b90 T cfn_receive	cfn_2		cfn_receive()
+129d20 T cfn_set_alarm	cfn_3		cfn_set_alarm()
+129d94 T cfn_send2sock	cfn_4		cfn_send2sock(sock)
+129e88 T cfn_sendidpdata cfn_5		cfn_sendidpdata(bd,sock,addr)
+129f54 T cfn_error 	cfn_6		cfn_error(txt)
+129fea T cfn_fmt_txt_pkt cfn_7		char *  cfn_fmt_txt_pkt(dst, txt1, txt2)
+12a0b0 T cfn_cksum 	cfn_8		uchar   cfn_cksum(txt)
+12a0d8 T cfn_ascii_to_hex cfn_9		int     cfn_ascii_to_hex(p)
+12a14e T cfn_gethash	cfn_10		int	cfn_gethash(str)
+#
+12a17c T cfn_tcreate	cfn_11		cfn_tcreate(index,name,addr)
+12a1e6 T cfn_update	cfn_12		cfn_update(index,addr)
+12a27a T cfn_str_to_bd	cfn_13		BD *	cfn_str_to_bd(str,flag)
+12a2f6 T cfn_panic	cfn_14		cfn_panic(str)
+12a30a T cfn_panic2	cfn_15		cfn_panic2(str,arg2)
+12a31e T cfn_dumptable  cfn_16		cfn_dumptable()
+12a3be T cfn_print1_tentry cfn_17	cfn_print1_tentry(index)
+12a452 T cfn_tableinit  cfn_18		cfn_tableinit()
+12a4fc T cfn_reboot	cfn_19		cfn_reboot()
+12a50a T!( cx_psp_packet cfn_20		PSPPKT	cx_psp_packet(bd,flag)
+12a60c T cx_atoh_n	cfn_21		int     cx_atoh_n(str,count)
+12a656 T! cx_psp_cksum	cfn_22		uchar 	cx_psp_cksum(bd)
+#
+12a6cc T cx_init	cfn_23		cx_init(index)
+12a7cc T cx_main	cfn_24		cx_main(msg,mbid)
+12a846 T cx_listenmsg	cfn_25		cx_listenmsg(msg)
+12a928 T cx_connectmsg	cfn_26		cx_connectmsg(msg)
+12aa32 T cx_disconnectmsg cfn_27	cx_disconnectmsg(msg)
+12aae4 T! cx_IDPdatamsg	cfn_28		cx_IDPdatamsg(msg)
+12abe2 T  cx_printpkt	cfn_29		cx_printpkt(bd)
+12ac38 T! cx_xr_packet	cfn_30		BOOL cx_xr_packet(bd,addr,port)
+12ada4 T( cfn_31			BOOL	cfn_31(bd,addrp,port)
+12af28 T! cx_xr_psp_valid cfn_32	BOOL	cx_xr_psp_valid(arg1,bd,addr)
+12b0aa T( cfn_33			cfn_33(arg1,bd,port)
+12b184 T! cx_psp_reply  cfn_34		cx_psp_reply(arg1,bd,addr,sock)
+#
+12b234 T( cx_SAdatamsg	cfn_35		cx_SAdatamsg(msg)
+12b354 T( cfn_36			BOOL	cfn_36(cxdata)
+12b456 T( cfn_37			cx_37(cxdata)
+12b484 T( cfn_38			BOOL	cfn_38(cxdata)
+12b540 T( cfn_39			BOOL	cfn_39(cxdata)
+12b5ae T( cfn_40			BOOL	cfn_40(cxdata)
+12b5da T( cfn_41			BOOL	cfn_41(cxdata)
+12b688 T( cfn_42			char *	cfn_42(p,cxdata)
+12b6ec T( cfn_43			BOOL	cx_43(bd,cxdata)
+12b768 T  cx_countbytes	cfn_44		short 	cx_countbytes(p)
+12b78a T  cx_fill_ff 	cfn_45		cx_fill_ff(p,max)
+#
+17ffff B _end_physical_memory
+# ... end of the CFN module
+#
+#
+#... Bridge's "clib" library routines
+12b7b4 T _atoi				-lbridge
+12b82c T _ctime
+12b842 T _localtime
+12b980 T _gmtime
+12bb28 T _asctime
+12bc20 T _dysize
+12bcb0 T __lrem
+12bd3c T _exit
+12bd40 T _index
+12bd68 T _mfill
+12be10 T _qsort
+12c028 T _reboot
+12c02c T _strcat
+12c054 T _strcmp
+12c08c T _strcpy
+12c0ac T _strncat
+12c0e0 T _strncmp
+12c124 T __ldiv
+12c1ac T _printf
+12c1cc T _retract
+12c1dc T _sprintf
+12c47c T _doprnt
+12c6dc T __lmul
+12c72c T __uldiv
+12c7a0 T __ulmul
+12c7d4 T _strlen
+12c7f4 T _strout
+12c8a8 T _putchar
+12c8bc T _etext
+#
+#... DATA SPACE (preinitialized variables)
+#
+12c8bc D _SYSINIT
+12cb60 D _copyright
+12cbb8 D _kenummbox
+12ce3c D _gn_addresses
+132d30 D _idattnet 
+133222 D _ready
+133226 D _currprocess
+133da4 D cfn_amsg	_cfn_d1	 	AMSG *cfn_amsg = 0;
+133da8 D cnstnt_pkt1	_cfn_d5		char cnstnt_pkt1[]="00B002D0001U10UY";
+133e5c D cnstnt_pkt2	_cfn_d4		char cnstnt_pkt2[]="00B001D0001U10UF";
+#
+#					struct PSP {
+#				        union {
+133f4a D cx_psp_pkt	_cfn_d3		char     psp_data[16];
+#					struct   pspdata {
+#					char 	 p1, p2, p3
+#					char 	 psp_name1[4];
+#					char  	 psp_name2[4];
+#					char	 p5[5];
+#					} pspd;
+#					} u;
+133f5a D cx_save_ba     _cfn_d2		char    *save_ba;
+133f5e D cx_psp_count_hi _cfn_d6	short    psp_count_hi;
+133f5f D cx_psp_count	        	char     psp_count;
+#					} = {0};
+1343ec D _edata
+#
+#... BSS SPACE (uninitialized variables)
+#
+1343ec B _bss
+13488c B _idinrhost
+134ab2 B _p_lookup
+134c8c B _idu2nmbox
+1377bc B _initp_pcb
+137a9c B _nestcount
+137a9c B _sysstk_end
+137ab6 B _firstp
+137b2e B _mb_lookup
+#-------------------------------------------------------
+#
+# ... cfn global variables
+#
+138d6c B _cfn_linebuf	cfn_g01		char cfn_linebuf[80]
+138dbc B _cfn_src_sock  cfn_g02		ushort cfn_src_sock
+#-------------------------------------------------------
+138dbe B _table		cfn_g03		length (18*259)
+#138dc3 B _table->inuse	cfn_g04
+#138dc4 B _table->l1_net cfn_g05	L1_ADDR
+#138dc8 B _table->l1_host cfn_g06
+#138dca B _table->ha_word2 cfn_g07
+#138dcc B _table->ha_word3 cfn_g08
+#138dce B _table->l1_sock cfn_g09
+#
+139fbe b table_100	table[0x100]
+139fd0 b table_101	table[0x101]
+139fe2 b table_102	table[0x102]
+#-------------------------------------------------------
+139ff4 B _cx_pn_index     _cfn_g20	short cx_pn_index;
+139ff6 B _cx_port_names   _cfn_g21	char cx_port_names[17];
+13a008 B _cx_port_active  _cfn_g22	uchar cx_port_active[4];per-port boolean
+#-------------------------------------------------------
+13a012 B cfn_brdcst       _cfn_g23	L1_ADDR
+#13a016 B _cfn_g24 l1_host
+#13a018 B _cfn_g25 ha_word2
+#13a01a B _cfn_g26 ha_word3
+#13a01c B _cfn_g27 l1_sock
+#
+13a01e B _cfn_hostaddr		cfn_g28		char *
+#------
+13a022 B _cxDATAblk	_cfn_g29	(4*0x228)
+#13a03c B _cxDATAblk.cx_mbid _cfn_g30
+#------
+13a8c2 B _cfn_attnet	cfn_g31		L1_ADDR
+13a8c6 B _cfn_inrhost	cfn_g32
+#13a8c8 B _cfn_g33  ha_word2
+#13a8ca B _cfn_g34  ha_word3
+13a8cc B _cfn_g35
+#
+
+13a8ce B _end
+13a8ce B _endbss
+
+#
+# ... the rest of memory is the "heap"
+#
+13a8ce B _heap
+17ffff B _end_physical_memory

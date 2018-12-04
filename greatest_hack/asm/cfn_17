@@ -1,0 +1,55 @@
+						cfn_print1_tentry(i)
+
+						int i;		      a6@(8)
+
+						{
+						TENTRY tent	      a6@(-0x12)
+						  tent.t_name         a6@(-0x12)
+						  tent.t_inuse	      a6@(-0xd)
+						  tent.t_addr         a6@(-0xc)
+						  tent.t_addr.l1_net  a6@(-0xc)
+						  tent.t_addr.l1_host a6@(-8)
+						  tent.t_addr.l1_sock a6@(-2)
+						---
+
+cfn_17:		linkw	a6,#-0x14
+
+		pea	0x12:w
+		movl	a6@(8),sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table,d0		table[i]
+		movl	d0,a0
+		movl	a0@(0xe),a6@(-4)	tent = table[i];
+		movl	a0@(0xa),a6@(-8)	
+		movl	a0@(6),a6@(-0xc)	
+		movl	a0@(2),a6@(-0x10)	
+		movw	a0@,a6@(-0x12)		
+
+		movl	a6@(8),sp@-		
+		movl	#0x133f9d,sp@-
+		jsr	printf  		printf("table[%d]:", i);
+		addql	#8,sp
+
+		pea	a6@(-0x12)
+		movl	#0x133fa9,sp@-
+		jsr	printf  		printf("name:%s", tent.t_name);
+		addql	#8,sp
+
+		pea	a6@(-8)
+		jsr	display_xaddr  
+		movl	d0,sp@
+		movl	#0x133fb2,sp@-		printf("host:%s, 
+		jsr	printf  		    display_xaddr
+						    (&tent.t_addr.l1_host) )
+		addql	#8,sp
+
+		movw	a6@(-2),d0
+		andl	#0xffff,d0
+		movl	d0,sp@-
+		movl	#0x133fbb,sp@-
+		jsr	printf  		printf("socket:%d,
+		addql	#8,sp			    tent.t_addr.l1_sock );
+
+		unlk	a6
+		rts				}

@@ -1,0 +1,99 @@
+
+TEXT SPACE
+		idmain+0x1d8		idopenskt	
+		#0x12a6cc		cfn_23
+		#0x12a7cc		cfn_24
+
+
+DATA SPACE
+		_gn_addresses+0x5ef4	idattnet
+		_currprocess+0xb7e	cfn_d1
+		_currprocess+0xd34	cfn_d2
+		#0x133d48		cfn_d3
+		#0x133d4e		cfn_d4
+		#0x133d6b		cfn_d5
+		#0x133d84		cfn_d6
+		#0x133da8		cfn_d7
+		#0x133dba		cfn_d8
+		#0x133ddc		cfn_d9
+		#0x133df6		cfn_d10
+		#0x133e1a		cfn_d11
+		#0x133e3f		cfn_d12
+		#0x133e5c		cfn_d13
+		#0x133e6e		cfn_d14
+		#0x133f4a		cfn_d15
+		#0x133f4b		cfn_d16
+		#0x133f5e		cfn_d17
+		#0x133f60		cfn_d18
+		#0x133f7c		cfn_d19
+		#0x133f80		cfn_d20
+		#0x133f89		cfn_d21
+		#0x133f92		cfn_d22
+		#0x133f9d		cfn_d23
+		#0x133fa9		cfn_d24
+		#0x133fb2		cfn_d25
+		#0x133fbb		cfn_d26
+		#0x133fc6		cfn_d27
+		#0x133fcc		cfn_d28
+		#0x133fe8		cfn_d29
+		#0x133ff2		cfn_d30
+		#0x13401e		cfn_d31
+		#0x134054		cfn_d32
+		#0x134081		cfn_d33
+		#0x1340a4		cfn_d34
+		#0x1340d8		cfn_d35
+		#0x134108		cfn_d36
+		#0x134134		cfn_d37
+		#0x13415e		cfn_d38
+		#0x134163		cfn_d39
+		#0x134168		cfn_d40
+		#0x13416b		cfn_d41
+		#0x134170		cfn_d42
+		#0x134175		cfn_d43
+		#0x13417a		cfn_d44
+		#0x13417f		cfn_d45
+		#0x134184		cfn_d46
+		#0x1341a4		cfn_d47
+		#0x1341dc		cfn_d48
+		#0x134204		cfn_d49
+
+
+BSS SPACE
+
+13488c B idinrhost
+134c8c B idu2nmbox
+138d6c B cfn_g01
+138dbc B cfn_g02
+138dbe B cfn_g03
+138dc3 B cfn_g04
+138dc4 B cfn_g05
+138dc8 B cfn_g06
+138dca B cfn_g07
+138dcc B cfn_g08
+138dce B cfn_g09
+139fd6 B cfn_g10
+139fda B cfn_g11
+139fdc B cfn_g12
+139fde B cfn_g13
+139fe0 B cfn_g14
+139fe8 B cfn_g15
+139fec B cfn_g16
+139fee B cfn_g17
+139ff0 B cfn_g18
+139ff2 B cfn_g19
+139ff4 B cfn_g20
+139ff6 B cfn_g21
+13a008 B cfn_g22
+13a012 B cfn_g23
+13a016 B cfn_g24
+13a018 B cfn_g25
+13a01a B cfn_g26
+13a01c B cfn_g27
+13a01e B cfn_g28
+13a022 B cfn_g29
+13a03c B cfn_g30
+13a8c2 B cfn_g31
+13a8c6 B cfn_g32
+13a8c8 B cfn_g33
+13a8ca B cfn_g34
+13a8cc B cfn_g35

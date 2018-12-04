@@ -1,0 +1,64 @@
+						BD * 
+						cfn_str_to_bd ( str, flag )
+
+						char * str;		a6@(8)
+						short flag;		a6@(0xe)
+
+						{
+						REG short len;		d7
+						REG BD *bd;		a5
+						---
+
+cfn_13:		linkw	a6,#-8
+		moveml	d7/a5,sp@
+						
+		tstw	a6@(0xe)		if( flag )
+		beq	L1			{
+		movl	a6@(8),sp@-
+		jsr	cfn_44			    len = cx_countbytes( str );
+		bras	L2			}
+						else 
+						{
+L1:		movl	a6@(8),sp@-
+		jsr	strlen			    len = strlen( str );
+						}
+L2:		addql	#4,sp
+		movw	d0,d7
+						
+		movw	d7,d0
+		extl	d0
+		addl	#0x3a,d0
+		movl	d0,sp@-
+		jsr	getbuf			bd = getbuf( len + 0x3a );
+		addql	#4,sp
+
+		movl	d0,a5
+		tstl	d0
+		beqs	L3
+						if( bd == NULL) return bd;
+		pea	0x3a:w
+		pea	a5@
+		jsr	unprependbuf		bd = unprependbuf( bd, 0x3a );
+		addql	#8,sp
+		movl	d0,a5
+
+		tstl	d0
+		beqs	L3			if( bd == NULL) return bd;
+						
+		tstw	d7
+		beqs	L3			if( len == 0 ) return bd;
+
+		movw	d7,d0
+		extl	d0
+		movl	d0,sp@-
+		movl	a6@(8),sp@-
+		movl	a5@(0x12),sp@-
+		jsr	blt			blt( bd->bd_address, str, len );
+		lea	sp@(0xc),a7
+
+L3:		movl	a5,d0
+						return bd;
+		moveml	sp@,d7/a5
+		unlk	a6
+		rts				}
+

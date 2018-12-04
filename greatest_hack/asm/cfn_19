@@ -1,0 +1,7 @@
+						cfn_reboot()
+
+						{
+cfn_19:		linkw	a6,#0
+		jsr	_reboot  		reboot();
+		unlk	a6
+		rts				}

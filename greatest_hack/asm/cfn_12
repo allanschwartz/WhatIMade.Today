@@ -1,0 +1,58 @@
+						cfn_update(index, addr)
+
+						int index;	       a6@(8)
+						L1_ADDR addr;          a6@(0xc)
+						  addr.l1_net	       a6@(0xc)
+						  addr.l1_host         a6@(0x10)
+						  addr.l1_host.ha_word1     x10
+						  addr.l1_host.ha_word1     x12
+						  addr.l1_host.ha_word2     x14
+						  addr.l1_sock         a6@(0x16)
+
+						{
+						---
+
+cfn_12:		linkw	a6,#0
+
+		pea	0x12:w
+		movl	a6@(8),sp@- 
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+6,d0
+		movl	d0,a0			table[i].t_addr.l1_net =
+		movl	a6@(0xc),a0@ 		    addr.l1_net;
+
+		pea	0x12:w
+		movl	a6@(8),sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+0xa,d0
+		movl	d0,a0			table[i].t_addr.l1_host.ha_word1
+		movw	a6@(0x10),a0@ 		    = addr.l1_host.ha_word1;
+
+		pea	0x12:w
+		movl	a6@(8),sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+0xc,d0
+		movl	d0,a0			table[i].t_addr.l1_host.ha_word2
+		movw	a6@(0x12),a0@ 		    = addr.l1_host.ha_word2;
+
+		pea	0x12:w
+		movl	a6@(8),sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+0xe,d0
+		movl	d0,a0			table[i].t_addr.l1_host.ha_word3
+		movw	a6@(0x14),a0@ 		    = addr.l1_host.ha_word3
+
+		pea	0x12:w
+		movl	a6@(8),sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+0x10,d0
+		movl	d0,a0			table[i].t_addr.l1_sock = 
+		movw	a6@(0x16),a0@ arg4.lo	    = addr.l1_sock;
+
+		unlk	a6
+		rts				}

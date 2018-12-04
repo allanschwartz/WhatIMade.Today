@@ -1,0 +1,59 @@
+#define ETX	3
+						BOOL	cfn_39(cxdata)
+
+						REG CXDATA *cxdata; 	a5
+
+						{
+
+						REG short cnt;		d7
+						REG char *pp;		a4
+
+cfn_39:		linkw	a6,#-0xc
+		moveml	d7/a4/a5,sp@
+
+		movl	a6@(8),a5
+
+		movl	a5@(0x224),a4		pp = cxdata->cx_dataptr;
+
+		pea	a4@
+		bsr	cx_countbytes		cnt = cx_countbytes(pp);
+		addql	#4,sp
+
+		movw	d0,d7
+		cmpw	a5@(8),d7		if( cnt <= cxdata->cx_data8 )
+		bgts	L_0x2a			{
+		movw	#0xc,a5@(0xa)		cxdata->cx_datastate = 0xc;
+		moveq	#1,d0			return TRUE;
+		bras	L_0x66
+						}
+
+L_0x2a: 	movw	a5@(8),d0		
+		extl	d0
+		addl	d0,a4			if( pp[ cxdata->cx_data8 ]
+		cmpb	#3,a4@				== ETX )
+		bnes	L_0x5e			{
+
+		pea	a4@
+		bsr	cx_countbytes		cx_countbytes(pp)
+		addql	#4,sp
+
+		cmpw	#2,d0			if( ... >= 2 ) 
+		blts	L_0x50			{
+
+		movw	#0xb,a5@(0xa)		cxdata->cx_datastate = 0xb;
+		moveq	#1,d0			return TRUE;
+		bras	L_0x66			
+						}
+L_0x50: 	movl	a4,a5@(0x224)		cxdata->cx_dataptr = pp;
+
+		movw	#9,a5@(0xa)		cxdata->cx_datastate = 9;
+
+		moveq	#1,d0			return TRUE;
+		bras	L_0x66			}
+
+L_0x5e: 	movw	#2,a5@(0xa)		cxdata->cx_datastate = 2;
+		moveq	#1,d0			return TRUE;
+
+L_0x66: 	moveml	sp@,d7/a4/a5
+		unlk	a6
+		rts				}

@@ -1,0 +1,84 @@
+						cfn_main()
+
+						{
+						REG short i;		d7
+						REG short rc;		d6
+						REG PCB *pcb;		a5
+						char pname[8];		a6(-8)
+						---
+
+cfn_main:	linkw	a6,#-0x14
+		moveml	d6/d7/a5,sp@
+
+		bsr	cfn_initworld		cfn_initworld();
+
+		clrw	d7			for( i = 0; i < 4; i++ )
+		bra	L_0xd4
+
+L_0x12:		movw	d7,d0			{
+		extl	d0
+		movl	d0,sp@-
+		movl	#0x133d48,sp@-		sprintf(pname, "CXS%d", i );
+		pea	a6@(-8)
+		jsr	sprintf
+		lea	sp@(0xc),a7
+
+		movl	#cx_main,sp@-  
+		pea	3:w		
+		pea	2:w
+		pea	a6@(-8)		
+		movw	d7,d0		
+		extl	d0
+		movl	d0,sp@-
+		movl	#cx_init,sp@-  
+		jsr	procreate		pcb = procreate (cx_init, i,
+		lea	sp@(0x18),a7		    pname, 2, SUPER+SHARESTACK,
+						    cx_main );
+
+		movl	d0,a5
+		movl	a5,d0			if( pcb == NULL )
+		bnes	L_0x8e			{
+
+		pea	a6@(-8)
+		movl	_cfn_hostaddr,sp@-
+		movl	#0x133d4e,sp@-
+		movl	#cfn_linebuf,sp@-	sprintf(cfn_linebuf,
+		jsr	sprintf			 "%s: cannot create process %s",
+		lea	sp@(0x10),a7		 cfn_hostaddr, pname );
+
+		movl	#cfn_linebuf,sp@-
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp
+
+		jsr	cfn_reboot		cfn_reboot();
+						}
+L_0x8e:		pea	a5@			
+		jsr	prorun			rc = prorun(pcb);
+		addql	#4,sp
+
+		movw	d0,d6	
+		tstw	d6			if( rc != NoError )
+		beqs	L_0xd2			{
+
+		pea	a6@(-8)			
+		movl	_cfn_hostaddr,sp@-
+		movl	#0x133d6b,sp@-		sprintf(cfn_linebuf,
+		movl	#cfn_linebuf,sp@-	    "%s:cannot run process %s",
+		jsr	sprintf			    cfn_hostaddr, pname );
+		lea	sp@(0x10),a7
+
+		movl	#cfn_linebuf,sp@-
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp
+
+		jsr	cfn_reboot		cfn_reboot();
+						}
+L_0xd2:		addqw	#1,d7	i++
+L_0xd4:		cmpw	#4,d7
+		blt	L_0x12			}
+
+		jsr	cfn_receive		cfn_receive();
+
+		moveml	sp@,d6/d7/a5
+		unlk	a6
+		rts				}

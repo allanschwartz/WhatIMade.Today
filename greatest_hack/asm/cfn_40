@@ -1,0 +1,28 @@
+						BOOL	cfn_40(cxdata)
+
+						REG CXDATA *cxdata; 	a5
+
+						{
+						REG char * p;		a4
+
+cfn_40: 	linkw	a6,#-8
+		moveml	a4/a5,sp@
+
+		movl	a6@(8),a5
+		movl	a5@(0x224),a4		p = cxdata->cx_dataptr;
+
+		addql	#1,a4			p++;
+		cmpb	#0xff,a4@		if( *p != 0xff )
+		beqs	L_0x22			{
+
+		movw	#0xb,a5@(0xa)		cxdata->cx_datastate = 0xb;
+
+		moveq	#1,d0			return 1;
+		bras	L_0x24			}
+
+L_0x22: 	moveq	#1,d0			return 1;
+						
+L_0x24: 	moveml	sp@,a4/a5
+		unlk	a6			
+		rts				}
+

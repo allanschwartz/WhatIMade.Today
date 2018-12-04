@@ -1,0 +1,93 @@
+						cx_listenmsg(msg)
+
+						REG MSG *msg;		a6@(8)
+									a5
+						{
+						REG CXDATA *cxdata; 	a4
+						REG short myport;	d7
+						REG short dst_port;	d6
+						REG short rc;		d5
+
+cfn_25:		linkw	a6,#-0x14
+		moveml	d5/d6/d7/a4/a5,sp@
+
+		movl	a6@(8),a5		msg
+
+		movl	_currprocess,a0		
+		movl	a0@(0x54),a4		cxdata = (CXDATA *)MYDATA();
+
+		movw	a4@(4),d7		myport = cxdata->cx_index;
+		movw	a5@(0x14),d6		dst_port = 
+						    ((VT_MSG *)msg)->portid;
+		cmpw	d6,d7
+		beqs	L_0x6a			if( myport != dst_port ) {
+
+		movw	d7,d0
+		extl	d0
+		movl	d0,sp@-
+		movw	d6,d0
+		extl	d0
+		movl	d0,sp@-
+		movl	_cfn_hostaddr,sp@-
+		movl	#0x133ff2,sp@-
+		movl	#cfn_linebuf,sp@-
+		jsr	sprintf			sprintf(cfn_linebuf,fmt1,
+		lea	sp@(0x14),a7		    cfn_hostaddr, 
+						    dst_port, myport );
+
+		movl	#cfn_linebuf,sp@-
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp
+
+		pea	a5@
+		jsr	freemsg			freemsg(msg);
+		addql	#4,sp
+
+		jsr	cfn_reboot		cfn_reboot();
+		bras	L_0xda			}
+						else {
+L_0x6a:		movw	#2,a4@(2)		cxdata->cx_state = 2;
+		movl	a5@(0x16),a4@(0xe)	cxdata->cx_sacmbox = 
+						    ((VT_LISTEN *)msg)->cmbox;
+
+		movw	#2,a5@(0x10)		msg->m_prio = 2;
+		movw	#0x700,a5@(0x12)	msg->m_type = 0x700;
+		movw	d7,a5@(0x14)		((VT_CONNECT *)msg)->portid = 
+							myport;
+		movl	a4@(0x1a),a5@(0x16)	((VT_CONNECT *)msg)->cmbox = 
+							cxdata->cx_mbid;
+		movl	a4@(0x1e),a5@(0x1a)	((VT_CONNECT *)msg)->dmbox = 
+							cxdata->cx_mailbox2;
+
+		movl	a4@(0xe),sp@-
+		pea	a5@
+		jsr	sendmsg			rc = sendmsg(msg,
+							cxdata->cx_sacmbox)
+		addql	#8,sp
+
+		movw	d0,d5			if( rc != NoError ) {
+		beqs	L_0xda
+
+		movw	d5,d0
+		extl	d0
+		movl	d0,sp@-
+		movw	d7,d0
+		extl	d0
+		movl	d0,sp@-
+		movl	_cfn_hostaddr,sp@-	sprintf( cfn_linebuf, fmt2
+		movl	#0x13401e,sp@-		  cfn_hostaddr, myport, rc );
+		movl	#cfn_linebuf,sp@-
+		jsr	sprintf
+		lea	sp@(0x14),a7
+
+		movl	#cfn_linebuf,sp@-
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp			}
+
+L_0xda:		moveml	sp@,d5/d6/d7/a4/a5
+		unlk	a6
+		rts				}
+
+char *fmt1[]="%s: SA listener for port %d went to port %d"
+char *fmt2[]="%s: port %d connect request for sendmsg fails with %d"
+

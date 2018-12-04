@@ -1,0 +1,83 @@
+						BOOL	cfn_41( cxdata )
+						REG CXDATA *cxdata;   a6@(8),a5
+
+						{
+
+						REG char *p;	      a4
+						short s1;	      a6@(-2)
+
+cfn_41:		linkw	a6,#-0xc
+		moveml	a4/a5,sp@
+
+		movl	a6@(8),a5		cxdata;
+		movl	a5@(0x224),a4		p = cxdata->cx_dataptr;
+		bras	L_0x2e
+
+						case(1)
+L_0x12: 	pea	a5@
+		pea	a4@
+		bsr	cfn_42			p = cfn_42( p, cxdata )
+		addql	#8,sp
+		movl	d0,a4
+
+		movw	#1,a5@(0xa)		cxdata->cx_datastate = 1;
+		bras	L_0x2c
+
+						casecase 4:
+L_0x26: 	movw	#5,a5@(0xa)		cxdata->cx_datastate = 5;
+
+						case 6:
+L_0x2c: 	addql	#1,a4			p++;
+
+L_0x2e: 	cmpb	#0xff,a4@		switch( *p )
+		beqs	L_0xa0
+
+		cmpb	#1,a4@
+		beqs	L_0x12
+
+		cmpw	#4,a5@(0xa)
+		beqs	L_0x26
+
+		cmpw	#1,a5@(0xa)
+		beqs	L_0x26
+
+		cmpw	#5,a5@(0xa)
+		beqs	L_0x5a
+
+		cmpw	#6,a5@(0xa)
+		bnes	L_0x2c
+
+
+L_0x5a: 	pea	2:w
+		pea	a5@(0x23)
+		jsr	cx_atoh_n		s1 = cx_atoh_n(
+						    &cxdata->cx_databuf[1], 2 );
+		addql	#8,sp
+		movw	d0,a6@(-2)
+
+		movw	a6@(-2),d0		
+		extl	d0
+		addl	#0xf,d0
+		movw	d0,a5@(8)		cxdata->8 = s1 + 15;
+
+		movw	a6@(-2),d0
+		extl	d0
+		addl	#0x11,d0
+		movw	d0,a5@(6)		cxdata->6 = s1 + 17;
+
+		movw	#8,a5@(0xa)		cxdata->cx_datastate = 8
+
+		lea	a5@(0x22),a0
+		movl	a0,a5@(0x224)		cxdata->cx_dataptr = 
+							&cxdata->cx_databuf;
+
+		moveq	#1,d0
+		bras	L_0xa6			return 1;
+
+L_0xa0: 	movl	a4,a5@(0x224)		cxdata->cx_dataptr = p;
+
+		moveq	#1,d0			return 1;
+
+L_0xa6: 	moveml	sp@,a4/a5
+		unlk	a6
+		rts				}

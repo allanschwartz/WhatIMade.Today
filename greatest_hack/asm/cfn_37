@@ -1,0 +1,23 @@
+						cfn_37( cxdata )
+
+						REG CXDATA *cxdata;   a6@(8),a5
+
+						{
+cfn_37:		linkw	a6,#-4
+		moveml	a5,sp@
+
+		movl	a6@(8),a5
+
+		pea	0x201:w
+		pea	a5@(0x22)
+		bsr	cx_fill_ff		cx_fill_ff(cxdata->cx_databuf, 513);
+		addql	#8,sp
+
+		lea	a5@(0x22),a0
+		movl	a0,a5@(0x224)		cxdata->cx_dataptr = cxdata->cx_databuf;
+
+		clrw	a5@(0xa)		cxdata->cx_datastate = 0;
+
+		moveml	sp@,a5
+		unlk	a6
+		rts				}

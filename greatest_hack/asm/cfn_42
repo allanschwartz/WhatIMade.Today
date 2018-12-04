@@ -1,0 +1,47 @@
+						char *	cfn_42(pp, cxdata)
+
+						REG char *pp;	     a6@(8),a5
+						REG CXDATA *cxdata;  a6@(0xc),a4
+
+						{
+
+						char buf[0x200];     a6@(-0x200)
+						REG short cnt;	     d7
+
+cfn_42:		linkw	a6,#-0x20c
+		moveml	d7/a4/a5,sp@
+
+		movl	a6@(8),a5		
+		movl	a6@(0xc),a4		
+
+		pea	a5@
+		bsr	cx_countbytes		cnt = cx_countbytes( pp );
+		addql	#4,sp
+		movw	d0,d7
+
+		movw	d7,d0
+		extl	d0
+		movl	d0,sp@-
+		pea	a5@
+		pea	a6@(-0x200)
+		jsr	blt:l			blt(buf, pp, cnt );
+		lea	sp@(0xc),a7
+
+		pea	0x201:w
+		pea	a4@(0x22)
+		bsr	cx_fill_ff		cx_fill_ff(&cxdata->cx_databuf,
+		addql	#8,sp				513 );
+
+		movw	d7,d0
+		extl	d0
+		movl	d0,sp@-
+		pea	a6@(-0x200)
+		pea	a4@(0x22)
+		jsr	blt:l			blt(&cxdata->cx_databuf,
+		lea	sp@(0xc),a7		    buf, cnt );
+
+		lea	a4@(0x22),a0
+		movl	a0,d0			return &cxdata->cx_databuf;
+		moveml	sp@,d7/a4/a5
+		unlk	a6
+		rts				}

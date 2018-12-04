@@ -1,0 +1,135 @@
+CALLER
+------
+
+cfn_main ->:		cfn_initworld, cfn_reboot, cfn_receive, cfn_error, procreate, prorun, sprintf
+cfn_initworld ->:	cfn_tableinit, cfn_reboot, cfn_error, clear, display_xaddr, idopenskt, mboxcreate, sprintf
+cfn_receive ->:		breceive, cfn_reboot, cfn_set_alarm, cfn_send2sock, cfn_error, freemsg, 
+			getalarm, idopenskt, mboxcreate, sendmsg, sprintf
+cfn_set_alarm ->:		cfn_reboot, cfn_error, setalarm, sprintf
+cfn_send2sock ->:	cfn_str_to_bd, cfn_reboot, cfn_sendidpdata, cfn_error, cfn_fmt_txt_pkt, clear, sprintf
+cfn_sendidpdata ->:	cfn_reboot, cfn_error, freemsg, getmaxmsg, sendmsg, sprintf
+cfn_error ->:		cfn_str_to_bd, cfn_reboot, cfn_sendidpdata, cfn_fmt_txt_pkt, clear
+cfn_fmt_txt_pkt ->:	blt, cfn_cksum, sprintf, strlen
+cfn_chksum ->
+cfn_ascii_to_hex ->
+cfn_gethash ->:		cfn_ascii_to_hex
+cfn_tcreate ->:		blt, cfn_update
+cfn_update ->
+cfn_str_to_bd ->:	blt, cx_countbytes, getbuf, strlen, unprependbuf
+cfn_panic ->:		panic
+cfn_panic2 ->:		panic
+cfn_dumptable ->:	display_xaddr, printf
+cfn_print1_tentry ->:	display_xaddr, printf
+cfn_tableinit ->:	cfn_tcreate, clear, sprintf
+cfn_reboot ->:		_reboot
+cx_psp_packet ->:	cfn_atoh_n
+cfn_atoh_n ->:		cfn_ascii_to_hex
+cx_psp_cksum ->
+cx_init ->:		cfn_reboot, cx_fill_ff, cfn_error, idopenskt, mboxcreate, sprintf
+cx_main ->:		cx_listenmsg, cx_connectmsg, cx_disconnectmsg, cx_IDPdatamsg, cfn_SAdatamsg, freemsg
+cx_listenmsg ->:	cfn_reboot, cfn_error, freemsg, sendmsg, sprintf
+cx_connectmsg ->:	blt, cfn_panic, cfn_reboot, cfn_error, getbuf, sendmsg, sprintf
+cx_disconnectmsg ->:	cfn_reboot, cfn_error, freemsg, sprintf
+cx_IDPdatamsg ->:	cx_xr_packet, cfn_error, freemsg, sendmsg, sprintf
+cfn_printpkt ->:	_putchar
+cx_xr_packet ->:	blt, cfn_gethash, cfn_tcreate, cfn_update, cx_psp_packet, cx_xr_psp_valid, cx_psp_reply, strncmp
+cfn_31 ->:		blt, cfn_gethash, cx_psp_packet, cfn_33, strncmp
+cx_xr_psp_valid ->:	cfn_update, cx_psp_cksum, strncmp
+cfn_33 ->:		blt, cx_psp_cksum, cfn_ascii_to_hex
+cx_psp_reply ->:	blt, cfn_reboot, cfn_sendidpdata, cfn_error, copybuf, sprintf
+cfn_SAdatamsg ->:	cfn_36, cfn_37, cfn_38, cfn_39, cfn_40, cfn_41, cfn_43, cfn_error, freemsg, sprintf
+cfn_36 ->:		blt, cfn_str_to_bd, cfn_reboot, cfn_31, cfn_42, cfn_sendidpdata, cfn_error, 
+			freebuf, sprintf
+cfn_37 ->:		cx_fill_ff
+cfn_38 ->:		cfn_41, cfn_42
+cfn_39 ->:		cx_countbytes
+cfn_40 ->
+cfn_41 ->:		cfn_atoh_n, cfn_42
+cfn_42 ->:		blt, cx_countbytes, cx_fill_ff
+cfn_43 ->:		blt, buflen, cfn_37, cx_countbytes
+cx_countbytes ->
+cx_fill_ff ->
+
+
+CALLED
+------
+
+cfn_main <-
+cfn_initworld <-:	cfn_main
+cfn_receive <-:		cfn_main
+cfn_set_alarm <-:	cfn_receive
+cfn_send2sock <-:	cfn_receive
+cfn_sendidpdata <-:	cx_psp_reply, cfn_36, cfn_send2sock, cfn_error
+cfn_error <-:	cfn_initworld, cfn_receive, cx_init, cx_listenmsg, cx_connectmsg, cx_disconnectmsg, 
+			cx_IDPdatamsg, cfn_set_alarm, cx_psp_reply, cfn_SAdatamsg, cfn_36, cfn_send2sock, cfn_sendidpdata, 
+			cfn_main
+cfn_fmt_txt_pkt <-:	cfn_send2sock, cfn_error
+cfn_cksum <-:		cfn_fmt_txt_pkt
+cfn_ascii_to_hex <-:	cfn_gethash, cfn_atoh_n, cfn_33
+cfn_gethash <-:		cx_xr_packet, cfn_31
+cfn_tcreate <-:		cfn_tableinit, cx_xr_packet
+cfn_update <-:		cfn_tcreate, cx_xr_packet, cx_xr_psp_valid
+cfn_str_to_bd <-:	cfn_36, cfn_send2sock, cfn_error
+cfn_panic <-:		cx_connectmsg
+cfn_panic2 <-
+cfn_dumptable <-
+cfn_print1_tentry <-
+cfn_tableinit <-:	cfn_initworld
+cfn_reboot <-:		cfn_initworld, cfn_receive, cx_init, cx_listenmsg, cx_connectmsg, cx_disconnectmsg, 
+			cfn_set_alarm, cx_psp_reply, cfn_36, cfn_send2sock, cfn_sendidpdata, cfn_error, cfn_main
+cx_psp_packet <-:	cx_xr_packet, cfn_31
+cfn_atoh_n <-:		cx_psp_packet, cfn_41
+cx_psp_cksum <-:	cx_xr_psp_valid, cfn_33
+cx_init <-
+cx_main <-
+cx_listenmsg <-:	cx_main
+cx_connectmsg <-:	cx_main
+cx_disconnectmsg <-:	cx_main
+cx_IDPdatamsg <-:	cx_main
+cfn_printpkt <-
+cx_xr_packet <-:	cx_IDPdatamsg
+cfn_31 <-:		cfn_36
+cx_xr_psp_valid <-:	cx_xr_packet
+cfn_33 <-:		cfn_31
+cx_psp_reply <-:	cx_xr_packet
+cfn_SAdatamsg <-:	cx_main
+cfn_36 <-:		cfn_SAdatamsg
+cfn_37 <-:		cfn_SAdatamsg, cfn_43
+cfn_38 <-:		cfn_SAdatamsg
+cfn_39 <-:		cfn_SAdatamsg
+cfn_40 <-:		cfn_SAdatamsg
+cfn_41 <-:		cfn_SAdatamsg, cfn_38
+cfn_42 <-:		cfn_36, cfn_38, cfn_41
+cfn_43 <-:		cfn_SAdatamsg
+cx_countbytes <-:	cfn_str_to_bd, cfn_39, cfn_42, cfn_43
+cx_fill_ff <-:		cx_init, cfn_37, cfn_42
+
+blt <-:			cfn_tcreate, cfn_str_to_bd, cx_connectmsg, cx_xr_packet, cfn_31, cfn_33, 
+			cx_psp_reply, cfn_36, cfn_42, cfn_43, cfn_fmt_txt_pkt
+breceive <-:		cfn_receive
+buflen <-:		cfn_43
+clear <-:		cfn_initworld, cfn_tableinit, cfn_send2sock, cfn_error
+copybuf <-:		cx_psp_reply
+display_xaddr <-:	cfn_initworld, cfn_dumptable, cfn_print1_tentry
+freebuf <-:		cfn_36
+freemsg <-:		cfn_receive, cx_main, cx_listenmsg, cx_disconnectmsg, cx_IDPdatamsg, cfn_SAdatamsg, 
+			cfn_sendidpdata
+getalarm <-:		cfn_receive
+getbuf <-:		cfn_str_to_bd, cx_connectmsg
+getmaxmsg <-:		cfn_sendidpdata
+idopenskt <-:		cfn_initworld, cfn_receive, cx_init
+mboxcreate <-:		cfn_initworld, cfn_receive, cx_init
+panic <-:		cfn_panic, cfn_panic2
+printf <-:		cfn_dumptable, cfn_print1_tentry
+procreate <-:		cfn_main
+prorun <-:		cfn_main
+putchar <-:		cfn_printpkt
+reboot <-:		cfn_reboot
+sendmsg <-:		cfn_receive, cx_listenmsg, cx_connectmsg, cx_IDPdatamsg, cfn_sendidpdata
+setalarm <-:		cfn_set_alarm
+sprintf <-:		cfn_initworld, cfn_tableinit, cfn_receive, cx_init, cx_listenmsg, cx_connectmsg, 
+			cx_disconnectmsg, cx_IDPdatamsg, cfn_set_alarm, cx_psp_reply, cfn_SAdatamsg, cfn_36, 
+			cfn_send2sock, cfn_sendidpdata, cfn_fmt_txt_pkt, cfn_main
+strlen <-:		cfn_str_to_bd, cfn_fmt_txt_pkt
+strncmp <-:		cx_xr_packet, cfn_31, cx_xr_psp_valid
+unprependbf <-:		cfn_str_to_bd

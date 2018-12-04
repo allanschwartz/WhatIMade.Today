@@ -1,0 +1,2 @@
+# extract name
+grep $1 cfn.asm.3 > $1

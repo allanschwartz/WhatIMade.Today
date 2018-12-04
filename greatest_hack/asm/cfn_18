@@ -1,0 +1,65 @@
+						cfn_tableinit()
+
+						{
+						char name[5];	a6@(-0x13)
+						short i;	a6@(-0xe)
+						L1_ADDR addr    a6@(-0xc)
+						  addr          a6@(-0xc)
+						  addr.l1_net   a6@(-0xc)
+						  addr.l1_host  a6@(-8)
+						  addr.ha_word1 a6@(-8)
+						  addr.ha_word2 a6@(-6)
+						  addr.ha_word3 a6@(-4)
+						  addr.l1_sock  a6@(-2)
+						---
+
+cfn_18:		linkw	a6,#-0x14
+
+		pea	0x1236:w
+		movl	#table,sp@-
+		jsr	clear			clear( &table[0], 18*259);
+		addql	#8,sp
+
+		movl	_cfn_brdcst,a6@(-0xc)	MOVEL1ADDR(addr, cfn_brdcst)
+		movw	_cfn_brdcst+4,a6@(-8)
+		movw	_cfn_brdcst+6,a6@(-6)
+		movw	_cfn_brdcst+8,a6@(-4)
+		movw	_cfn_brdcst+0xa,a6@(-2)
+
+		movw	#0x271a,a6@(-2)		addr.l1_sock = 10010;
+
+		clrw	a6@(-0xe)		for( i = 0; i < 3; i++ ) 
+		bras	L_0x9e			{
+
+L_0x4a:		movw	a6@(-0xe),d0
+		extl	d0
+		movl	d0,sp@-
+		movl	#0x133fc6,sp@-
+		pea	a6@(-0x13)
+		jsr	sprintf		        sprintf(name, "B00%d", i);
+		lea	sp@(0xc),a7
+
+		cmpw	#2,a6@(-0xe)		if( i == 2 ) 
+		bnes	L_0x74			{
+
+		movw	#0x271b,a6@(-2)		    addr.l1_sock = 10011;
+						}
+L_0x74:		movl	a6@(-4),sp@-
+		movl	a6@(-8),sp@-
+		movl	a6@(-0xc),sp@-
+		pea	a6@(-0x13)  
+		movw	a6@(-0xe),d0
+		extl	d0
+		addl	#0x100,d0
+		movl	d0,sp@-
+		bsr	cfn_tcreate		cfn_tcreate( i+256, name, addr )
+		lea	sp@(0x14),a7
+
+		addqw	#1,a6@(-0xe)		
+
+L_0x9e:		cmpw	#3,a6@(-0xe)
+		blts	L_0x4a			}
+
+		unlk	a6
+		rts				}
+

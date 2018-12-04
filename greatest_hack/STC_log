@@ -1,0 +1,365 @@
+   LOG OF WORK ON STC project
+
+
+   May 1991
+ S  M Tu  W Th  F  S
+          1  2  3  4
+ 5  6  7  8  9 10 11
+12 13 14 15 16 17 18
+19 20 21 22 23 24 25
+26 27 28 29 30 31
+
+wed 5/8		1:30	n/c	phone call from Alex Nassar, short discussion
+
+thu 5/9		11:04pm		44 78 42 557729		(7.58)
+		12min	n/c	phone conversation with Gareth Flook
+
+fri 5/10	7:06am  n/c	44 62 88 90670		(2.38)
+		2min    n/c     phone conversation with Gareth Flook
+
+5/13-5/25			two follow-up calls to G. Flook
+
+5/18 		8pm	2	searched for records of STC consulting
+				determined that some stuff may be in storage
+
+5/25	1pm		1	received purchase order
+
+5/26	9-11		4	outlined tools to use, strategy to apply
+				found gnu debugger, disassembler,
+				searched through BDT tapes for close tree
+
+5/28	1pm-5pm		4	David Fong helped me transfer "cfn2" binary
+				met with Michael Smith, looked for files
+				called Paul Fergusen
+				Stuart has left
+				Bruce has left
+				talked w/ Teri West
+				called Donna Vidal
+				searched CSI storeroom
+				found 1989 listing of bridge kernel, this
+				will help a little
+
+5/28	6pm-12pm	6	started disassembly
+				fixed relocation info in a.out structure
+				started tracing code, found SYSTBL struct
+				disassembled entire kernel
+				annotated disassembly to build namelist
+
+5/29    9:30-1:30pm	4	found all bridge module symbols, by offset
+				existing load maps.
+				found all libc functions
+				created first cfn.asm listing
+				43 functions, 2122 lines of assembly
+
+5/29	3:00-4:30	1.5	did cfn_42()
+				did cfn_11()
+
+
+   June 1991
+ S  M Tu  W Th  F  S
+                   1
+ 2  3  4  5  6  7  8
+ 9 10 11 12 13 14 15
+16 17 18 19 20 21 22
+23 24 25 26 27 28 29
+30
+
+sat
+6/1	5:30-8:00	2.5	composed "3-day report"
+
+sun
+6/2	9:00-10:00	1.0	corrected memo, memory map analysis,
+				found aditional memos on archived 1987 files
+
+6/2	11:00-12:00	1.0	faxed "3-day report"
+
+mon
+6/3	3:00-6:00	3.0	wrote addsymbols.c
+6/3	8:30-12:30	4.0	derived cfn_xx() function names
+				derived global names
+				added misc func names and globs to namelist
+				deassembled entire cfn again
+				built xref.awk tool
+				made function cross-reference report
+
+tue
+6/4	12:00-1:00	1.0	cfn_6
+
+6/4	3:00		:30	short chat w/ Flook.  authorized my continuation
+				till 5 days.  asked that I express all listing
+				derived till now.
+
+6/4	6:00-10:00	4	wrote extract
+				cfn_1
+				cfn_3
+				cfn_4
+				cfn_5
+				cfn_6
+				cfn_8	aka  cfn_cksum
+				cfn_9   aka  cfn_ascii_to_hex
+				cfn_10
+				cfn_11
+				cfn_12
+				cfn_13	aka  cfn_str_to_bd
+				cfn_14	aka  cfn_panic
+				cfn_15  aka  cfn_panic2
+
+				(skipped cfn_0, cfn_2, cfn_7)
+
+wed
+6/5	6:00		:30	created listing, prepared express package
+
+fri
+6/7	4pm			sent express package
+
+-----------------------------------------------------------------------------
+
+sat 6/8				completed first 40 hours, $4000
+
+sat
+6/8	11:30am			wrote "relabel"
+				cfn_16
+	1:00pm			cfn_17
+	1:19pm			cfn_18
+	1:29pm			cfn_19
+	1:32pm			cfn_20	 skipped ... spagetti
+	1:44pm			cfn_21
+	1:53pm			cfn_22	 (complete)
+	2:30pm			cfn_23	skipped ... long
+	2:33pm			cfn_24
+	2:45pm			cfn_25
+	3:10pm			cfn_26
+	3:30		3:30
+
+mon
+6/10	3:37			extract cfn_3?
+	3:40			cfn_main
+	4:06			cfn_2
+	4:28			cfn_30
+	5:00			<break>
+	5:30			cfn_37
+	5:35			cfn_39
+	5:40			cfn_27
+	6:11		2:30
+
+mon 6/11			sent first invoice for 40 hours, $4000
+
+tue
+6/11	11:00	 	3:00	cfn_24, cfn_25
+	11:20			cfn_26
+	11:50			
+	1:00			cfn_28
+	1:40			cfn_35
+	2:20			cfn_40
+	2:30			cfn_44
+	2:35			cfn_45
+	2:50			need 'autos' tool
+				need 'cxdata|msg' xref tool
+
+	5:00		3:00	wrote 'autos' tool	
+	6:00			cfn_1?
+	6:30			cfn_2?
+	7:45
+
+wed
+6/12
+	7:30			cfn_3?
+	9:00			cfn_(0,1,2,3,4,5,6,7,8,9)
+	11:20		4:00
+
+thu
+6/13
+phone message from Gas Flook, 3com UK 8:23am
+They have a firm order form STC, we can proceed with the entire
+project.
+A parcel is on the way w/ a P.O.
+
+
+	4:30		3:00	cfn_1? ... 
+				derived "struct tentry"
+				fixed up args to many routines
+	7:00			figured out names for routines cfn_1{0-9}
+				updated symbols.sorted
+				changed names in all other routines
+				updated xreference
+
+
+Sat
+6/15
+	9:30 		:	derived struct cxdata_struct
+	11:15
+	12:30			cfn_40, cfn_41, cfn_42, cfn_43
+	1:30		4:00
+
+
+
+wed
+6/19
+	5:30pm		6:00	edited all files, 
+	11:30			reconciled all messages
+
+Sat
+6/22
+	1:30pm			
+	3:30		2:00	studied IDPdatamsg() path
+
+SUn
+6/23
+	12:00
+	2:00		2:00	studied IDPdatamsg() path
+
+Mon
+6/24
+	6:00
+	11:00		4:00	derived struct PSP
+				worked on xr_packet datapath:
+				cfn_20, cfn_28, cfn_30, cfn_32, cfn_34
+
+
+Sat
+6/29
+	??		2:00	cfn_0.c, cfn_1.c, cfn_2.c
+
+
+Sat
+7/6	2:00pm		--	found email about private party selling Sun
+				3/80 19"Mono, 16MB, 104MB disk, no 3.5"  $3400
+Mon
+7/8	??		1:00	several phone calls to UK
+
+Tue
+7/9	1am		:30	telephone call to Peter Wright (not in)
+	6:19am		:30	telephone call to Peter Wright (left msg)
+
+Fri
+7/12	7am		:30	telephone conv. w/ Peter Wright
+
+7/12	7pm		3:00	organized project binder
+				studied listing, esp. PSP packet
+
+Mon
+7/15	1am		:30	phone conversation w/ Roy Eedgar
+	6am		:30	phone conversation w/ Gareth Flook
+
+7/15	8:21am		--	received P.O. LO/ 4183
+
+7/15	10:18am		--	received Fax from Apex computer
+				3/80 17"Mono, 16MB, 207MB disk, 3.5"    $3500
+
+7/15	7pm-1am		2:00	worked on letter to G. Flook
+				prepared "function summary"
+				transmitted fax to G. Flook
+
+Tue
+7/16	6am		1:00	prepared and transmitted fax to R. Eedgar
+
+7/16    12:04pm		--	received Fax from Marathon computer
+				3/80 19"Mono, 16MB, 207MB disk, 3.5"	$4250.
+
+7/16    1:27pm		--	received Fax from Minicomputer exchange inc.
+				3/18 19"Mono, 16MB, 207MB disk, 3.5"	$4200.
+
+7/16	6:45-10:45pm	4:00	cfn_{23,24,25,26,27,28,29,30}.c
+
+Wed
+7/17    9am		:30	Discussion w/ Mr. Eedgar
+				Verifying that I got the PO (i did)
+				Needs the project complete by end of July
+				I told him I was waiting for two checks,
+				($4000 and) $3500 to buy a computer.
+				I described my progress last night.
+
+
+FRI
+7/19    4pm		2:00	cfn_31.c, cfn_32.c
+
+Sat
+7/20	1pm		5:00	cfn_0.c
+	1:05			cfn_1.c
+	1:10			cfn_2.c (incomplete)
+	2:00			cfn_3.c
+	2:10			cfn_4.c
+	2:30			cfn_5.c
+	3:00			cfn_6.c
+	3:10			cfn_7.c
+	3:20			cfn_8.c
+	3:25			cfn_9.c
+	3:55			cfn_10.c
+	4:30			cfn_0.c
+	4:40			cfn_1.c
+	4:50			cfn_2.c
+	5:00			cfn_3.c
+	5:10			cfn_4.c
+	5:20			cfn_5.c
+	6:00			and worked on binder
+
+
+Mon 7/22
+	4:00			received contract
+	5:30		3:00	drove to city to pick up boot box
+
+	8:30		3:00	cfn_2.c	
+	9:05			cfn_9.c
+	9:10			cfn_10.c
+	9:15			cfn_11.c
+	9:25			cfn_12.c
+	9:30			cfn_13.c
+	9:53			cfn_13.c
+	10:03			cfn_14.c
+	10:06			cfn_15.c
+	10:07			cfn_16.c
+	10:17			cfn_17.c
+	10:23			cfn_18.c
+	10:24			cfn_19.c
+	10:35			cfn_20.c
+				this routine is very difficult!
+				postponed
+	11:03			cfn_21.c
+	11:15			cfn_22.c
+	11:35			-done-
+	
+Mon 7/22			received the contract from 3Com
+
+				received garbled fax from 3com
+
+	12:00		1:30	updated function.summary
+				had conversation with Gareth Flook
+				faxed memo to Gareth Flook
+				faxed function.summary to Gareth Flook
+				sent function.summary to Gareth Flook
+
+Tue 7/23
+	6:00		1:00	spent an hour or so reviewing the contract
+
+	4:00pm		1:00	discussed contract with Gerald Rosenberg
+Tue 7/23
+	8:00		 :30	cfn_23.c
+	8:05			cfn_24.c
+	8:10			cfn_25.c
+	8:15			cfn_26.c
+	8:20			cfn_27.c
+	8:25			cfn_28.c
+
+Wed 7/24
+	8:30			cfn_28.c
+	8:35			cfn_29.c
+	8:40			cfn_30.c
+	8:50			cfn_31.c
+	9:00			cfn_32.c
+	9:05		:30	cfn_33.c
+	5:00			cfn_33.c
+	5:59			cfn_34.c
+	6:19			cfn_35.c
+	6:30			beer
+	7:30			bougth 4 mag tapes $95.22
+	8:00			cfn_36.c
+	8:24			cfn_37.c
+	8:34			cfn_38.c ... too complex
+	8:42			cfn_39.c
+	8:56			cfn_40.c
+	9:15			cfn_41.c ... too complex
+	9:30			cfn_42.c
+	9:54			cfn_43.c
+	10:10			cfn_44.c
+	10:20			cfn_45.c
+	10:25			printed listings

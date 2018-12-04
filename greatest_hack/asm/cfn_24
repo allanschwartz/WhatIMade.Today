@@ -1,0 +1,61 @@
+						cx_main(msg, mbid)
+
+						REG MSG *msg;		a5
+									a6@(8)
+						REG MBID mbid;		d7
+									a6@(0xc)
+						{
+						REG CXDATA *cxdata; 	a4
+						REG short index;	d6
+						
+cfn_24:		linkw	a6,#-0x10
+		moveml	d6/d7/a4/a5,sp@
+
+		movl	a6@(8),a5		msg
+		movl	a6@(0xc),d7		mbid
+
+		movl	_currprocess,a0
+		movl	a0@(0x54),a4		cxdata = (CXDATA *)MYDATA();
+
+		movw	a4@(4),d6		index = cxdata->cx_index;
+		movw	a5@(0x12),d0		
+
+		cmpw	#4,d0			switch(msg->m_type) {
+		beqs	L_0x56
+		cmpw	#0x709,d0
+		beqs	L_0x46
+		cmpw	#0x70a,d0
+		beqs	L_0x5e
+		cmpw	#0x70c,d0
+		beqs	L_0x4e
+		cmpw	#0x70e,d0
+		bnes	L_0x68
+
+		pea	a5@			case ML2TLISTEN:	0x70e
+		bsr	cx_listenmsg		  cx_listenmsg(msg);
+		bras	L_0x70			  break;
+
+L_0x46:		pea	a5@			case ML2TCONNECTED:	0x709
+		bsr	cx_connectmsg		  cx_connectmsg(msg);
+		bras	L_0x70			  break;
+
+L_0x4e:		pea	a5@			case ML2TDISCONNECTED:	0x70c
+		bsr	cx_disconnectmsg	  cx_disconnectmsg(msg);
+		bras	L_0x70			  break;
+
+L_0x56:		pea	a5@			case MIDRDATA:		4
+		bsr	cx_IDPdatamsg		  cx_IDPdatamsg(msg);
+		bras	L_0x70			  break;
+
+L_0x5e:		pea	a5@			case ML2TDATA:		0x70a
+		jsr	cx_SAdatamsg		  cx_SAdatamsg(msg);
+		bras	L_0x70			  break;
+
+L_0x68:		pea	a5@			default:
+		jsr	freemsg		  	  freemsg(msg);
+						  break;
+						}
+L_0x70:		addql	#4,sp
+		moveml	sp@,d6/d7/a4/a5
+		unlk	a6
+		rts				}

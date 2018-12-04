@@ -1,0 +1,87 @@
+						cfn_send2sock(sock)
+
+						short sock; 	      a6@(0xa)
+
+						{
+						REG BD *bd;           a5
+						L1_ADDR addr;         a6@(-0x30)
+						  addr.l1_net	      a6@(-0x30)
+						  addr.l1_host        a6@(-0x2c)
+						  addr.l1_host.ha_word1    -x2c
+						  addr.l1_host.ha_word1    -x2a
+						  addr.l1_host.ha_word2    -x28
+						  addr.l1_sock        a6@(-0x26)
+
+						char buf[36]	      a6@(-0x24)
+						---
+
+cfn_4:		linkw	a6,#-0x34	
+		moveml	a5,sp@
+
+		pea	0x24:w
+		pea	a6@(-0x24)
+		jsr	clear			clear( buf, 36 );
+		addql	#8,sp
+
+		movl	#cfn_g21,sp@-
+		movl	#133da8,sp@-
+		pea	a6@(-0x24)
+		jsr	cfn_fmt_txt_pkt		cfn_fmt_txt_pkt(buf, 
+		lea	sp@(0xc),a7			cnstnt_pkt1, cfn_g21 );
+
+		movl	table_102,a6@(-0x30)	MOVEL1ADDR(&table[0x102],addr);
+		movw	table_102+4,a6@(-0x2c)
+		movw	table_102+6,a6@(-0x2a)
+		movw	table_102+8,a6@(-0x28)
+		movw	table_102+0xa,a6@(-0x26)	
+
+		clrl	sp@-	
+		pea	a6@(-0x24)
+		jsr	cfn_str_to_bd		bd = cfn_str_to_bd( buf, 0 )
+		addql	#8,sp
+
+		movl	d0,a5			if ( bd == NULL )
+		tstl	d0
+		bnes	L1:			{
+
+		movl	_cfn_hostaddr,sp@-		
+		movl	#0x133e3f,sp@-		sprintf( cfn_linebuf,
+		movl	#cfn_linebuf,sp@-	    fmtstr, cfn_hostaddr );
+		jsr	sprintf
+		lea	sp@(0xc),a7
+
+		movl	#cfn_linebuf,sp@-	
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp
+
+		jsr	cfn_reboot		cfn_reboot();
+						}
+L1:		movl	a6@(-0x28),sp@-
+		movl	a6@(-0x2c),sp@-
+		movl	a6@(-0x30),sp@-
+
+		movw	a6@(0xa),d0
+		andl	#0xffff,d0
+		movl	d0,sp@-
+		pea	a5@
+		jsr	cfn_sendidpdata		cfn_sendidpdata(bd, sock, addr)
+		lea	sp@(0x14),a7
+
+		pea	0x11:w			
+		movl	#0x139ff6,sp@-
+		jsr	clear			clear(cfn_g21, 17 );
+		addql	#8,sp
+
+		pea	4:w			
+		movl	#cfn_g22,sp@-
+		jsr	clear			clear(cfn_g22, 4 );
+		addql	#8,sp
+
+		clrw	cfn_g20			cfn_g20 = 0;
+
+		moveml	sp@,a5
+		unlk	a6
+		rts				}
+
+
+static char fmtstr[]="%s: out of memory in getbuf";

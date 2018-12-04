@@ -1,0 +1,76 @@
+						cx_disconnectmsg(msg)
+
+						REG MSG *msg;		a6@(8)
+									a5
+						{
+						REG short myport;  	d7
+						REG short portid;    	d6
+						REG CXDATA *cxdata;  	a4
+
+cfn_27:		linkw	a6,#-0x10
+		moveml	d6/d7/a4/a5,sp@
+		movl	a6@(8),a5
+
+		movl	_currprocess,a0	
+		movl	a0@(0x54),a4		cxdata = (CXDATA *)MYDATA();
+
+		movw	a4@(4),d7		myport = cxdata->cx_index;
+
+		movw	a5@(0x14),d6		portid = 
+						((VT_DISCONNECTED *)msg)->portid
+
+		cmpw	d6,d7			if( portid != myport )
+		beqs	L_0x5a			{
+
+		movw	d7,d0			
+		extl	d0
+		movl	d0,sp@-
+		movw	d6,d0
+		extl	d0
+		movl	d0,sp@-
+		movl	_cfn_hostaddr,sp@-	
+		movl	#0x1340d8,sp@-		sprintf(cfn_linebuf,
+		movl	#cfn_linebuf,sp@-	    fmt1, cfn_hostaddr, 
+		jsr	sprintf			    portid, myport );
+		lea	sp@(0x14),a7
+
+		movl	#cfn_linebuf,sp@-
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp
+
+		bras	L_0xaa			return;
+						}
+
+L_0x5a:		clrw	a4@(2)			cxdata->cx_state = 0;
+
+		clrl	a4@(0x12)		cxdata->cx_sadmbox = 0;
+
+		pea	a5@
+		jsr	freemsg			freemsg(msg);
+		addql	#4,sp
+
+		movw	a5@(0x16),d0
+		extl	d0
+		movl	d0,sp@-
+		movw	d7,d0
+		extl	d0
+		movl	d0,sp@-
+		movl	_cfn_hostaddr,sp@-
+		movl	#0x134108,sp@-		sprintf(cfn_linebuf, 
+		movl	#cfn_linebuf,sp@-	   fmt2, cfn_hostaddr, 
+		jsr	sprintf			   myport, 
+					    ((VT_DISCONNECTED *)msg)->ret_code);
+		lea	sp@(0x14),a7
+
+		movl	#cfn_linebuf,sp@-	
+		jsr	cfn_error	cfn_error(cfn_linebuf);
+		addql	#4,sp
+
+		jsr	cfn_reboot		cfn_reboot();
+						
+L_0xaa:		moveml	sp@,d6/d7/a4/a5		return;
+		unlk	a6
+		rts				}
+
+static char fmt1[]= "%s: SA disconnected for port %d went to port %d";
+static char fmt2[]= "%s: disconnection on cxs port %d, reason %d";

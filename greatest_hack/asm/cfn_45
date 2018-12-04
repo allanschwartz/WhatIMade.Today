@@ -1,0 +1,21 @@
+						cx_fill_ff(p, max)
+
+						REG char  *p;		a5
+						short max; 		a6@(0xe)
+
+						{
+						REG short k;
+cfn_45:		linkw	a6,#-8
+		moveml	d7/a5,sp@
+		movl	a6@(8),a5
+
+		clrw	d7			for(k = 0; k < max; k++)
+		bras	L_0x16			{
+L_0x10:		movb	#0xff,a5@+		*p++ = 0xff;
+		addqw	#1,d7
+L_0x16:		cmpw	a6@(0xe),d7
+		blts	L_0x10			}
+
+		moveml	sp@,d7/a5
+		unlk	a6
+		rts				}

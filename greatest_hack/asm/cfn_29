@@ -1,0 +1,49 @@
+						cx_printpkt(bd)
+
+						REG BD *bd;		a5
+									a6@(8)
+						{
+						REG short len;		d7
+						REG char *p;		a4
+
+cfn_29:		linkw	a6,#-0xc
+		moveml	d7/a4/a5,sp@
+
+		movl	a6@(8),a5
+		bras	L4			
+						for(; bd; bd = bd->bd_next ) {
+
+L1:
+		movw	a5@(0x1a),d7		  len = BUFLENC(bd);
+		movl	a5@(0x12),a4		  p = (char *)BUFADDR(bd);
+		bras	L3			
+L2:
+						  for(; len ; len--) {
+		movb	a4@+,d0			    putchar(*p++);
+		extw	d0
+		extl	d0
+		movl	d0,sp@-
+		jsr	_putchar	
+		addql	#4,sp
+
+		subqw	#1,d7			
+L3:
+		tstw	d7			
+		bnes	L2			  }
+
+		pea	0x7c:w			  putchar('|');
+		jsr	_putchar
+		addql	#4,sp
+
+		movl	a5@(0xe),a5		
+L4:
+		movl	a5,d0			
+		bnes	L1			}
+
+		pea	0xa:w			putchar('\n');
+		jsr	_putchar
+		addql	#4,sp
+
+		moveml	sp@,d7/a4/a5
+		unlk	a6			
+		rts				}

@@ -1,0 +1,76 @@
+First symbols found while looking for SYSINIT table...
+
+  101000 T _start
+  120268 T _main
+  1343ec D _edata
+  13a8ce D _end
+  1202bc T _keInitWorld
+  11f610 T _meminit
+  11efc0 T _configinit
+  1203a0 T _pcbinit
+  134ab2 D _p_lookup
+  133226 D _currprocess
+  12ce3c D _gn_addresses
+  137a9c D _sysstk_end
+  137a9c D _nestcount
+  120448 T _mboxinit
+  11f542 T _storinit
+  1212c0 T _inittime
+  133222 D _ready
+  137ab6 D firstp
+  1207d8 T procreate
+  1377bc D initp_pcb
+  120c4c T rinsert
+  12053a T initproc
+  120ca0 T rdelete
+  120748 T setenv
+  12c8bc D SYSINIT
+  12cb60 D copyright
+
+0x11e76e:		linkw	a6,#-0x10	;;; 
+0x11e7fc:		linkw	a6,#-0x10	;;; ???
+0x11e888:		linkw	a6,#-0x1c		;;; regintrpt
+0x11e9b2:		linkw	a6,#-0x18	;;; central_dispatch
+0x11ea90:		linkw	a6,#-0x18	;;; ke_mem_free
+0x11eb08:		linkw	a6,#-0x34	;;; kesession_init
+0x11efc0:		linkw	a6,#-0x20	;;; configinit
+0x120796:		movw	sr,d0		;;; disable
+0x1207b6:		linkw	a6,#0		;;; enable
+
+11f464 allocate
+1103bc uisprintf
+12cbb8 D kenummbox
+137b2e mb_lookup
+12c08c strcpy
+12c0e0 strncmp
+12c1dc sprintf
+12bd68 mfill
+12134e strncpy
+12c6dc __multiply
+#
+# from SYSTBL
+#
+101028          sminit
+10112a          smmain
+1030b8          ch_entry
+10638c          diskio2
+1064f0          errinit
+106530          errmain
+106578          pepinit
+1065c8          pepmain
+10762a          psinit
+1076e2          psmain
+107d58          ripinit
+107e6c          ripmain
+1138ee          pv_entry
+11c220          idpinit
+11c314          idpmain
+11cf3e          samain
+11d3a0          sainit
+121994          lbinit
+1219de          lbmain
+121bf8          ed2init
+121db0          nm2init
+122178          ed2main
+122246          nm2main
+1299c0          cfn_entry

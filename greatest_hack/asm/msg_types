@@ -1,0 +1,33 @@
+
+
+
+
+
+
+MESSAGES RECEIVED
+
+msg_type		receieved by	(dispatched to)		sent by
+------------------	-----------	----------------	-------
+
+0x004	MIDRDATA	cx_main()	cx_IDPdatamsg()		IDP
+0x709	ML2TCONNECTED	cx_main()	cx_connectmsg()		SA/PI
+0x70a	ML2TDATA	cx_main()	cx_SAdatamsg()		SA/PI
+0x70c	ML2TDISCONNECTD cx_main()	cx_disconnectmsg()	SA/PI
+0x70e	ML2TLISTEN	cx_main()	cx_listenmsg()		SA/PI
+
+0x70e	ML2TLISTEN	cfn_receive()	CX[i]			SA/PI
+0x064	MCFN_IAMHERE	cfn_receive()	cfn_send2sock		cfn_iamhere()
+
+
+
+
+MESSAGES SEND
+
+msg_type		send by		(send to)		
+------------------	-----------	----------------	
+
+0x005	MIDSDATA	cfn_sendidpdata() IDP			
+0x064	MCFN_IAMHERE	cfn_iamhere()	cfn_receive()
+0x700	MT2LCONNECT	cx_listenmsg()	SA/PI
+0x702	MT2LDATA	cx_IDPdatamsg()	SA/PI
+0x712	MT2LCHANGEPARM	cx_connectmsg()	SA/PI

@@ -1,0 +1,165 @@
+						cfn_31(bd, addrp, port)
+
+						REG BD *bd;	      a6@(8)
+								      a5;
+						L1_ADDR *addrp;       a6@(0xc)
+						short port;	      a6@(0x12)
+
+						{
+						REG PSPPKT * psp;     a4
+						REG int index;	      d7
+						char name[5]; 	      a6@(-5)
+
+cfn_31:		linkw	a6,#-0x14
+		moveml	d7/a4/a5,sp@
+
+		movl	a6@(8),a5
+		pea	1:w
+		pea	a5@
+		jsr	cx_psp_packet		psp = cx_psp_packet(bd, 1)
+		addql	#8,sp
+		movl	d0,a4
+
+		tstl	d0			if( ... == NULL )
+		bnes	L_0x26			{
+
+L_0x20: 	clrw	d0			return 0;
+		bra	L_0x17c			}
+
+
+L_0x26: 	pea	4:w
+		pea	a4@(3)
+		pea	a6@(-5)		        blt(name, psp->psp_name1, 4 )
+		jsr	blt
+		lea	sp@(0xc),a7
+
+		pea	4:w
+		movl	#0x134163,sp@-
+		pea	a6@(-5)
+		jsr	strncmp			strncmp(name, "D000", 4)
+		lea	sp@(0xc),a7
+
+		tstl	d0			if( ... == 0)
+		bnes	L_0x82			{
+
+		clrl	sp@-
+		pea	a5@
+		jsr	cx_xr_packet		psp = cx_xr_packet(bd, 0)
+		addql	#8,sp
+		movl	d0,a4
+
+		tstl	d0			if( ... == NULL )
+		bnes	L_0x6c			{
+
+		bras	L_0x20			return 0;
+						}
+L_0x6c: 	movw	a6@(0x12),d0		
+		extl	d0
+		movl	d0,sp@-
+		pea	a5@
+		pea	a4@
+		bsr	cfn_33			cfn_33(psp, bd, port)
+		lea	sp@(0xc),a7
+
+		bras	L_0x20			return 0;
+						}
+
+L_0x82: 	pea	4:w
+		pea	a4@(3)
+		pea	a6@(-5)
+		jsr	blt			blt( name, psp->psp_name1, 4)
+		lea	sp@(0xc),a7
+
+		clrb	a6@(-1)			name[4] = '\0';
+
+		pea	2:w
+		movl	#0x134168,sp@-
+		pea	a6@(-5)
+		jsr	strncmp			strncmp(name, "A0", 2);
+		lea	sp@(0xc),a7
+
+		tstl	d0			if( ... )
+		beqs	L_0xf4			{
+
+		pea	4:w
+		movl	#0x13416b,sp@-
+		pea	a6@(-5)
+		jsr	strncmp			strncmp(name, "B000", 4 )
+		lea	sp@(0xc),a7
+
+		tstl	d0			if( ... )
+		beqs	L_0xf4			{
+
+		pea	4:w
+		movl	#0x134170,sp@-
+		pea	a6@(-5)
+		jsr	strncmp			strncmp(name, "B001", 4 )
+		lea	sp@(0xc),a7
+
+		tstl	d0			if( ... )
+		beqs	L_0xf4			{
+
+		bra	L_0x20			return 0;
+						}
+
+L_0xf4: 	cmpb	#0x42,a6@(-5)		if( name[0] != 'B' )
+		bnes	L_0x13e			    goto L_0x13e;
+
+		movb	a6@(-2),d0		switch( name[3] ) {
+		extw	d0
+		cmpw	#0x30,d0		case '0':
+		beqs	L_0x112			    goto L_0x112;
+
+		cmpw	#0x31,d0		case '1':
+		beqs	L_0x136			    goto L_0x136;
+
+		bra	L_0x20			default: return 0;
+						}
+
+L_0x112:	movl	#0x100,d7		index = 256;
+
+L_0x118:	pea	0x12:w
+		movl	d7,sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+5,d0		
+		movl	d0,a0
+		tstb	a0@			if( table[index].t_inuse == 0 )
+		bnes	L_0x152			{
+
+		bra	L_0x20			return 0;
+						}
+
+
+L_0x136:	movl	#0x101,d7		index = 101
+		bras	L_0x118			goto L_0x118;
+
+
+L_0x13e:	pea	a6@(-5)
+		jsr	cfn_gethash		index = cfn_gethash(name);
+		addql	#4,sp
+
+		movl	d0,d7		
+		bges	L_0x118			goto L_0x118
+
+		bra	L_0x20			return 0;
+
+
+L_0x152:	pea	0xc:w
+		pea	0x12:w
+		movl	d7,sp@-
+		jsr	__lmul
+		addql	#8,sp
+		addl	#table+6,d0		blt(addrp, 
+						    &table[index].t_addr,
+						    0xc);
+		movl	d0,sp@-
+		movl	a6@(0xc),sp@-
+		jsr	blt
+		lea	sp@(0xc),a7
+
+		moveq	#1,d0			return 1;
+
+L_0x17c:	moveml	sp@,d7/a4/a5
+		unlk	a6
+		rts				}
