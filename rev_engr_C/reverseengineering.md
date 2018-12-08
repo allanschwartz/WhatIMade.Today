@@ -93,11 +93,11 @@ The code remains dense and hard to interpret. While listing all the code, I dete
 
 I need to break this task down more. After hand translating some code, I realized I needed better tools. For example, adding symbols for the function calls would make the assembly code understandable. I carefully created a [complete disassembly listing](reference/kernel.asm) of the kernel code.
 
-The biggest challenge was to figure out the address range of the Bridge Kernel. Once disassembled, I found the `linkw a6,#n` instructions which began a function, the `rts` instruction with ended the function, and the various `bsr` instructions where C functions are called. From this exercise, I created a table of the absolute address of each kernel function:
+The biggest challenge was to figure out the address range of the Bridge Kernel. Once disassembled, I found the `linkw a6,#n` instructions which began a function, the `rts` instruction with ended the function, and the various `bsr` instructions where C functions are called. From this exercise, I created a table of the address of each kernel function:
 
 **![](https://lh6.googleusercontent.com/9hiUj-pvUBM9SI_wVxM9Der3cuFnknQa7R6xv0zx9Gva70OUOBwzGihHcPCAOqoU0dqwn6qIKuwD3kN0c7_MVcwkmoAGVQZVzckvjbb3_WrPf0Dodh_OGSyKXY09pIidOOwg98vC)**
 
-Similarly, I created a [disassembly listing](reference/libc.asm) of libc, and then created a [table of absolute addresses](reference/libc.symbols) of all the libc routines called from the kernel.
+Similarly, I created a [disassembly listing](reference/libc.asm) of libc, and then created a [table of addresses](reference/libc.symbols) of all the libc routines called from the kernel.
 
 I also created symbol names for all of the fixed addresses referenced in the code. Initially, these were names without meaning. For example, variables, `cfn_g1`, `cfn_g2`, …, `cfn_d1`, `cfn_d2,` ...  (See the complete [list of globals](reference/globals)).
 
@@ -189,18 +189,18 @@ First some background about the M680*x*0 generated code.
     register char *ptr;  
 ```
 
--   In the example above, the code would use register `d7` as k, register `d6` as len, register `a5` as bd, and register `a4` as ptr. If this occurs, the registers will be saved at the beginning of the function with the  
+-   In the example above, the code would use register `d7` as k, register `d6` as len, register `a5` as bd, and register `a4` as ptr. If this occurs, the registers will be saved at the beginning of the function with the
 ```asm
         moveml d7/d6/a5/a4,sp@
 ```
-    
-    instruction, (where the `sp@` is auto-decrementing) and restored at the end of the function with the  
+
+    instruction, (where the `sp@` is auto-decrementing) and restored at the end of the function with the
 ```asm
-        moveml sp@,d7/d6/a5/a4 
+        moveml sp@,d7/d6/a5/a4
 ```
 
-    instruction, where the `sp@` is auto-incrementing.  
-    
+    instruction, where the `sp@` is auto-incrementing.
+
     Students of computer science recognize that this contributes to making the function reentrant and thread-safe.
     
 -   Normal C scoping would apply, however, before C89, declarations were always at the top of the function.
