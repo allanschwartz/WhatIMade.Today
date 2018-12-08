@@ -47,7 +47,7 @@ I am going to need some tools. Here was my process.
     
 Once these tools arrived, I created the first assembly listing of the entire binary. However this listing still looked like a giant blob without symbols, or branch-point labels. Nonetheless, I was thrilled to see source code, albeit assembly. Here is portion of that first assembly listing: [reference/cfn.asm](reference/cfn.asm)
 
-Where to start? So I started at the beginning, the first instruction was branch to the entry-point, `_start`, the C-startup code. Then `_start` calls the `main()` of the Bridge micro-kernel. Good, I had written this code about 9 years before. Lets see if I recognize any of it. I remembered key details about the Bridge micro-kernel. It had a important data-structure called `SYSINIT`, comprised of `SYSTBL`  structures. By carefully tracing the code, I found `SYSINIT`, and on the way deciphered many hex addresses into symbols.
+Where to start? So I started at the beginning, the first instruction was branch to the entry-point, `_start`, the C-startup code. Then `_start` calls the `main()` of the Bridge micro-kernel. Good, I had written this code about 9 years before. Lets see if I recognize any of it. I remembered key details about the Bridge micro-kernel. It had an important data-structure called `SYSINIT`, comprised of `SYSTBL`  structures. By carefully tracing the code, I found `SYSINIT`, and on the way deciphered many hex addresses into symbols.
 
 **![](https://lh3.googleusercontent.com/TqJnj8WFfGtObbDJB9WFsnZxtOyF_nbwfSpEbrJuBjNKvgao_SjNYwVoVNjF_FW_XJSSF4GvtdOhkAbogt_pR7PYE21aOa1WduNU4qSQ3N3RhXND4XKPxhFwNBzbo2f_aqIgFW1B)**
 
@@ -79,33 +79,33 @@ From a [hex dump](SYSTBL) of `SYSINIT`, a wrote this C-code, having peeked at th
 
 Boom! My first piece of reversed-engineered C code. I have already learned a lot by studying this `SYSINIT` table. First, which protocol family they were using, and which protocol layers were included in this product.
 
-Most essential, I learned the OEM’s custom layer was called “CFN” – this name was a code literal – and it was appended to the end of this table, and likewise to the end of the link (**ln**) statement in the *Makefile*. For that I could identify exactly the code I was interested in.
+Most essential, I learned the OEM’s custom layer was called “**CFN**” – this name was a code literal – and it was appended to the end of this table, and likewise to the end of the link (**ln**) statement in the *Makefile*. From that, I identified exactly the code I was interested in.
 
 So let’s look at code at `cfn_main()`. (Complete listing at [reference/cfn.asm](reference/cfn.asm)). 
 
 **![](https://lh4.googleusercontent.com/xADCiIdDydvdjvlReDU7IRmRdaMKitejsusKV5_tEAqG0yVVFs7o2ey7lxk-PYveKRVDhTLXqJr-npkXlurellEIfVGAI5GOECDdOGNr90pLuIoSkf_ahJ8hwjq1QLT_zw5LIe9P)**
+
 Notice that the Unix *adb* command can be used to disassemble. This is because the development machine shared the same CPU as the target embedded machine.
 
-The code remains dense and hard to interpret. While listing all the code, I determined that there are 45 functions in the *cfn* layer, and nearly 3000 lines of assembly. However, the project is now sized and solvable.
+The code remains dense and hard to interpret. While listing all the code, I determined that there are 45 functions in the *cfn* layer, and some 2100 lines of assembly. However, the project is now sized and solvable.
 
 ## Time to Create Some New Tools
 
 I need to break this task down more. After hand translating some code, I realized I needed better tools. For example, adding symbols for the function calls would make the assembly code understandable. I carefully created a [complete disassembly listing](reference/kernel.asm) of the kernel code.
 
-The biggest challenge was to figure out the address range of the Bridge Kernel. Once disassembled, I found the `linkw a6,#n` instructions which began a function, the `rts` instruction with ended the function and the various `bsr` instructions where C functions are called. From this exercise, I created a table of the absolute address of each kernel function:
+The biggest challenge was to figure out the address range of the Bridge Kernel. Once disassembled, I found the `linkw a6,#n` instructions which began a function, the `rts` instruction with ended the function, and the various `bsr` instructions where C functions are called. From this exercise, I created a table of the absolute address of each kernel function:
+
 **![](https://lh6.googleusercontent.com/9hiUj-pvUBM9SI_wVxM9Der3cuFnknQa7R6xv0zx9Gva70OUOBwzGihHcPCAOqoU0dqwn6qIKuwD3kN0c7_MVcwkmoAGVQZVzckvjbb3_WrPf0Dodh_OGSyKXY09pIidOOwg98vC)**
 
-Similarly, I created a [disassembly listing](reference/libc.asm) of libc, then created a [table of absolute addresses](reference/libc.symbols) of all the libc routines called from the kernel:
+Similarly, I created a [disassembly listing](reference/libc.asm) of libc, and then created a [table of absolute addresses](reference/libc.symbols) of all the libc routines called from the kernel.
 
-I created symbol names for all of the fixed addresses referenced in the code. Initially, these were names without meaning. For example, variables, `cfn_g1`, `cfn_g2`, …, `cfn_d1`, `cfn_d2,` ...
-
-(See the complete list of [globals](reference/globals)).
+I also created symbol names for all of the fixed addresses referenced in the code. Initially, these were names without meaning. For example, variables, `cfn_g1`, `cfn_g2`, …, `cfn_d1`, `cfn_d2,` ...  (See the complete [list of globals](reference/globals)).
 
 The next step was to insert these names into the object file and regenerate the assembly for all of the `cfn` functions. Remember that the binary I received was stripped, that is, all the symbols names were removed from the binary. I created a tool called ***unstrip*** which would do the opposite, it would take a list of symbol names and place them back into the binary.
 
-The implementation of the *unstrip* tool is fairly interesting. (See [tools/unstrip.c]([https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/tools/unstrip.c])).
+The implementation of the *unstrip* tool is fairly interesting. (See [tools/unstrip.c](tools/unstrip.c)).
 
-Then, again we use *adb* and disassemble the `cfn` layer. Wow, a lot better. I can begin to almost visualize the lines of C: (See [reference/cfn.asm.3]([https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/cfn.asm.3])).
+Then, again we use *adb* and disassemble the `cfn` layer. Wow, a lot better. I can begin to almost visualize the lines of C: (See [reference/cfn.asm.3](reference/cfn.asm.3)).
 
 Having symbol names makes this assembly much more readable than before. However, in order to see the C flow control structures, I would need more help.
 
@@ -126,9 +126,9 @@ END     { for ( i = 0; i < ln ; i++ ) {
             lbl = substr(line[i], 0, index(line[i],":")-1)
             if (label[lbl]) 
                 printf ("\n_")
-                print line[i]
-                if ( line[i] ~ /beq|bge|bhi|ble|bls|blt|bne|bra/ )
-                    printf ("\n")
+            print line[i]
+            if ( line[i] ~ /beq|bge|bhi|ble|bls|blt|bne|bra/ )
+                printf ("\n")
           }
           print(":3,$s/^cfn[^ ]*://")
           print(":%s/cfn_[0-9]*\\+/L_/g")
@@ -161,27 +161,25 @@ I wrote a tool called ***xref.awk***, to make a function cross-reference table.
 
 ## Beginning the Reverse-Engineering
 
-### Easy-Peasy Examples
-
-In case you are still in disbelief that reverse engineering into C could even be done, I want to show some of the less complicated examples.
-
 #### The Code Generation Basics
 
 First some background about the M680*x*0 generated code.
 
--   The compiler has a rather simplistic register model compared to the processor itself. Registers `a0`, `a1`, `d0`, `d1` are used for all intermediate and temporary calculations. Registers `a6` and `a7` are used for the frame and stack pointers. Registers `d2`, `d3`, `d4`, `d5`, `d6`, `d7` and `a2`, `a3`, `a4`, `a5` are not used at all, unless a register declaration is made, or a higher level of compiler optimization is used.
+-  The compiler has a rather simplistic register model compared to the processor itself. Registers `a0`, `a1`, `d0`, `d1` are used for all intermediate and temporary calculations. Registers `a6` and `a7` are used for the frame and stack pointers. Registers `d2`, `d3`, `d4`, `d5`, `d6`, `d7` and `a2`, `a3`, `a4`, `a5` are not used at all, unless a register declaration is made, or a higher level of compiler optimization is used.
     
 -   C functions always begin with  
-    `linkw a6,#-n`
+```asm
+        linkw a6,#-n
+```
 
     Where *n* is the size of the local autos for this function.  
     Functions always end with 
 ```asm
-    unlk a6  
-    rts
+        unlk a6  
+        rts
 ```
 
--   The stack pointer `a7`  aka  `sp`, which isn’t referenced in a function unless that function makes further calls, or unless register variables are declared.
+-   The stack pointer `a7` *aka* `sp`. `sp` isn’t referenced in a function unless that function makes further calls, or unless register variables are declared.
     
 -   C code may declare locals to use registers like this  
 ```C
@@ -190,10 +188,17 @@ First some background about the M680*x*0 generated code.
     register BD *bd;  
     register char *ptr;  
 ```
-- In the example above, the code would use register `d7` as k, register `d6` as len, register `a5` as bd, and register `a4` as ptr. If this occurs, the registers will be saved at the beginning of the function with the  
-    `moveml d7/d6/a5/a4,sp@`  
+
+-   In the example above, the code would use register `d7` as k, register `d6` as len, register `a5` as bd, and register `a4` as ptr. If this occurs, the registers will be saved at the beginning of the function with the  
+```asm
+        moveml d7/d6/a5/a4,sp@
+```
+    
     instruction, (where the `sp@` is auto-decrementing) and restored at the end of the function with the  
-    `moveml sp@,d7/d6/a5/a4`  
+```asm
+        moveml sp@,d7/d6/a5/a4 
+```
+
     instruction, where the `sp@` is auto-incrementing.  
     
     Students of computer science recognize that this contributes to making the function reentrant and thread-safe.
@@ -203,6 +208,10 @@ First some background about the M680*x*0 generated code.
 With that background, you can look at snippets of assembly, and perhaps see the C code which generated that code.
 
 Note that current compilers have many more optimization algorithms and current CPUs often have more opcodes and registers, so nowadays reverse engineering modern optimized code is more complex, but there are also better open-source tools. This project was done 25 years ago, before such tools were available.
+
+### Easy-Peasy Examples
+
+In case you are still in disbelief that reverse engineering into C could even be done, I want to show some of the less complicated examples.
 
 Here are a five examples of short assembly functions, that is, less than 20 lines of assembly each.
 
