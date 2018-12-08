@@ -194,12 +194,12 @@ First some background about the M680*x*0 generated code.
         moveml d7/d6/a5/a4,sp@
 ```
 
-    instruction, (where the `sp@` is auto-decrementing) and restored at the end of the function with the
+instruction, (where the `sp@` is auto-decrementing) and restored at the end of the function with the
 ```asm
         moveml sp@,d7/d6/a5/a4
 ```
 
-    instruction, where the `sp@` is auto-incrementing.
+instruction, where the `sp@` is auto-incrementing.
 
     Students of computer science recognize that this contributes to making the function reentrant and thread-safe.
     
