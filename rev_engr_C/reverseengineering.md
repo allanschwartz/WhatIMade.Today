@@ -2,26 +2,28 @@
 #### by Allan Schwartz
 
 
-Because I was inspired by Alon Fleiss’ [recent blog]([https://blogcodevalue.wordpress.com/2018/10/08/code-archaeology-how-to-revive-a-more-then-30-years-old-game/](https://blogcodevalue.wordpress.com/2018/10/08/code-archaeology-how-to-revive-a-more-then-30-years-old-game/)), I want to share my story about reverse engineering a stripped binary, also from roughly 30 years ago.
+Because I was inspired by Alon Fleiss’ [recent blog](https://blogcodevalue.wordpress.com/2018/10/08/code-archaeology-how-to-revive-a-more-then-30-years-old-game/)), I want to share my story about reverse engineering a stripped binary, also from roughly 30 years ago.
 
 
 Machine architecture and assembly language is very important in the embedded devices world. I was introduced to many assembly languages at the university:
 
--   CDC-6100 [COMPASS]([https://en.wikipedia.org/wiki/COMPASS](https://en.wikipedia.org/wiki/COMPASS))
--   IBM 360 [BAL]([https://en.wikipedia.org/wiki/IBM_Basic_assembly_language_and_successors](https://en.wikipedia.org/wiki/IBM_Basic_assembly_language_and_successors))
--   Intel 8080 Assembly
--   [MIX]([https://en.wikipedia.org/wiki/MIX](https://en.wikipedia.org/wiki/MIX)) Assembly, for Donald Knuth's [The Art of Computer Programming](https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming) class
+-   CDC-6100 [COMPASS](https://en.wikipedia.org/wiki/COMPASS)
+-   IBM 360 [BAL](https://en.wikipedia.org/wiki/IBM_Basic_assembly_language_and_successors)
+-   Intel 8080 [Assembly](https://en.wikipedia.org/wiki/Intel_8080)
+-   [MIX](https://en.wikipedia.org/wiki/MIX) Assembly, for Donald Knuth's [The Art of Computer Programming](https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming) class
  
-At NASA, I had projects in COMPASS, BAL, PDP 11 [MACRO-11]([https://en.wikipedia.org/wiki/MACRO-11](https://en.wikipedia.org/wiki/MACRO-11)) Assembly, and [IMLAC PDS-1]([https://en.wikipedia.org/wiki/Imlac_PDS-1](https://en.wikipedia.org/wiki/Imlac_PDS-1)) Assembly.
+At NASA, I had projects in COMPASS, BAL, PDP 11 [MACRO-11](https://en.wikipedia.org/wiki/MACRO-11) Assembly, and [IMLAC PDS-1](https://en.wikipedia.org/wiki/Imlac_PDS-1) Assembly.
 
-While working at [Bridge Communications]([https://en.wikipedia.org/wiki/Bridge_Communications](https://en.wikipedia.org/wiki/Bridge_Communications)), where we built the first TCP/IP router, I wrote the micro-kernel. Although I wrote this in C, I debugged entirely in assembly, using a machine-code debugger within the ROM monitor. I learned to read [Motorola 68000]([https://en.wikipedia.org/wiki/Motorola_68000](https://en.wikipedia.org/wiki/Motorola_68000)) assembly and visualize the lines of C which generated that code.
+While working at [Bridge Communications](https://en.wikipedia.org/wiki/Bridge_Communications), where we built the first TCP/IP router, I wrote the micro-kernel. Although I wrote this in C, I debugged entirely in assembly, using a machine-code debugger within the ROM monitor. I learned to read [Motorola 68000](https://en.wikipedia.org/wiki/Motorola_68000) assembly and visualize the lines of C which generated that code.
 
 ## The Job
 Skip forward nearly 10 years. I was hired for an interesting consulting job by the 3Com UK office. They had an OEM customer, British Telecom, who had contracted another consulting firm to build a protocol enabled embedded device, based on the Bridge protocol engine platform, to go into phone booths in London. However, some unknown network change made these devices unstable, so they would crash and reboot many times a day. Imagine every pay phone in London crashing several times a day.
+
 **![](https://lh6.googleusercontent.com/sz11uWOGO57luixJPUG-57Vr1eHKnEt-BShSy86IOHko3yGnQgcVyXPYhQG37UZtxjgwVcIDcaDvaQgAiUO6mTjRmD2Nii-Yd1zRUp4Su8JGET73Wbx89vGd6re-44H--GzKs-oL)**
+
 I said
 
-> Sure! No problem; send me the code, and I will identify the bug.
+> *Sure! No problem; send me the code, and I will identify the bug.*
 
 However, there was a problem. They didn't have source. Apparently, the initial consulting firm had scrapped the development machine, a PDP 11/60, years before. Backup tapes? Nope, these were also scrapped because no other equipment existed to read DECtapes. Source listings? No, everything was lost.
 
@@ -30,6 +32,7 @@ Well, this is going to be more difficult than I thought.
 ## Can you debug with a stripped-Binary Object?
 
 All I received from the customer was a single binary file, sent uu-encoded over email.
+
 **![](https://lh6.googleusercontent.com/YtEmiQ_HqxlHVrr_p3Jhpwo_-k6yozXEs-ykHguX7agLyIUY7HavYTo4i66FsCCIqjI2FqBEBa5ATEM-yxfztG-rbGlY7c4AYdj5Dz8d4-8L8ZogIL_yEmzRJG9B2sNPDpzHJwBt)**
 
 Even after unpacking into a pure binary object file, no matter how I viewed the file, it was still just binary gibberish. I wanted to read the source code, to find the bug(s). Not even assembly code, preferably C code.
@@ -42,9 +45,10 @@ I am going to need some tools. Here was my process.
 
 -   I found a symbol table listing for the Bridge Kernel, from 5 years before. Luckily, no one had changed the kernel in the years since. This was helpful.
     
-Once these tools arrived, I created the first assembly listing of the entire binary. However this listing still looked like a giant blob without symbols, or branch-point labels. Nonetheless, I was thrilled to see source code, albeit assembly. Here is portion of that first assembly listing: [reference/cfn.asm]([https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/cfn.asm](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/cfn.asm))
+Once these tools arrived, I created the first assembly listing of the entire binary. However this listing still looked like a giant blob without symbols, or branch-point labels. Nonetheless, I was thrilled to see source code, albeit assembly. Here is portion of that first assembly listing: [reference/cfn.asm](reference/cfn.asm)
 
 Where to start? So I started at the beginning, the first instruction was branch to the entry-point, `_start`, the C-startup code. Then `_start` calls the `main()` of the Bridge micro-kernel. Good, I had written this code about 9 years before. Lets see if I recognize any of it. I remembered key details about the Bridge micro-kernel. It had a important data-structure called `SYSINIT`, comprised of `SYSTBL`  structures. By carefully tracing the code, I found `SYSINIT`, and on the way deciphered many hex addresses into symbols.
+
 **![](https://lh3.googleusercontent.com/TqJnj8WFfGtObbDJB9WFsnZxtOyF_nbwfSpEbrJuBjNKvgao_SjNYwVoVNjF_FW_XJSSF4GvtdOhkAbogt_pR7PYE21aOa1WduNU4qSQ3N3RhXND4XKPxhFwNBzbo2f_aqIgFW1B)**
 
 The SYSINIT table defined the processes that would be run by the Bridge Kernel. Each SYSTBL entry was this:
@@ -72,11 +76,13 @@ typedef struct systbl {
 From a [hex dump](SYSTBL) of `SYSINIT`, a wrote this C-code, having peeked at the appropriate .h (header) files:
 
  **![](https://lh4.googleusercontent.com/CF33XtqgnaczVTzPKVahXvJDAv-yA8MoPFM4gchnpYKUV-6ATuyQkNit3UebvSdCrN2-L-zUhUQ7WuzN7oAjytnM-nIGMvg8ClOJ5B9rWdff_uv9cpnJylGgfaP1s2j7QMVWEh2J)**
+
 Boom! My first piece of reversed-engineered C code. I have already learned a lot by studying this `SYSINIT` table. First, which protocol family they were using, and which protocol layers were included in this product.
 
 Most essential, I learned the OEM’s custom layer was called “CFN” – this name was a code literal – and it was appended to the end of this table, and likewise to the end of the link (**ln**) statement in the *Makefile*. For that I could identify exactly the code I was interested in.
 
-So let’s look at code at `cfn_main()`. (Complete listing at [reference/cfn.asm]([https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/cfn.asm](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/cfn.asm))). 
+So let’s look at code at `cfn_main()`. (Complete listing at [reference/cfn.asm](reference/cfn.asm)). 
+
 **![](https://lh4.googleusercontent.com/xADCiIdDydvdjvlReDU7IRmRdaMKitejsusKV5_tEAqG0yVVFs7o2ey7lxk-PYveKRVDhTLXqJr-npkXlurellEIfVGAI5GOECDdOGNr90pLuIoSkf_ahJ8hwjq1QLT_zw5LIe9P)**
 Notice that the Unix *adb* command can be used to disassemble. This is because the development machine shared the same CPU as the target embedded machine.
 
@@ -93,7 +99,7 @@ Similarly, I created a [disassembly listing](reference/libc.asm) of libc, then c
 
 I created symbol names for all of the fixed addresses referenced in the code. Initially, these were names without meaning. For example, variables, `cfn_g1`, `cfn_g2`, …, `cfn_d1`, `cfn_d2,` ...
 
-(See the complete list of  [globals](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/globals)).
+(See the complete list of [globals](reference/globals)).
 
 The next step was to insert these names into the object file and regenerate the assembly for all of the `cfn` functions. Remember that the binary I received was stripped, that is, all the symbols names were removed from the binary. I created a tool called ***unstrip*** which would do the opposite, it would take a list of symbol names and place them back into the binary.
 
