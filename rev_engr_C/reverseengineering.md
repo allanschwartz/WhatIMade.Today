@@ -214,6 +214,7 @@ In case you are still in disbelief that reverse engineering into C could even be
 
 Here are a five examples of short assembly functions, that is, less than 20 lines of assembly each.
 
+- - - -
 #### EXAMPLE 1 - Function cfn_8() *aka* cfn_cksum() - illustrates the *for* loop
 
 ```asm
@@ -277,6 +278,7 @@ L2:     exp2
 
 It is essential to recognize the **for** loops, **while** loops and other C flow control. As one might expect, spaghetti code is quite difficult to reverse engineer.
 
+- - - -
 #### EXAMPLE 2 - Function cfn_10() *aka* cfn_gethash() - illustrates a function call and *if* construct
 
 ```asm
@@ -362,6 +364,7 @@ Generate code like this:
 L1:     ...
 ```
 
+- - - -
 #### EXAMPLE 3 - Function cfn_37() - illustrates structure members
 ```asm
                                         ;cfn_37(register CXDATA* cxdata) 
@@ -403,7 +406,7 @@ We also see how the compiler generates references to members within the structur
         lea     a5@(0x22),a0            ;; &cx_data->cx_databuf
 ```
 
-
+- - - -
 #### EXAMPLE 4 - Function cfn_40() - Found our first probably bug
 ```asm
                                         ;BOOL  cfn_40(register CXDATA *cxdata)
@@ -447,7 +450,7 @@ BOOL  cfn_40(register CXDATA *cxdata)
  
 This example doesn’t teach us anything new about code generation. However, we learn something about how the data buffer, pointed to by `cx_dataptr` is being used, and this function seems to return *TRUE* if the packet is empty (or the second element == `0xff`), and *TRUE* otherwise. This looks like a bug to me. Also, we learn that member `cx_datastate` is some kind of state variable, and `0x0b` is one value.
 
-
+- - - - 
 #### EXAMPLE 5 - Function cfn_44() *aka* cx_countbytes() - illustrates a *while* loop, and auto-incrementing pointers
 
 ```asm
@@ -487,6 +490,8 @@ short cx_countbytes(register unsigned char *p)
 We notice that this could be a for loop, or it could be a while loop. The code pattern is very close. Also, notice that the expression `*p++` compiles very efficiently into a reference through `a5`, and an auto-increment of `a5` in the same instruction. That's pretty cool!
 
 This function seems to count the number of non-`0xff` bytes in the CX data packet.
+
+- - - - 
 
 From these examples, we can see that it is not all misery and difficulty. In fact, it was was quite fun deciphering the code to this point. Once these small functions are understood, along with the *clib* and Bridge Kernel calls, the meaning of longer functions which use these building blocks, becomes clear.
 
@@ -610,11 +615,11 @@ In short, there are a couple of error conditions or corner cases which were not 
 3.  No consulting job is too hard.
 4.  ***We should never complain about debugging.***
 
-        -   *Now* we have sophisticated tools.
-        -   *Now*, we have the customer’s exact runtime environment.
-        -   *Now*, we have (or should have) unit-tests.
-        -   *Now* we have a supportive team.
-        -   And, most significantly, *now* we have ***source code*** to work with.
+    -   *Now* we have sophisticated tools.
+    -   *Now*, we have the customer’s exact runtime environment.
+    -   *Now*, we have (or should have) unit-tests.
+    -   *Now* we have a supportive team.
+    -   And, most significantly, *now* we have ***source code*** to work with.
 
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbLTExOTE3Njk1MF19
