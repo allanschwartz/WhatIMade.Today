@@ -2,17 +2,16 @@
 #### by Allan Schwartz
 
 
-Because I was inspired by Alon Fleiss’ [recent blog](https://blogcodevalue.wordpress.com/2018/10/08/code-archaeology-how-to-revive-a-more-then-30-years-old-game/)), I want to share my story about reverse engineering a stripped binary, also from roughly 30 years ago.
+Because I was inspired by Alon Fleiss’ [recent blog](https://blogcodevalue.wordpress.com/2018/10/08/code-archaeology-how-to-revive-a-more-then-30-years-old-game/), I want to share my story also about binary code, and also from roughly 30 years ago.
 
-
-Machine architecture and assembly language is very important in the embedded devices world. I was introduced to many assembly languages at the university:
+Machine architecture and assembly language is very important in the embedded devices world. I was introduced to many assembly languages at the universities:
 
 -   CDC-6100 [COMPASS](https://en.wikipedia.org/wiki/COMPASS)
 -   IBM 360 [BAL](https://en.wikipedia.org/wiki/IBM_Basic_assembly_language_and_successors)
 -   Intel 8080 [Assembly](https://en.wikipedia.org/wiki/Intel_8080)
 -   [MIX](https://en.wikipedia.org/wiki/MIX) Assembly, for Donald Knuth's [The Art of Computer Programming](https://en.wikipedia.org/wiki/The_Art_of_Computer_Programming) class
  
-At NASA, I had projects in COMPASS, BAL, PDP 11 [MACRO-11](https://en.wikipedia.org/wiki/MACRO-11) Assembly, and [IMLAC PDS-1](https://en.wikipedia.org/wiki/Imlac_PDS-1) Assembly.
+At NASA, I had several projects, in 7600 COMPASS, 360 BAL, PDP 11/70 [MACRO-11](https://en.wikipedia.org/wiki/MACRO-11) Assembly, and [IMLAC PDS-1](https://en.wikipedia.org/wiki/Imlac_PDS-1) Assembly.
 
 While working at [Bridge Communications](https://en.wikipedia.org/wiki/Bridge_Communications), where we built the first TCP/IP router, I wrote the micro-kernel. Although I wrote this in C, I debugged entirely in assembly, using a machine-code debugger within the ROM monitor. I learned to read [Motorola 68000](https://en.wikipedia.org/wiki/Motorola_68000) assembly and visualize the lines of C which generated that code.
 
@@ -31,7 +30,7 @@ Well, this is going to be more difficult than I thought.
 
 ## Can you debug with a stripped-Binary Object?
 
-All I received from the customer was a single binary file, sent uu-encoded over email.
+All I received from the customer was a single binary file, sent uuencoded over email.
 
 **![](https://lh6.googleusercontent.com/YtEmiQ_HqxlHVrr_p3Jhpwo_-k6yozXEs-ykHguX7agLyIUY7HavYTo4i66FsCCIqjI2FqBEBa5ATEM-yxfztG-rbGlY7c4AYdj5Dz8d4-8L8ZogIL_yEmzRJG9B2sNPDpzHJwBt)**
 
@@ -62,14 +61,14 @@ The SYSINIT table defined the processes that would be run by the Bridge Kernel. 
  * the boot-up processes.
  */
 typedef struct systbl {
-    int (*p_initentry)();
+    int   (*p_initentry)();
     ADDRESS p_arg;
-    char *p_nam;
-    ushort p_pri;
-    short p_mod;
-    int (*p_mainentry)();
-    int (*p_inittest)();
-    MREQ *p_mreq;
+    char   *p_nam;
+    ushort  p_pri;
+    short   p_mod;
+    int   (*p_mainentry)();
+    int   (*p_inittest)();
+    MREQ   *p_mreq;
 } SYSTBL;
 ```
 
@@ -81,7 +80,7 @@ Boom! My first piece of reversed-engineered C code. I have already learned a lot
 
 Most essential, I learned the OEM’s custom layer was called “**CFN**” – this name was a code literal – and it was appended to the end of this table, and likewise to the end of the link (**ln**) statement in the *Makefile*. From that, I identified exactly the code I was interested in.
 
-So let’s look at code at `cfn_main()`. (Complete listing at [reference/cfn.asm](reference/cfn.asm)). 
+So let’s look at code at `cfn_main()`. (Complete listing at [reference/cfn.asm](reference/cfn.asm)).
 
 **![](https://lh4.googleusercontent.com/xADCiIdDydvdjvlReDU7IRmRdaMKitejsusKV5_tEAqG0yVVFs7o2ey7lxk-PYveKRVDhTLXqJr-npkXlurellEIfVGAI5GOECDdOGNr90pLuIoSkf_ahJ8hwjq1QLT_zw5LIe9P)**
 
@@ -215,41 +214,40 @@ In case you are still in disbelief that reverse engineering into C could even be
 
 Here are a five examples of short assembly functions, that is, less than 20 lines of assembly each.
 
-#### EXAMPLE 1 - Function cfn_8() *aka* cfn_cksum() - illustrates the **for** loop
+#### EXAMPLE 1 - Function cfn_8() *aka* cfn_cksum() - illustrates the *for* loop
 
 ```asm
-                                        uchar cfn_cksum(char *txt) 
-                                        {
+                                        ;unsigned char cfn_cksum(char *txt)
+                                        ;{
 cfn_8:  linkw a6,#-4
-        clrb  a6@(-1)                   uchar sum = 0;
-        bras  L2                        for( ; *txt; txt++) {
-
+        clrb  a6@(-1)                   ;unsigned char sum = 0;
+        bras  L2                        ;for( ; *txt; txt++) {
 
 L1:     movl  a6@(8),a0
 
         movb  a0@,d0
-        eorb  d0,a6@(-1)                sum ^= *txt;
-        addql #1,a6@(8)                 //txt++;
+        eorb  d0,a6@(-1)                ;sum ^= *txt;
+        addql #1,a6@(8)                 ;//txt++;
 
 L2:     movl  a6@(8),a0
         tstb  a0@
-        bnes  L1                        }
+        bnes  L1                        ;}
 
-        movb  a6@(-1),d0                return sum;
+        movb  a6@(-1),d0                ;return sum;
         unlk  a6
-        rts                             }
+        rts                             ;}
 ```
 
 The above 13 lines of assembly translate to these couple lines of C.
 ```C
 unsigned char cfn_cksum(char *txt)      /* a6@(8) */ 
 {
-        unsigned char sum = 0;          /* a6@(-1) */
+    unsigned char sum = 0;              /* a6@(-1) */
 
-        for (; *txt; txt++) {
-                sum ^= *txt;
-        }
-        return sum;
+    for (; *txt; txt++) {
+        sum ^= *txt;
+    }
+    return sum;
 }
 ```
 
@@ -279,32 +277,32 @@ L2:     exp2
 
 It is essential to recognize the **for** loops, **while** loops and other C flow control. As one might expect, spaghetti code is quite difficult to reverse engineer.
 
-#### EXAMPLE 2 - Function cfn_10() aka cfn_gethash() - illustrates a function call and **if** construct
+#### EXAMPLE 2 - Function cfn_10() *aka* cfn_gethash() - illustrates a function call and *if* construct
 
 ```asm
-                                        int cfn_gethash( char *str) 
-                                        {
-cfn_10: linkw a6,#-4
-        moveml  d7,sp@                  register int val;       // d7
+                                        ;int cfn_gethash(char *str)
+                                        ;{
+cfn_10: linkw   a6,#-4
+        moveml  d7,sp@                  ;register int val;       // d7
 
         movl    a6@(8),sp@-
-        bsr     cfn_ascii_to_hex        val = cfn_ascii_to_hex(str);
+        bsr     cfn_ascii_to_hex        ;val = cfn_ascii_to_hex(str);
         addql   #4,sp
 
-        movl    d0,d7                   if ( val == -1 ) {
+        movl    d0,d7                   ;if ( val == -1 ) {
         moveq   #-1,d1
         cmpl    d1,d0
         bnes    L1
 
-        moveq   #-1,d0                  return -1;
-        bras    L2                      }
+        moveq   #-1,d0                  ;return -1;
+        bras    L2                      ;}
 
 L1:     andl    #0xff,d7
-        movl    d7,d0                   return (val & 0xff);
+        movl    d7,d0                   ;return (val & 0xff);
 
 L2:     moveml  sp@,d7
         unlk    a6
-        rts                             }
+        rts                             ;}
 ```
 
 
@@ -312,13 +310,13 @@ The above 16 lines of assembly translate to these few lines of C.
 ```C
 int cfn_gethash(char *str)
 {
-        REG int val;                    /* d7 */
+    register int val;                   /* d7 */
 
-        if ((val = cfn_ascii_to_hex(str)) == -1) {
-                return -1;
-        }
+    if ((val = cfn_ascii_to_hex(str)) == -1) {
+        return -1;
+    }
 
-        return (val & 0xff);
+    return (val & 0xff);
 }
 ```
 
@@ -356,35 +354,35 @@ Upon return, the SP is restored with the equivalent of a “pop” instruction
 
 Generate code like this:
 ```asm
-        calculate expression into register d0
+        calculate expression in d0
         moveq   #k,d1
         cmpl    d1,d0
         bnes    L1
         statement-list
-L1:                ...
+L1:     ...
 ```
 
-#### Function cfn_37() -- illustrates structure members
+#### EXAMPLE 3 - Function cfn_37() - illustrates structure members
 ```asm
-                                        cfn_37(register CXDATA* cxdata) 
-                                        {
-cfn_37: linkw        a6,#-4
+                                        ;cfn_37(register CXDATA* cxdata) 
+                                        ;{
+cfn_37: linkw   a6,#-4
         moveml  a5,sp@
-        movl  a6@(8),a5
+        movl    a6@(8),a5
 
-        pea 0x201:w
-        pea a5@(0x22)
-        bsr cx_fill_ff                  cx_fill_ff(cxdata->cx_databuf, 513);
-        addql #8,sp
+        pea     0x201:w
+        pea     a5@(0x22)
+        bsr     cx_fill_ff              ;cx_fill_ff(cxdata->cx_databuf, 513);
+        addql   #8,sp
 
-        lea a5@(0x22),a0
-        movl  a0,a5@(0x224)             cxdata->cx_dataptr = cxdata->cx_databuf;
+        lea     a5@(0x22),a0
+        movl    a0,a5@(0x224)           ;cxdata->cx_dataptr = cxdata->cx_databuf;
 
-        clrw  a5@(0xa)                  cxdata->cx_datastate = 0;
+        clrw    a5@(0xa)                ;cxdata->cx_datastate = 0;
 
         moveml  sp@,a5
-        unlk  a6
-        rts                             }
+        unlk    a6
+        rts                             ;}
 ```
 
 
@@ -402,33 +400,33 @@ What we learn from this little snippet of code, is that `cxdata` points to a pac
 
 We also see how the compiler generates references to members within the structure, for example:
 ```asm
-        lea a5@(0x22),a0                // &cx_data->cx_databuf
+        lea     a5@(0x22),a0            ;; &cx_data->cx_databuf
 ```
 
 
-#### Function cfn_40() -- we found our first probably bug
+#### EXAMPLE 4 - Function cfn_40() - Found our first probably bug
 ```asm
-                                        BOOL  cfn_40(REG CXDATA *cxdata)
-                                        {
+                                        ;BOOL  cfn_40(register CXDATA *cxdata)
+                                        ;{
 cfn_40: linkw a6,#-8
-        moveml  a4/a5,sp@               register char *p;        // a4
+        moveml  a4/a5,sp@               ;register char *p;        // a4
   
         movl    a6@(8),a5
-        movl    a5@(0x224),a4           p = cxdata->cx_dataptr;
+        movl    a5@(0x224),a4           ;p = cxdata->cx_dataptr;
   
-        addql   #1,a4                   p++;
-        cmpb    #0xff,a4@               if( *p != 0xff )
-        beqs    L_0x22                  {
+        addql   #1,a4                   ;p++;
+        cmpb    #0xff,a4@               ;if ( *p != 0xff )
+        beqs    L_0x22                  ;{
   
-        movw    #0xb,a5@(0xa)           cxdata->cx_datastate = 0xb;
+        movw    #0xb,a5@(0xa)           ;cxdata->cx_datastate = 0xb;
   
-        moveq   #1,d0                   return 1;
-        bras    L_0x24                  }
+        moveq   #1,d0                   ;return 1;
+        bras    L_0x24                  ;}
   
-L_0x22: moveq   #1,d0                   return 1;
+L_0x22: moveq   #1,d0                   ;return 1;
 L_0x24: moveml  sp@,a4/a5
         unlk    a6
-        rts                             }
+        rts                             ;}
 ```
 
 The above 14 lines of assembly translate to these few lines of C.
@@ -440,7 +438,7 @@ BOOL  cfn_40(register CXDATA *cxdata)
     pp = cxdata->cx_dataptr;
     pp++;
     if (*pp != -1) {
-        cxdata->cx_datastate = 0xb;
+        cxdata->cx_datastate = 0x0b;
         return TRUE;
     }
     return TRUE;  
@@ -450,41 +448,42 @@ BOOL  cfn_40(register CXDATA *cxdata)
 This example doesn’t teach us anything new about code generation. However, we learn something about how the data buffer, pointed to by `cx_dataptr` is being used, and this function seems to return *TRUE* if the packet is empty (or the second element == `0xff`), and *TRUE* otherwise. This looks like a bug to me. Also, we learn that member `cx_datastate` is some kind of state variable, and `0x0b` is one value.
 
 
-#### Function cfn_44() aka cx_countbytes() -- illustrates a while loop, and auto-incrementing pointers
+#### EXAMPLE 5 - Function cfn_44() *aka* cx_countbytes() - illustrates a *while* loop, and auto-incrementing pointers
 
 ```asm
-                                        short cx_countbytes(REG uchar *p)
-                                        {
+                                        ;short cx_countbytes(REG uchar *p)
+                                        ;{
 cfn_44: linkw a6,#-8
-        moveml  d7/a5,sp@               REG short k;                  // d7
+        moveml  d7/a5,sp@               ;REG short k;                  // d7
   
-        movl    a6@(8),a5               // p                          // a5
-        clrw    d7                      k = 0;
-        bras    L_0x12                  while (*p++ != 0xff) {
-L_0x10: addqw   #1,d7                   k++;
+        movl    a6@(8),a5               ;// p                          // a5
+        clrw    d7                      ;k = 0;
+        bras    L_0x12                  ;while (*p++ != 0xff) {
+L_0x10: addqw   #1,d7                   ;k++;
 L_0x12: cmpb    #0xff,a5@+
-        bnes    L_0x10                  }
+        bnes    L_0x10                  ;}
   
-        movw    d7,d0                   return k;
+        movw    d7,d0                   ;return k;
         moveml  sp@,d7/a5
         unlk    a6
-        rts                             }
+        rts                             ;}
 ```
 
 
 The above 12 lines of assembly translate to these few lines of C.
 ```C
-short cx_countbytes(REG uchar *p)  
+short cx_countbytes(register unsigned char *p)
 {
-        REG short k;                  /* d7 */
-        k = 0;
-        while (*p++ != 0xff) {
-                k++;
-        } 
-        return k;
+    register short k;                   /* d7 */
+
+    k = 0;
+    while (*p++ != 0xff) {
+        k++;
+    } 
+    return k;
 }
 ```
-  
+
 We notice that this could be a for loop, or it could be a while loop. The code pattern is very close. Also, notice that the expression `*p++` compiles very efficiently into a reference through `a5`, and an auto-increment of `a5` in the same instruction. That's pretty cool!
 
 This function seems to count the number of non-`0xff` bytes in the CX data packet.
@@ -510,108 +509,96 @@ After quite a bit of study, clean-up, and documentation, the corresponding C cod
 
 ## Resulting ASM and C Files
 
-
 Eventually, I produced 45 assembly files with some C code written as comments or margin notes. These margin notes became complete, equivalent to the original C source code.
-
 
 I extracted the C code, (with another tool), and made sure each one compiled.
 
-
 Here are all 45 Assembly, reverse-engineered C files, and calling signatures:
-
 
 #### Table of Asm files, C files, and calling signatures
 
-
 |  |  |  |
 |--|--|--|
-|cfn_0|[cfn_0.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_0.c)|`void cfn_main()`|
-|cfn_1|[cfn_1.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_1.c)|`void cfn_initworld()`|
-|cfn_2|[cfn_2.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_2.c)|`void cfn_receive()`|
-|cfn_3|[cfn_3.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_3.c)|`void cfn_set_alarm()`|
-|cfn_4|[cfn_4.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_4.c)|`void cfn_send2sock(short sock)`|
-|cfn_5|[cfn_5.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_5.c)|`void cfn_sendidpdata(BD *bd, short sock, L1_ADDR addr)`|
-|cfn_6|[cfn_6.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_6.c)|`void cfn_error(char *txt)`|
-|cfn_7|[cfn_7.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_7.c)|`char *cfn_fmt_txt_pkt(char *dst, char *txt1, char *txt2)`|
-|cfn_8|[cfn_8.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_8.c)|`uchar cfn_cksum(uchar *p)`|
-|cfn_9|[cfn_9.c](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_9.c)|`int cfn_ascii_to_hex(uchar *p)`|
-|cfn_10|cfn_10.c|`int cfn_gethash(uchar *str)`|
-|cfn_11|cfn_11.c|`void cfn_tcreate(int i, char *nm, L1_ADDR addr)`|
-|cfn_12|cfn_12.c|`void cfn_update(int index, L1_ADDR addr)`|
-|cfn_13|cfn_13.c|`BD *cfn_str_to_bd(char *str, short flag)`|
-|cfn_14|cfn_14.c|`void cfn_panic(char *str)`|
-|cfn_15|cfn_15.c|`void cfn_panic2(char *str)`|
+|[cfn_0](asm/cfn_0)|[cfn_0.c](c/cfn_0.c)|`void cfn_main()`|
+|[cfn_1](asm/cfn_1)|[cfn_1.c](c/cfn_1.c)|`void cfn_initworld()`|
+|[cfn_2](asm/cfn_2)|[cfn_2.c](c/cfn_2.c)|`void cfn_receive()`|
+|[cfn_3](asm/cfn_3)|[cfn_3.c](c/cfn_3.c)|`void cfn_set_alarm()`|
+|[cfn_4](asm/cfn_4)|[cfn_4.c](c/cfn_4.c)|`void cfn_send2sock(short sock)`|
+|[cfn_5](asm/cfn_5)|[cfn_5.c](c/cfn_5.c)|`void cfn_sendidpdata(BD *bd, short sock, L1_ADDR addr)`|
+|[cfn_6](asm/cfn_6)|[cfn_6.c](c/cfn_6.c)|`void cfn_error(char *txt)`|
+|[cfn_7](asm/cfn_7)|[cfn_7.c](c/cfn_7.c)|`char *cfn_fmt_txt_pkt(char *dst, char *txt1, char *txt2)`|
+|[cfn_8](asm/cfn_8)|[cfn_8.c](c/cfn_8.c)|`uchar cfn_cksum(uchar *p)`|
+|[cfn_9](asm/cfn_9)|[cfn_9.c](c/cfn_9.c)|`int cfn_ascii_to_hex(uchar *p)`|
+|[cfn_10](asm/cfn_10)|[cfn_10.c](c/cfn_10.c)|`int cfn_gethash(uchar *str)`|
+|[cfn_11](asm/cfn_11)|[cfn_11.c](c/cfn_11.c)|`void cfn_tcreate(int i, char *nm, L1_ADDR addr)`|
+|[cfn_12](asm/cfn_12)|[cfn_12.c](c/cfn_12.c)|`void cfn_update(int index, L1_ADDR addr)`|
+|[cfn_13](asm/cfn_13)|[cfn_13.c](c/cfn_13.c)|`BD *cfn_str_to_bd(char *str, short flag)`|
+|[cfn_14](asm/cfn_14)|[cfn_14.c](c/cfn_14.c)|`void cfn_panic(char *str)`|
+|[cfn_15](asm/cfn_15)|[cfn_15.c](c/cfn_15.c)|`void cfn_panic2(char *str)`|
 
 
 #### Table (continued) of Asm files, C files, and calling signatures
 
-
 |  |  |  |
 |--|--|--|
-|cfn_16|cfn_16.c|void cfn_dumptable()
-|cfn_17|cfn_17.c|void cfn_print1_tentry(int index)
-|cfn_18|cfn_18.c|void cfn_tableinit()
-|cfn_19|cfn_19.c|void cfn_reboot()
-|cfn_20|cfn_20.c|void cx_psp_packet(BD *bd, short flag)
-|cfn_21|cfn_21.c|int cx_atoh_n(char *str, short count)
-|cfn_22|cfn_22.c|uchar cx_psp_cksum(BD *bd)
-|cfn_23|cfn_23.c|void cx_init(short arg)
-|cfn_24|cfn_24.c|void cx_main(MSG *msg, MBID mbid)
-|cfn_25|cfn_25.c|void cx_listenmsg(MSG *msg)
-|cfn_26|cfn_26.c|void cx_connectmsg(MSG *msg)
-|cfn_27|cfn_27.c|void cs_disconnectmsg(MSG *msg)
-|cfn_28|cfn_28.c|void cx_IDPdatamsg(MSG *msg)
-|cfn_29|cfn_29.c|void cs_printpkt(BD *bd)
-|cfn_30|cfn_30.c|PSPPKT cx_xr_packet(BD *bd, L1_ADDR addr, ushort sock)
+|[cfn_16](asm/cfn_16)|[cfn_16.c](c/cfn_16.c)|`void cfn_dumptable()`|
+|[cfn_17](asm/cfn_17)|[cfn_17.c](c/cfn_17.c)|`void cfn_print1_tentry(int index)`|
+|[cfn_18](asm/cfn_18)|[cfn_18.c](c/cfn_18.c)|`void cfn_tableinit()`|
+|[cfn_19](asm/cfn_19)|[cfn_19.c](c/cfn_19.c)|`void cfn_reboot()`|
+|[cfn_20](asm/cfn_20)|[cfn_20.c](c/cfn_20.c)|`void cx_psp_packet(BD *bd, short flag)`|
+|[cfn_21](asm/cfn_21)|[cfn_21.c](c/cfn_21.c)|`int cx_atoh_n(char *str, short count)`|
+|[cfn_22](asm/cfn_22)|[cfn_22.c](c/cfn_22.c)|`uchar cx_psp_cksum(BD *bd)`|
+|[cfn_23](asm/cfn_23)|[cfn_23.c](c/cfn_23.c)|`void cx_init(short arg)`|
+|[cfn_24](asm/cfn_24)|[cfn_24.c](c/cfn_24.c)|`void cx_main(MSG *msg, MBID mbid)`|
+|[cfn_25](asm/cfn_25)|[cfn_25.c](c/cfn_25.c)|`void cx_listenmsg(MSG *msg)`|
+|[cfn_26](asm/cfn_26)|[cfn_26.c](c/cfn_26.c)|`void cx_connectmsg(MSG *msg)`|
+|[cfn_27](asm/cfn_27)|[cfn_27.c](c/cfn_27.c)|`void cs_disconnectmsg(MSG *msg)`|
+|[cfn_28](asm/cfn_28)|[cfn_28.c](c/cfn_28.c)|`void cx_IDPdatamsg(MSG *msg)`|
+|[cfn_29](asm/cfn_29)|[cfn_29.c](c/cfn_29.c)|`void cs_printpkt(BD *bd)`|
+|[cfn_30](asm/cfn_30)|[cfn_30.c](c/cfn_30.c)|`PSPPKT cx_xr_packet(BD *bd, L1_ADDR addr, ushort sock)`|
 
 
 #### Table (continued) of Asm files, C files, and calling signatures
 
-
 |  |  |  |
 |--|--|--|
-|cfn_31|cfn_31.c|BOOL cfn_31(BD *bd, L1_ADDR *addrp, short port)
-|cfn_32|cfn_32.c|BOOL cx_xr_psp_valid(PSPPKT *psp, BD *bd, L1_ADDR addr)
-|cfn_33|cfn_33.c|void cfn_33(PSPPKT *psp, BD *bd, short port)
-|cfn_34|cfn_34.c|cx_psp_reply(PSPPKT *psp, BD *bd, L1_ADDR addr, ushort sock)
-|cfn_35|cfn_35.c|void cx_SAdatamsg(MSG *msg)
-|cfn_36|cfn_36.c|BOOL cfn_36(CXDATA *csdata)
-|cfn_37|cfn_37.c|void cfn_37(CXDATA *cxdata)
-|cfn_38|cfn_38.c|BOOL cfn_38(CXDATA *cxdata)
-|cfn_39|cfn_39.c|BOOL cfn_39(CXDATA *cxdata)
-|cfn_40|cfn_40.c|BOOL cfn_40(CXDATA *cxdata)
-|cfn_41|cfn_41.c|BOOL cfn_41(CXDATA *cxdata)
-|cfn_42|cfn_42.c|char *cfn_42(char *pp, CSDATA *cxdata)
-|cfn_43|cfn_43.c|BOOL cfn_43(BD *bd, CXDATA *cxdata )
-|cfn_44|cfn_44.c|short cx_countbytes(uchar *p)
-|cfn_45|cfn_45.c|void cx_fill_ff(uchar *p, short cnt)
+|[cfn_31](asm/cfn_31)|[cfn_31.c](c/cfn_31.c)|`BOOL cfn_31(BD *bd, L1_ADDR *addrp, short port)`|
+|[cfn_32](asm/cfn_32)|[cfn_32.c](c/cfn_32.c)|`BOOL cx_xr_psp_valid(PSPPKT *psp, BD *bd, L1_ADDR addr)`|
+|[cfn_33](asm/cfn_33)|[cfn_33.c](c/cfn_33.c)|`void cfn_33(PSPPKT *psp, BD *bd, short port)`|
+|[cfn_34](asm/cfn_34)|[cfn_34.c](c/cfn_34.c)|`cx_psp_reply(PSPPKT *psp, BD *bd, L1_ADDR addr, ushort sock)`|
+|[cfn_35](asm/cfn_35)|[cfn_35.c](c/cfn_35.c)|`void cx_SAdatamsg(MSG *msg)`|
+|[cfn_36](asm/cfn_36)|[cfn_36.c](c/cfn_36.c)|`BOOL cfn_36(CXDATA *csdata)`|
+|[cfn_37](asm/cfn_37)|[cfn_37.c](c/cfn_37.c)|`void cfn_37(CXDATA *cxdata)`|
+|[cfn_38](asm/cfn_38)|[cfn_38.c](c/cfn_38.c)|`BOOL cfn_38(CXDATA *cxdata)`|
+|[cfn_39](asm/cfn_39)|[cfn_39.c](c/cfn_39.c)|`BOOL cfn_39(CXDATA *cxdata)`|
+|[cfn_40](asm/cfn_40)|[cfn_40.c](c/cfn_40.c)|`BOOL cfn_40(CXDATA *cxdata)`|
+|[cfn_41](asm/cfn_41)|[cfn_41.c](c/cfn_41.c)|`BOOL cfn_41(CXDATA *cxdata)`|
+|[cfn_42](asm/cfn_42)|[cfn_42.c](c/cfn_42.c)|`char *cfn_42(char *pp, CSDATA *cxdata)`|
+|[cfn_43](asm/cfn_43)|[cfn_43.c](c/cfn_43.c)|`BOOL cfn_43(BD *bd, CXDATA *cxdata )`|
+|[cfn_44](asm/cfn_44)|[cfn_44.c](c/cfn_44.c)|`short cx_countbytes(uchar *p)`|
+|[cfn_45](asm/cfn_45)|[cfn_45.c](c/cfn_45.c)|`void cx_fill_ff(uchar *p, short cnt)`|
 
 
 Analyzing all the global variables, some of which are structures, was quite difficult. However, the process is no different then when you come across a poorly documented and poorly named variable in normal source code. One *greps* across all the files, and figures out how it is being used and what it could be.
 
-
 Next we need the header files, which were also incrementally developed. They enabled me to compile the C files, and check that the resultant assembly code matches the original.
 
+-   See [c/cfn.h](c/cfn.h)
 
-  
--   See [c/cfn.h](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn.h))
-    
--   See [c/cfn_externs.h](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_externs.h))  
+-   See [c/cfn_externs.h](c/cfn_externs.h)
+
     By the way, notice that C calling signatures was not a developed concept back then. In fact, our compiler didn’t even accept ANSI C89 standards, as you can see in each function declaration.
     
--   See [c/cfn_structs.h](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_structs.h))
+-   See [c/cfn_structs.h](c/cfn_structs.h)
     
--   See [c/cfn_vars.h](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/cfn_vars.h))
+-   See [c/cfn_vars.h](c/cfn_vars.h)
 
-
-I also analyzed the task message flow and built state tables. (See [c/msg_types](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/c/msg_types))
+I also analyzed the task message flow and built state tables. (See [c/msg_types](c/msg_types)).
 
 
 ## Conclusion
 
-
 Did I find bugs? Absolutely. When you examine every line of code, from the machine level code on up, you are studying all cross references, and carefully reconstructing the control flow, the bugs leap off the page and scream at you. In my C listing, I identify a number of bugs, memory leaks, and other issues.
-
 
 In short, there are a couple of error conditions or corner cases which were not well tested. These errors often led to a memory leak of the msg space, and eventually getmsg() would fail. In reporting getmsg() failing, more memory would be leaked … and very soon the machine would crash and reboot.
 
