@@ -201,7 +201,7 @@ instruction, (where the `sp@` is auto-decrementing) and restored at the end of t
 
 instruction, where the `sp@` is auto-incrementing.
 
-    Students of computer science recognize that this contributes to making the function reentrant and thread-safe.
+Students of computer science recognize that this contributes to making the function reentrant and thread-safe.
     
 -   Normal C scoping would apply, however, before C89, declarations were always at the top of the function.
 
@@ -215,7 +215,7 @@ In case you are still in disbelief that reverse engineering into C could even be
 
 Here are a five examples of short assembly functions, that is, less than 20 lines of assembly each.
 
-#### Function cfn_8() *aka* cfn_cksum() -- illustrates the for loop
+#### EXAMPLE 1 - Function cfn_8() *aka* cfn_cksum() - illustrates the **for** loop
 
 ```asm
                                         uchar cfn_cksum(char *txt) 
@@ -227,16 +227,13 @@ cfn_8:  linkw a6,#-4
 
 L1:     movl  a6@(8),a0
 
-
         movb  a0@,d0
         eorb  d0,a6@(-1)                sum ^= *txt;
         addql #1,a6@(8)                 //txt++;
 
-
 L2:     movl  a6@(8),a0
         tstb  a0@
         bnes  L1                        }
-
 
         movb  a6@(-1),d0                return sum;
         unlk  a6
@@ -280,38 +277,33 @@ L2:     exp2
         bnes L1
 ```
 
-It becomes essential to recognize the **for** loops, **while** loops and other C flow control. As one might expect, spaghetti code is quite difficult to reverse engineer.
+It is essential to recognize the **for** loops, **while** loops and other C flow control. As one might expect, spaghetti code is quite difficult to reverse engineer.
 
-#### Function cfn_10() aka cfn_gethash() -- illustrates a function call, an if construct
+#### EXAMPLE 2 - Function cfn_10() aka cfn_gethash() - illustrates a function call and **if** construct
 
 ```asm
                                         int cfn_gethash( char *str) 
                                         {
 cfn_10: linkw a6,#-4
-        moveml  d7,sp@                  register int val; // d7
+        moveml  d7,sp@                  register int val;       // d7
 
+        movl    a6@(8),sp@-
+        bsr     cfn_ascii_to_hex        val = cfn_ascii_to_hex(str);
+        addql   #4,sp
 
-        movl  a6@(8),sp@-
-        bsr cfn_ascii_to_hex            val = cfn_ascii_to_hex(str);
-        addql #4,sp
+        movl    d0,d7                   if ( val == -1 ) {
+        moveq   #-1,d1
+        cmpl    d1,d0
+        bnes    L1
 
+        moveq   #-1,d0                  return -1;
+        bras    L2                      }
 
-        movl  d0,d7                     if ( val == -1 ) {
-        moveq #-1,d1
-        cmpl  d1,d0
-        bnes  L1
-
-
-        moveq #-1,d0                    return -1;
-        bras  L2                        }
-
-
-L1:     andl  #0xff,d7
-        movl  d7,d0                     return (val & 0xff);
-
+L1:     andl    #0xff,d7
+        movl    d7,d0                   return (val & 0xff);
 
 L2:     moveml  sp@,d7
-        unlk  a6
+        unlk    a6
         rts                             }
 ```
 
@@ -340,21 +332,20 @@ From this example, we learn a few more code generation rules.
 
 
 Where `a6@(8)` is the argument to *cfn_ascii_to_hex*(), and also the first function argument. Then, `sp@-`, means “onto the stack, with the stack pointer auto decrementing”. Then the function is called  
-```
+```asm
         bsr cfn_ascii_to_hex
 ```
 
-
 Upon return, the SP is restored with the equivalent of a “pop” instruction  
-```
+```asm
         addql #4,sp  
 ```
-      
+
 2.  If the function returns a value, that value is in `d0`, as evidenced in the next line of assembly  
-```
+```asm
         movl d0,d7  
 ```
-      
+
 3.  if statements of the form  
 ```C
     if (expression == k) {
