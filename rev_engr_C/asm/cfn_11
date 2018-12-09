@@ -1,49 +1,45 @@
-						cfn_tcreate( index, 
-							name, 
-							addr )
+                                        cfn_tcreate( 
+                                            REG int index,      // a6@(8)
+                                            char *name,         // a6@(0x0c)
+                                            L1_ADDR addr )      // a6@(0x10)
+                                                  //addr.l1_net          a6@(0x10)
+                                                  //addr.l1_host         a6@(0x14)
+                                                  //addr.l1_sock         a6@(0x1a)
+                                        {
+cfn_11: linkw   a6,#-4          
+        moveml  d7,sp@                  // index
+                                        
+        movl    a6@(8),d7
 
-						REG int index;		a6@(8)
-						char *name;  		a6@(c)
-						L1_ADDR addr;          a6@(0x10)
-						  addr.l1_net	       a6@(0x10)
-						  addr.l1_host         a6@(0x14)
-						  addr.l1_sock         a6@(0x1a)
+        pea     4:w         
+        movl    a6@(0xc),sp@-
 
-						{
+        pea     0x12:w                  // sizeof table[0]
+        movl    d7,sp@-                 // index
+        jsr     __lmul                  // 12*index
+        addql   #8,sp
 
-cfn_11:		linkw	a6,#-4			
-		moveml	d7,sp@
-		movl	a6@(8),d7
+        addl    #table,d0       
+        movl    d0,sp@-
+        jsr     blt                     blt(&table[index],name,4);
+        lea     sp@(0xc),a7
 
-		pea	4:w			
-		movl	a6@(0xc),sp@-
+        pea     0x12:w                  // sizeof table[0]
+        movl    d7,sp@-                 // index
+        jsr     __lmul                  // 12*index
+        addql   #8,sp
 
-		pea	0x12:w
-		movl	d7,sp@-			
-		jsr	__lmul			12*index
-		addql	#8,sp
+        addl    #table+5,d0     
+        movl    d0,a0
+        movb    #1,a0@                  table[index].t_inuse = 1;
 
-		addl	#table,d0		
-		movl	d0,sp@-
-		jsr	blt			blt(&table[index],name,4);
-		lea	sp@(0xc),a7
+        movl    a6@(0x18),sp@-
+        movl    a6@(0x14),sp@-
+        movl    a6@(0x10),sp@-
+        movl    d7,sp@-
+        bsrs    cfn_update              cfn_update(index, addr);
+        lea     sp@(0x10),a7
 
-		pea	0x12:w
-		movl	d7,sp@-
-		jsr	__lmul			12*index
-		addql	#8,sp
-
-		addl	#table+5,d0		
-		movl	d0,a0
-		movb	#1,a0@			table[index].t_inuse = 1;
-
-		movl	a6@(0x18),sp@-
-		movl	a6@(0x14),sp@-
-		movl	a6@(0x10),sp@-
-		movl	d7,sp@-
-		bsrs	cfn_update		cfn_update(index, addr);
-		lea	sp@(0x10),a7
-
-		moveml	sp@,d7
-		unlk	a6
-		rts				}
+        moveml  sp@,d7
+        unlk    a6
+        rts                             }

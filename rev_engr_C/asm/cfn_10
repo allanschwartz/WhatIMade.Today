@@ -1,28 +1,23 @@
-						int	cfn_gethash(str)
+                                        int cfn_gethash(char *str)      // a6@(8)
+                                        {
+cfn_10: linkw   a6,#-4
+        moveml  d7,sp@
+                                        REG int val;            // d7
+        movl    a6@(8),sp@-
+        bsr     cfn_ascii_to_hex        val = cfn_ascii_to_hex(str);
+        addql   #4,sp           
 
-						char *str;		a6@(8)
+        movl    d0,d7                   if ( val == -1 ) {
+        moveq   #-1,d1
+        cmpl    d1,d0
+        bnes    L1
 
-						{
-						REG int val;		d7
-						---
+        moveq   #-1,d0                  return -1;
+        bras    L2                      }
 
-cfn_10:		linkw	a6,#-4
-		moveml	d7,sp@
-		movl	a6@(8),sp@-
-		bsr	cfn_ascii_to_hex	val = cfn_ascii_to_hex(str);
-		addql	#4,sp			
+L1:     andl    #0xff,d7        
+        movl    d7,d0                   return (val & 0xff);
 
-		movl	d0,d7			if( val == -1 ) {
-		moveq	#-1,d1
-		cmpl	d1,d0
-		bnes	L1
-
-		moveq	#-1,d0			return -1;
-		bras	L2			}
-
-L1:		andl	#0xff,d7		
-		movl	d7,d0			return (val & 0xff);
-
-L2:		moveml	sp@,d7
-		unlk	a6
-		rts				}
+L2:     moveml  sp@,d7
+        unlk    a6
+        rts                             }

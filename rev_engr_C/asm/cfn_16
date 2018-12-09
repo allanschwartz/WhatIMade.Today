@@ -1,62 +1,59 @@
-						cfn_dumptable()
+                                        cfn_dumptable()
+                                        {
+                                        REG int i;        d7
+                                        TENTRY tent       a6@(-0x12)
+                                          tent.t_name         a6@(-0x12)
+                                          tent.t_inuse        a6@(-0xd)
+                                          tent.t_addr         a6@(-0xc)
+                                          tent.t_addr.l1_net  a6@(-0xc)
+                                          tent.t_addr.l1_host a6@(-8)
+                                          tent.t_addr.l1_sock a6@(-2)
+cfn_16: linkw   a6,#-0x18
+        moveml  d7,sp@
 
-						{
-						REG int i;	      d7
-						TENTRY tent	      a6@(-0x12)
-						  tent.t_name         a6@(-0x12)
-						  tent.t_inuse	      a6@(-0xd)
-						  tent.t_addr         a6@(-0xc)
-						  tent.t_addr.l1_net  a6@(-0xc)
-						  tent.t_addr.l1_host a6@(-8)
-						  tent.t_addr.l1_sock a6@(-2)
-						---
+        clrl    d7                      for( i = 0; i < 0x103; i++)
+        bra     L_0x8e                  {
 
-cfn_16:		linkw	a6,#-0x18
-		moveml	d7,sp@
+L_0xe:  pea     0x12:w
+        movl    d7,sp@-
+        jsr     __lmul
+        addql   #8,sp
+        addl    #table,d0       
+        movl    d0,a0
+        movl    a0@(0xe),a6@(-4)        tent = table[i];
+        movl    a0@(0xa),a6@(-8)    
+        movl    a0@(6),a6@(-0xc)    
+        movl    a0@(2),a6@(-0x10)   
+        movw    a0@,a6@(-0x12)      
 
-		clrl	d7			for( i = 0; i < 0x103; i++)
-		bra	L_0x8e			{
+        tstb    a6@(-0xd)               if( tent.t_inuse ) 
+        beqs    L_0x8c                  {
 
-L_0xe:		pea	0x12:w
-		movl	d7,sp@-
-		jsr	__lmul
-		addql	#8,sp
-		addl	#table,d0		
-		movl	d0,a0
-		movl	a0@(0xe),a6@(-4)	tent = table[i];
-		movl	a0@(0xa),a6@(-8)	
-		movl	a0@(6),a6@(-0xc)	
-		movl	a0@(2),a6@(-0x10)	
-		movw	a0@,a6@(-0x12)		
+        pea     a6@(-0x12)
+        movl    #0x133f80,sp@-
+        jsr     printf                  printf("name:%s", tent.t_name)
+        addql   #8,sp
 
-		tstb	a6@(-0xd)		if( tent.t_inuse ) 
-		beqs	L_0x8c			{
+        pea     a6@(-8)     
+        jsr     display_xaddr
+        movl    d0,sp@
+        movl    #0x133f89,sp@-          printf("host:%s",
+        jsr     printf                      display_xaddr(
+                                            &tent.t_addr.l1_host) )
+        addql   #8,sp
 
-		pea	a6@(-0x12)
-		movl	#0x133f80,sp@-
-		jsr	printf			printf("name:%s", tent.t_name)
-		addql	#8,sp
+        movw    a6@(-2),d0
+        andl    #0xffff,d0
+        movl    d0,sp@-
+        movl    #0x133f92,sp@-
+        jsr     printf                  printf("socket:%s",
+        addql   #8,sp                       tent.t_addr.l1_sock)
+                                        }
+L_0x8c: addql   #1,d7
 
-		pea	a6@(-8)		
-		jsr	display_xaddr
-		movl	d0,sp@
-		movl	#0x133f89,sp@-		printf("host:%s",
-		jsr	printf		            display_xaddr(
-						    &tent.t_addr.l1_host) )
-		addql	#8,sp
+L_0x8e: cmpl    #0x103,d7
+        blt     L_0xe                   }
 
-		movw	a6@(-2),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		movl	#0x133f92,sp@-
-		jsr	printf			printf("socket:%s",
-		addql	#8,sp			    tent.t_addr.l1_sock)
-						}
-L_0x8c:		addql	#1,d7
-
-L_0x8e:		cmpl	#0x103,d7
-		blt	L_0xe			}
-
-		moveml	sp@,d7
-		unlk	a6
-		rts				}
+        moveml  sp@,d7
+        unlk    a6
+        rts                             }

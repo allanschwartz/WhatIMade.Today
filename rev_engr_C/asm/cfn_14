@@ -1,11 +1,8 @@
-						cfn_panic(str)
-
-						char *str;		a6@(8)
-
-						{
-cfn_14:		linkw	a6,#0
-		movl	a6@(8),sp@-
-		jsr	panic			panic(str);
-		addql	#4,sp
-		unlk	a6
-		rts				}
+                                        cfn_panic(char *str)        //a6@(8)
+                                        {
+cfn_14: linkw   a6,#0
+        movl    a6@(8),sp@-
+        jsr     panic                   panic(str);
+        addql   #4,sp
+        unlk    a6
+        rts                             }

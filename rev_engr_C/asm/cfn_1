@@ -1,65 +1,61 @@
-						cfn_initworld()
+                                        cfn_initworld()
+                                        {
+cfn_1:  linkw   a6,#-4
+        moveml  d7,sp@
+                                        REG short rc;       d7
 
-						{
-						REG short rc;		d7
-						---
+        movl    _idattnet,_cfn_brdcst   cfn_brdcst.l1_net = idattnet;
+        movw    #-1,_cfn_brdcst+4       cfn_brdcst.ha_word1 = 0xffff;
+        movw    #-1,_cfn_brdcst+6       cfn_brdcst.ha_word2 = 0xffff;
+        movw    #-1,_cfn_brdcst+8       cfn_brdcst.ha_word3 = 0xffff;
 
-cfn_1:		linkw	a6,#-4
-		moveml	d7,sp@
+        pea     0x8a0       
+        movl    #cxDATAblk,sp@-
+        jsr     clear                   clear( cxDATAblk, 0x8a0 );
+        addql   #8,sp
 
-		movl	_idattnet,_cfn_brdcst	cfn_brdcst.l1_net = idattnet;
-		movw	#-1,_cfn_brdcst+4	cfn_brdcst.ha_word1 = 0xffff;
-		movw	#-1,_cfn_brdcst+6	cfn_brdcst.ha_word2 = 0xffff;
-		movw	#-1,_cfn_brdcst+8	cfn_brdcst.ha_word3 = 0xffff;
+        jsr     cfn_tableinit           cfn_tableinit();
 
-		pea	0x8a0		
-		movl	#cxDATAblk,sp@-
-		jsr	clear			clear( cxDATAblk, 0x8a0 );
-		addql	#8,sp
+        movl    _idattnet,_cfn_attnet   cfn_attnet = idattnet;
+        movw    _idinrhost,_cfn_inrhost cfn_inrhost.ha_word1 = idinrhost;
+        movw    _idinrhost+2,_cfn_inrhost+2
+        movw    _idinrhost+4,_cfn_inrhost+4
 
-		jsr	cfn_tableinit		cfn_tableinit();
+        movl    #_cfn_inrhost,sp@-
+        jsr     display_xaddr
+        addql   #4,sp
+        movl    d0,_cfn_hostaddr        cfn_hostaddr = display_xaddr(&cfn_inrhost);
 
-		movl	_idattnet,_cfn_attnet	cfn_attnet = idattnet;
-		movw	_idinrhost,_cfn_inrhost	cfn_inrhost.ha_word1 = idinrhost;
-		movw	_idinrhost+2,_cfn_inrhost+2
-		movw	_idinrhost+4,_cfn_inrhost+4
+        movw    #0x271c,cfn_src_sock    cfn_src_sock = 10012;
 
-		movl	#_cfn_inrhost,sp@-
-		jsr	display_xaddr
-		addql	#4,sp
-		movl	d0,_cfn_hostaddr	cfn_hostaddr = 
-						display_xaddr(&cfn_inrhost);
+        pea     1:w
+        jsr     mboxcreate  
+        movl    d0,sp@
+        movw    cfn_src_sock,d0
+        andl    #0xffff,d0
+        movl    d0,sp@-
+        jsr     idopenskt               rc = idopenskt( cfn_src_sock, 
+                                            mboxcreate(1) );
+        addql   #8,sp
 
-		movw	#0x271c,cfn_src_sock	cfn_src_sock = 10012;
+        movw    d0,d7                   if (rc != NoError)
+        tstw    d7
+        beqs    L1:                     {
 
-		pea	1:w
-		jsr	mboxcreate	
-		movl	d0,sp@
-		movw	cfn_src_sock,d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		jsr	idopenskt		rc = idopenskt( cfn_src_sock, 
-							mboxcreate(1) );
-		addql	#8,sp
+        movl    _cfn_hostaddr,sp@-  
+        movl    #0x133d84,sp@-          // "%s: count not open error socket",
+        movl    #cfn_linebuf,sp@-
+        jsr     sprintf                 sprintf( cfn_linebuf,
+                                            "%s: count not open error socket",
+                                            cfn_hostaddr );
+        lea     sp@(0xc),a7
 
-		movw	d0,d7			if (rc != NoError )
-		tstw	d7
-		beqs	L1:			{
+        movl    #cfn_linebuf,sp@-       cfn_error(cfn_linebuf);
+        jsr     cfn_error
+        addql   #4,sp
 
-		movl	_cfn_hostaddr,sp@-	sprintf( cfn_linebuf,
-				             "%s: count not open error socket",
-						cfn_hostaddr );
-		movl	#0x133d84,sp@-
-		movl	#cfn_linebuf,sp@-
-		jsr	sprintf
-		lea	sp@(0xc),a7
-
-		movl	#cfn_linebuf,sp@-	cfn_error(cfn_linebuf);
-		jsr	cfn_error
-		addql	#4,sp
-
-		jsr	cfn_reboot		cfn_reboot();
-						}
-L1:		moveml	sp@,d7
-		unlk	a6
-		rts				}
+        jsr cfn_reboot                  cfn_reboot();
+                                        }
+L1:     moveml  sp@,d7
+        unlk    a6
+        rts                             }
