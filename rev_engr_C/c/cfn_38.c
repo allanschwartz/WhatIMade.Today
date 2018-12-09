@@ -3,7 +3,7 @@
  *  $Header:$
  *
  *  NAME
- *	cfn_
+ *      cfn_
  *
  *  DESCRIPTION
  *
@@ -14,23 +14,21 @@
  *
  *
  *  ARGUMENTS
- *	none
+ *      none
  *
  *  HISTORY
- *	reversed engineering from binary, June/July 1991,
- *	by Allan M. Schwartz
+ *      reversed engineering from binary, June/July 1991,
+ *      by Allan M. Schwartz
  *
  *  BUGS
- *	none known
+ *      none known
  *
  ********************************************************************/
 
 #include "cfn.h"
 
-         BOOL    cfn_38(cxdata)
-         REG CXDATA *cxdata;     a6@(8)
-                                 a5
-         {
+BOOL    cfn_38(REG CXDATA *cxdata) // a6@(8), a5
+{
          REG char *pp;           a4;
          short s1;               a6@(-2)
          ---

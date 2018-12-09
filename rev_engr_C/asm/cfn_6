@@ -1,62 +1,59 @@
-						cfn_error(txt)
+                                                cfn_error(char *txt) a6@(8)
 
-						int txt;	     a6@(8)
+                                                {
+                                                REG BD *bd;          a5
+                                                L1_ADDR addr;        a6@(-0x108)
+                                                  addr.l1_net        a6@(-0x108)
+                                                  addr.l1_host       a6@(-0x104)
+                                                  addr.l1_host.ha_word1    x104
+                                                  addr.l1_host.ha_word1    x102
+                                                  addr.l1_host.ha_word2    x100
+                                                  addr.l1_sock       a6@(-0xfe)
 
-						{
-						REG BD *bd;          a5
-						L1_ADDR addr;	     a6@(-0x108)
-						  addr.l1_net        a6@(-0x108)
-						  addr.l1_host       a6@(-0x104)
-						  addr.l1_host.ha_word1    x104
-						  addr.l1_host.ha_word1    x102
-						  addr.l1_host.ha_word2    x100
-						  addr.l1_sock       a6@(-0xfe)
+                                                char buf[250+1];     a6@(-0xfb)
 
-						char buf[250+1];     a6@(-0xfb)
-						---
+cfn_6:          linkw   a6,#-0x10c
+                moveml  a5,sp@
 
-cfn_6: 		linkw	a6,#-0x10c
-		moveml	a5,sp@
+                pea     0xfb:w                  
+                pea     a6@(-0xfb)
+                jsr     clear                   clear( buf, 251 );
+                addql   #8,sp
 
-		pea	0xfb:w			
-		pea	a6@(-0xfb)
-		jsr	clear			clear( buf, 251 );
-		addql	#8,sp
+                movl    a6@(8),sp@-
+                movl    #0x133e5c,sp@-
+                pea     a6@(-0xfb)
+                bsrs    cfn_fmt_txt_pkt         cfn_fmt_txt_pkt(buf, 
+                                                        cnstnt_pkt2, txt);
+                lea     sp@(0xc),a7
 
-		movl	a6@(8),sp@-
-		movl	#0x133e5c,sp@-
-		pea	a6@(-0xfb)
-		bsrs	cfn_fmt_txt_pkt		cfn_fmt_txt_pkt(buf, 
-							cnstnt_pkt2, txt);
-		lea	sp@(0xc),a7
+                clrl    sp@-            
+                pea     a6@(-0xfb)
+                bsr     cfn_str_to_buf          bd = cfn_str_to_bd( buf, 0 );
+                addql   #8,sp
+                movl    d0,a5
 
-		clrl	sp@-		
-		pea	a6@(-0xfb)
-		bsr	cfn_str_to_buf		bd = cfn_str_to_bd( buf, 0 );
-		addql	#8,sp
-		movl	d0,a5
+                tstl    d0                      if( bd == NULL ) 
+                bnes    L1                      {
+                bsr     cfn_reboot                cfn_reboot();
+                                                }
 
-		tstl	d0			if( bd == NULL ) 
-		bnes	L1			{
-		bsr	cfn_reboot		  cfn_reboot();
-						}
+L1:             movl    table_101,a6@(-0x108)   MOVEL1ADDR(addr, &table[0x101])
+                movw    table_101+4,a6@(-0x104) 
+                movw    table_101+6,a6@(-0x102) 
+                movw    table_101+8,a6@(-0x100) 
+                movw    table_101+0xa,a6@(-0xfe)        
 
-L1:		movl	table_101,a6@(-0x108)	MOVEL1ADDR(addr, &table[0x101])
-		movw	table_101+4,a6@(-0x104)	
-		movw	table_101+6,a6@(-0x102)	
-		movw	table_101+8,a6@(-0x100)	
-		movw	table_101+0xa,a6@(-0xfe)	
+                movl    a6@(-0x100),sp@-        
+                movl    a6@(-0x104),sp@-
+                movl    a6@(-0x108),sp@-
+                movw    cfn_src_sock,d0
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                pea     a5@                     
+                bsr     sendidpdata             cfn_sendidpdata(bd,
+                lea     sp@(0x14),a7                cfn_src_sock, addr);
 
-		movl	a6@(-0x100),sp@-	
-		movl	a6@(-0x104),sp@-
-		movl	a6@(-0x108),sp@-
-		movw	cfn_src_sock,d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		pea	a5@			
-		bsr	sendidpdata		cfn_sendidpdata(bd,
-		lea	sp@(0x14),a7		    cfn_src_sock, addr);
-
-		moveml	sp@,a5
-		unlk	a6
-		rts				}
+                moveml  sp@,a5
+                unlk    a6
+                rts                             }

@@ -1,41 +1,39 @@
-						cx_atoh_n( str, count )
+                                        cx_atoh_n( str, len )
+                                            char  *str;     a6@(8)
+                                            short len;      a6@(0xe)
+                                        {
+                                        short i;            a6@(-0x12)
+                                        char p[16];         a6@(-0x10)
 
-						char  *str;		a6@(8)
-						short count;		a6@(0xe)
+cfn_21: linkw   a6,#-0x14
 
-						{
-						short i;     	     a6@(-0x12)
-						char p[16];	     a6@(-0x10)
+        clrw    a6@(-0x12)              for ( i = 0; i < len; i++ ) {
 
-cfn_21:		linkw	a6,#-0x14
+        bras    L_0x24
 
-		clrw	a6@(-0x12)		for( i = 0; i < count; i++ ){
+L_0xa:  movl    a6@(8),a0               
+        lea     a6@(-0x10),a1           
+        movw    a6@(-0x12),d0           
+        extl    d0
+        addl    d0,a1
+        movb    a0@,a1@                 p[i] = *str++;
+        addql   #1,a6@(8)
 
-		bras	L_0x24
+        addqw   #1,a6@(-0x12)           i++;
 
-L_0xa:		movl	a6@(8),a0		
-		lea	a6@(-0x10),a1		
-		movw	a6@(-0x12),d0		
-		extl	d0
-		addl	d0,a1
-		movb	a0@,a1@			p[i] = *str++;
-		addql	#1,a6@(8)
+L_0x24: movw    a6@(-0x12),d0   
+        cmpw    a6@(0xe),d0             
+        blts    L_0xa                   }
 
-		addqw	#1,a6@(-0x12)		i++;
+        lea     a6@(-0x10),a0           p
+        movw    a6@(-0x12),d0           i
+        extl    d0
+        addl    d0,a0
+        clrb    a0@                     p[i] = 0;
 
-L_0x24: 	movw	a6@(-0x12),d0	
-		cmpw	a6@(0xe),d0		
-		blts	L_0xa			}
+        pea     a6@(-0x10)              
+        bsr     cfn_ascii_to_hex        return cfn_ascii_to_hex(p);
+        addql   #4,sp
 
-		lea	a6@(-0x10),a0		p
-		movw	a6@(-0x12),d0		i
-		extl	d0
-		addl	d0,a0
-		clrb	a0@			p[i] = 0;
-
-		pea	a6@(-0x10)		
-		bsr	cfn_ascii_to_hex	return cfn_ascii_to_hex(p);
-		addql	#4,sp
-
-		unlk	a6
-		rts				}
+        unlk    a6
+        rts                             }

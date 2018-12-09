@@ -1,104 +1,105 @@
-						cx_init(arg)
+                                                cx_init(arg)
 
-						short arg;		a6@(0xa)
+                                                short arg;              a6@(0xa)
 
-						{
-						REG CXDATA *cxdata; 	a5
-						REG short index;	d7
-						REG ushort rc;		d6
-						---
+                                                {
+                                                REG CXDATA *cxdata;     a5
+                                                REG short index;        d7
+                                                REG ushort rc;          d6
+                                                ---
 
-cfn_23:		linkw	a6,#-0xc
-		moveml	d6/d7/a5,sp@
+cfn_23:         linkw   a6,#-0xc
+                moveml  d6/d7/a5,sp@
 
-		movw	a6@(0xa),d7		index = arg;
+                movw    a6@(0xa),d7             index = arg;
 
-		pea	0x228:w
-		movw	d7,d0
-		extl	d0
-		movl	d0,sp@-
-		jsr	__lmul
-		addql	#8,sp
-		addl	#cxDATAblk,d0
-		movl	d0,a5			cxdata = &cxDATAblk[0x228*index]
+                pea     0x228:w
+                movw    d7,d0
+                extl    d0
+                movl    d0,sp@-
+                jsr     __lmul
+                addql   #8,sp
+                addl    #cxDATAblk,d0
+                movl    d0,a5                   cxdata = &cxDATAblk[0x228*index]
 
-		movl	a5,d0
-		movl	currprocess,a0
-		movl	d0,a0@(0x54)		SETDATA(cxdata);
+                movl    a5,d0
+                movl    currprocess,a0
+                movl    d0,a0@(0x54)            SETDATA(cxdata);
 
-		movw	#0xa,a5@		cxdata->cx_mailboxdepth = 10;
+                movw    #0xa,a5@                cxdata->cx_mailboxdepth = 10;
 
-		clrw	a5@(0xa)		cxdata->cx_datastate = 0;
+                clrw    a5@(0xa)                cxdata->cx_datastate = 0;
 
-		movw	d7,a5@(4)		cxdata->cx_index = index;
+                movw    d7,a5@(4)               cxdata->cx_index = index;
 
-		movw	a5@,d0		
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		jsr	mboxcreate		
-		addql	#4,sp
-		movl	d0,a5@(0x16)		cxdata->cx_mailbox1 = 
-						    mboxcreate( 
-						       cxdata->cx_mailboxdepth);
+                movw    a5@,d0          
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                jsr     mboxcreate              
+                addql   #4,sp
+                movl    d0,a5@(0x16)            cxdata->cx_mailbox1 = 
+                                                    mboxcreate( 
+                                                       cxdata->cx_mailboxdepth);
 
-		movw	a5@,d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		jsr	mboxcreate
-		addql	#4,sp
-		movl	d0,a5@(0x1e)		cxdata->cx_mailbox2 = 
-						    mboxcreate( 
-						       cxdata->cx_mailboxdepth);
-			
-		movl	currprocess,a0
-		movl	a0@(8),a5@(0x1a)	cxdata->cx_mbid = MYMBID();
-		movw	d7,d0			
-		extl	d0
-		addl	#0x2710,d0
-		movw	d0,a5@(0xc)		cxdata->cx_sock = index + 0x2710;
+                movw    a5@,d0
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                jsr     mboxcreate
+                addql   #4,sp
+                movl    d0,a5@(0x1e)            cxdata->cx_mailbox2 = 
+                                                    mboxcreate( 
+                                                       cxdata->cx_mailboxdepth);
+                        
+                movl    currprocess,a0
+                movl    a0@(8),a5@(0x1a)        cxdata->cx_mbid = MYMBID();
+                movw    d7,d0                   
+                extl    d0
+                addl    #0x2710,d0
+                movw    d0,a5@(0xc)             cxdata->cx_sock = index + 0x2710;
 
-		pea	0x201:w
-		pea	a5@(0x22)
-		jsr	cx_fill_ff		cx_fill_ff(
-						    &cxdata->cx_databuf, 513);
-		addql	#8,sp
+                pea     0x201:w
+                pea     a5@(0x22)
+                jsr     cx_fill_ff              cx_fill_ff(
+                                                    &cxdata->cx_databuf, 513);
+                addql   #8,sp
 
-		lea	a5@(0x22),a0
-		movl	a0,a5@(0x224)		cxdata->cx_dataptr = 
-						    &cxdata->cx_databuf;
+                lea     a5@(0x22),a0
+                movl    a0,a5@(0x224)           cxdata->cx_dataptr = 
+                                                    &cxdata->cx_databuf;
 
-		movl	a5@(0x16),sp@-
-		movw	a5@(0xc),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		jsr	idopenskt		rc = idopenskt(
-						    cxdata->cx_sock,
-						    cxdata->cx_mailbox1);
-		addql	#8,sp
-		movw	d0,d6
+                movl    a5@(0x16),sp@-
+                movw    a5@(0xc),d0
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                jsr     idopenskt               rc = idopenskt(
+                                                    cxdata->cx_sock,
+                                                    cxdata->cx_mailbox1);
+                addql   #8,sp
+                movw    d0,d6
 
-		tstw	d6			if( rc != NoError)
-		beqs	L_0xf6			{
+                tstw    d6                      if( rc != NoError)
+                beqs    L_0xf6                  {
 
-		movw	a5@(0xc),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		movl	cfn_hostaddr,sp@-
-		movl	#0x133fcc,sp@-		sprintf(cfn_linebuf, fmt,
-		movl	#cfn_linebuf,sp@-	    cfn_hostaddr, 
-						    cxdata->cx_sock );
-		jsr	sprintf
-		lea	sp@(0x10),a7
+                movw    a5@(0xc),d0
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                movl    cfn_hostaddr,sp@-
+                movl    #0x133fcc,sp@-          // "%s: cannot open socket %d"
+                movl    #cfn_linebuf,sp@-           
+                jsr     sprintf                 sprintf(cfn_linebuf, 
+                                                    "%s: cannot open socket %d",
+                                                    cfn_hostaddr, 
+                                                    cxdata->cx_sock );
+                lea     sp@(0x10),a7
 
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp
+                movl    #cfn_linebuf,sp@-
+                jsr     cfn_error               cfn_error(cfn_linebuf);
+                addql   #4,sp
 
-		jsr	cfn_reboot		cfn_reboot();
-						}
-L_0xf6:		moveml	sp@,d6/d7/a5		
-		unlk	a6
-		rts				}
+                jsr     cfn_reboot              cfn_reboot();
+                                                }
+L_0xf6:         moveml  sp@,d6/d7/a5            
+                unlk    a6
+                rts                             }
 
-static char fmt[]="%s: cannot open socket %d";
 

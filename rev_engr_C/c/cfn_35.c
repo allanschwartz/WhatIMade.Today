@@ -3,7 +3,7 @@
  *  $Header:$
  *
  *  NAME
- *	cfn_
+ *      cx_SAdatamsg(MSG *msg)
  *
  *  DESCRIPTION
  *
@@ -14,31 +14,26 @@
  *
  *
  *  ARGUMENTS
- *	none
+ *      none
  *
  *  HISTORY
- *	reversed engineering from binary, June/July 1991,
- *	by Allan M. Schwartz
+ *      reversed engineering from binary, June/July 1991,
+ *      by Allan M. Schwartz
  *
  *  BUGS
- *	none known
+ *      none known
  *
  ********************************************************************/
 
 #include "cfn.h"
 
-         cx_SAdatamsg(msg)
-
-         MSG *msg;               a6@(8)
-
-         {
-
-         REG CXDATA *cxdata;     /*a5*/
-         REG BD *bd;             /*a4*/
-         REG ushort myport;      /*d7*/
-         REG ushort portid;      /*d6*/
-         REG short flag;         /*d5*/
-
+cx_SAdatamsg(MSG *msg)           /* a6@(8) */
+{
+         REG CXDATA *cxdata;     /* a5 */
+         REG BD *bd;             /* a4 */
+         REG ushort myport;      /* d7 */
+         REG ushort portid;      /* d6 */
+         REG short flag;         /* d5 */
 
          cxdata = (CXDATA *)MYDATA();
          bd = msg->m_bufdesc;
@@ -49,19 +44,19 @@
          goto L_0x86:
          else {
 
-	     sprintf(cfn_linebuf, "%s: SA data for port %d went to port %d",
-		     cfn_hostaddr, portid, myport )
-	     cfn_error(cfn_linebuf);
-	     freemsg(msg);		/* ~~~ WTF */
-	     return;
+             sprintf(cfn_linebuf, "%s: SA data for port %d went to port %d",
+                     cfn_hostaddr, portid, myport )
+             cfn_error(cfn_linebuf);
+             freemsg(msg);              /* ~~~ WTF */
+             return;
          }
 
          L_0x6e:
          {
-	     freemsg(msg);
-	     cfn_37(cxdata);
-	     return;
-         {
+             freemsg(msg);
+             cfn_37(cxdata);
+             return;
+         }
 
          if(cfn_43(bd, cxdata)!=1)
 
@@ -132,6 +127,5 @@
 
          return;
 }
-
 "
 

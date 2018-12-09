@@ -1,145 +1,141 @@
-						cfn_receive()
+                                        cfn_receive()
+                                        {
+                                        REG short i;           d7
+                                        REG int rc;            d6
+                                        ushort sock;           a6@(-0xa)
+                                        MBID mbid;             a6@(-8)
+                                        MSG *msg;              a6@(-4)
+cfn_2:  linkw   a6,#-0x14
+        moveml  d6/d7,sp@
+        jsr     getalarm                cfn_amsg = getalarm();
+        movl    d0,_cfn_amsg
 
-						{
-						REG short i;           d7
-						REG int rc;            d6
-						ushort sock;	       a6@(-0xa)
-						MBID mbid;	       a6@(-8)
-						MSG *msg;	       a6@(-4)
-						---
+        movw    #0x271b,a6@(-0xa)       sock = 0x271b;
 
-cfn_2:		linkw	a6,#-0x14
-		moveml	d6/d7,sp@
-		jsr	getalarm		cfn_amsg = getalarm();
-		movl	d0,_cfn_amsg
+        pea     1:w
+        jsr     mboxcreate              
+        movl    d0,sp@
 
-		movw	#0x271b,a6@(-0xa)	sock = 0x271b;
+        movw    a6@(-0xa),d0
+        andl    #0xffff,d0
+        movl    d0,sp@-
+        jsr     idopenskt               rc = idopenskt( sock, 
+        addql   #8,sp                       mboxcreate(1) );
+        movw    d0,d6
 
-		pea	1:w
-		jsr	mboxcreate		
-		movl	d0,sp@
+        tstw    d6                      if( rc != 0)
+        beqs    L_0x7c                  {
 
-		movw	a6@(-0xa),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		jsr	idopenskt		rc = idopenskt( sock, 
-		addql	#8,sp			    mboxcreate(1) );
-		movw	d0,d6
+        movw    a6@(-0xa),d0
+        andl    #0xffff,d0
+        movl    d0,sp@-
+        movl    _cfn_hostaddr,sp@-
+        movl    #0x133dba,sp@-
+        movl    #cfn_linebuf,sp@-       sprintf(cfn_linebuf,
+        jsr     sprintf                     "%s: cannot open iamhere socket %d",
+        lea     sp@(0x10),a7                cfn_hostaddr, sock);
 
-		tstw	d6			if( rc != 0)
-		beqs	L_0x7c			{
+        movl    #cfn_linebuf,sp@-
+        jsr     cfn_error               cfn_error(cfn_linebuf);
+        addql   #4,sp
+        jsr     cfn_reboot              cfn_reboot();
+                                        }
+L_0x7c: movw    a6@(-0xa),d0
+        andl    #0xffff,d0
+        movl    d0,sp@-
+        bsr     cfn_send2sock           cfn_send2sock(sock);
+        addql   #4,sp
 
-		movw	a6@(-0xa),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x133dba,sp@-
-		movl	#cfn_linebuf,sp@-	sprintf(cfn_linebuf,
-		jsr	sprintf		"%s: cannot open iamhere socket %d",
-		lea	sp@(0x10),a7		    cfn_hostaddr, sock);
+L_0x8e: bsr     cfn_iamhere             cfn_iamhere();
+        bra     L_0x152
 
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp
-		jsr	cfn_reboot		cfn_reboot();
-						}
-L_0x7c:		movw	a6@(-0xa),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		bsr	cfn_send2sock		cfn_send2sock(sock);
-		addql	#4,sp
+L_0x96: movw    d6,d0
+        extl    d0
+        movl    d0,sp@-
+        movl    _cfn_hostaddr,sp@-
+        movl    #0x133ddc,sp@-
+        movl    #cfn_linebuf,sp@-       sprintf(cfn_linebuf,
+        jsr     sprintf                     "%s: breceive returns %d!",
+        lea     sp@(0x10),a7                cfn_hostaddr, rc);
 
-					L_0x8e:
-L_0x8e:		bsr	cfn_iamhere		cfn_iamhere();
-		bra	L_0x152
+        movl    #cfn_linebuf,sp@-
+        jsr     cfn_error               cfn_error(cfn_linebuf);
+        bras    L_0xd0
 
-L_0x96:		movw	d6,d0
-		extl	d0
-		movl	d0,sp@-
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x133ddc,sp@-
-		movl	#cfn_linebuf,sp@-	sprintf(cfn_linebuf,
-		jsr	sprintf			    "%s: breceive returns %d!",
-		lea	sp@(0x10),a7		    cfn_hostaddr, rc);
+L_0xc6: movl    a6@(-4),sp@-
+        jsr     freemsg                 freemsg(msg);
+L_0xd0: addql   #4,sp
+        bras    L_0x152
 
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		bras	L_0xd0
+                                        L_0xd4:
+L_0xd4: cmpw    #0x70e,d0               case ML2TLISTEN:
+        bnes    L_0xc6                     goto L_0xc6;
 
-L_0xc6:		movl	a6@(-4),sp@-
-		jsr	freemsg			freemsg(msg);
-L_0xd0:		addql	#4,sp
-		bras	L_0x152
+        movl    a6@(-4),a0              
+        movw    a0@(0x14),d7            i = ((VT_MSG *)msg)->portid;
 
-					L_0xd4:
-L_0xd4:		cmpw	#0x70e,d0		case ML2TLISTEN:
-		bnes	L_0xc6			   goto L_0xc6;
+        pea     0x228:w
+        movw    d7,d0
+        extl    d0
+        movl    d0,sp@-
+        jsr     __lmul
+        addql   #8,sp
 
-		movl	a6@(-4),a0		
-		movw	a0@(0x14),d7		i = ((VT_MSG *)msg)->portid;
+        addl    #cxDATAblk+0x1a,d0      cxDATAblk.cx_mbid+(i*0x228)
+        movl    d0,a0
+        movl    a0@,sp@-
+        movl    a6@(-4),sp@-
+        jsr     sendmsg                 rc = sendmsg (msg, 
+                                            cxDATAblk[i].cx_mbid);
+        addql   #8,sp
+        movw    d0,d6                   
 
-		pea	0x228:w
-		movw	d7,d0
-		extl	d0
-		movl	d0,sp@-
-		jsr	__lmul
-		addql	#8,sp
+        tstw    d6                      if( rc != NoError )
+        beqs    L_0x152                 {
 
-		addl	#cxDATAblk+0x1a,d0	cxDATAblk.cx_mbid+(i*0x228)
-		movl	d0,a0
-		movl	a0@,sp@-
-		movl	a6@(-4),sp@-
-		jsr	sendmsg			rc = sendmsg (msg,
-							cxDATAblk[i].cx_mbid);
-		addql	#8,sp
-		movw	d0,d6			
+        movw    d6,d0
+        extl    d0
+        movl    d0,sp@-
+        movl    _cfn_hostaddr,sp@-
+        movl    #0x133df6,sp@-          sprintf(cfn_linebuf,
+        movl    #cfn_linebuf,sp@-          "%s: sendmsg returns %d: rebooting!",
+        jsr     sprintf                     cfn_hostaddr, rc )
+        lea     sp@(0x10),a7
 
-		tstw	d6			if( rc != NoError )
-		beqs	L_0x152			{
+        movl    #cfn_linebuf,sp@-
+        jsr     cfn_error               cfn_error(cfn_linebuf);
+        addql   #4,sp
 
-		movw	d6,d0
-		extl	d0
-		movl	d0,sp@-
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x133df6,sp@-		sprintf(cfn_linebuf,
-		movl	#cfn_linebuf,sp@-	   "%s: sendmsg returns %d: rebooting!",
-		jsr	sprintf			    cfn_hostaddr, rc )
-		lea	sp@(0x10),a7
+        movl    a6@(-4),sp@-
+        jsr     freemsg                 freemsg(msg);
+        addql   #4,sp
 
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp
+        jsr     cfn_reboot              cfn_reboot();
+                                        }
+                                        while (1 ) 
+                                        {
+L_0x152: pea     a6@(-8)
+        pea     a6@(-4)
+        jsr     breceive                rc = breceive(&msg, &mbid)
+        addql   #8,sp
+        movw    d0,d6
 
-		movl	a6@(-4),sp@-
-		jsr	freemsg			freemsg(msg);
-		addql	#4,sp
+        tstw    d6                      if( rc == 0 )
+        bne     L_0x96                  {
 
-		jsr	cfn_reboot		cfn_reboot();
-						}
-						while (1 ) 
-						{
-L_0x152:	pea	a6@(-8)
-		pea	a6@(-4)
-		jsr	breceive		rc = breceive(&msg, &mbid)
-		addql	#8,sp
-		movw	d0,d6
+        movl    a6@(-4),a0              
+        movw    a0@(0x12),d0            switch(msg->m_type)
 
-		tstw	d6			if( rc == 0 )
-		bne	L_0x96			{
+        cmpw    #0x64,d0                case MCFN_IAMHERE:
+        bne     L_0xd4                      goto L_0xd4
 
-		movl	a6@(-4),a0		
-		movw	a0@(0x12),d0		switch(msg->m_type)
+        movw    a6@(-0xa),d0
+        andl    #0xffff,d0
+        movl    d0,sp@-
+        bsrs    cfn_send2sock           cfn_send2sock(sock);
+        addql   #4,sp
 
-		cmpw	#0x64,d0		case MCFN_IAMHERE:
-		bne	L_0xd4			    goto L_0xd4
+        bra     L_0x8e                  goto L_0x8e;
+                                        }
 
-		movw	a6@(-0xa),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		bsrs	cfn_send2sock		cfn_send2sock(sock);
-		addql	#4,sp
-
-		bra	L_0x8e			goto L_0x8e;
-						}
-
-		rts				}
+        rts                             }

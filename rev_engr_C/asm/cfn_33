@@ -1,87 +1,87 @@
-						cfn_33( psp, bd, port)
+                                                cfn_33( psp, bd, port)
 
-						REG PSPPKT *psp;     a6@(8)
-								     a5
-						REG BD *bd;	     a6@(0xc)
-								     a4
-						short port	     a6@(0x12)
+                                                REG PSPPKT *psp;     a6@(8)
+                                                                     a5
+                                                REG BD *bd;          a6@(0xc)
+                                                                     a4
+                                                short port           a6@(0x12)
 
-						{
+                                                {
 
-						REG char *ba;	     a3
-						char name[5];	     a6@(-5)
-						uchar sum;	     a6@(-6)
-						int rc ;	     a6@(-0xc)
+                                                REG char *ba;        a3
+                                                char name[5];        a6@(-5)
+                                                uchar sum;           a6@(-6)
+                                                int rc ;             a6@(-0xc)
 
-						---
+                                                ---
 
-cfn_33:		linkw	a6,#-0x18
-		moveml	a3/a4/a5,sp@
+cfn_33:         linkw   a6,#-0x18
+                moveml  a3/a4/a5,sp@
 
-		movl	a6@(8),a5		psp
-		movl	a6@(0xc),a4		bd
-		movl	a5@(0x10),a3		ba = psp->psp_save_ba;
+                movl    a6@(8),a5               psp
+                movl    a6@(0xc),a4             bd
+                movl    a5@(0x10),a3            ba = psp->psp_save_ba;
 
-		pea	a4@
-		jsr	cx_psp_cksum		sum = psp_cksum(bd);
-		addql	#4,sp
-		movb	d0,a6@(-6)
-		
-		cmpb	#0x55,a3@		if( ( ba[0] != 'U' ) ||
-		bne	L_0xd2			    
+                pea     a4@
+                jsr     cx_psp_cksum            sum = psp_cksum(bd);
+                addql   #4,sp
+                movb    d0,a6@(-6)
+                
+                cmpb    #0x55,a3@               if( ( ba[0] != 'U' ) ||
+                bne     L_0xd2                      
 
-		cmpb	#0x45,a3@(1)		  ( ba[1] != 'E' ) ||
-		bne	L_0xd2			    
+                cmpb    #0x45,a3@(1)              ( ba[1] != 'E' ) ||
+                bne     L_0xd2                      
 
-		movb	a5@(0x15),d0		  ( psp->psp_count != sum ) )
-		cmpb	a6@(-6),d0
-		bne	L_0xd2			    return;
+                movb    a5@(0x15),d0              ( psp->psp_count != sum ) )
+                cmpb    a6@(-6),d0
+                bne     L_0xd2                      return;
 
-		pea	4:w
-		pea	a5@(7)
-		pea	a6@(-5)
-		jsr	blt			blt( name, psp->psp_name2, 4 );
-		lea	sp@(0xc),a7
+                pea     4:w
+                pea     a5@(7)
+                pea     a6@(-5)
+                jsr     blt                     blt( name, psp->psp_name2, 4 );
+                lea     sp@(0xc),a7
 
-		clrb	a6@(-1)			name[4] = '\0';
+                clrb    a6@(-1)                 name[4] = '\0';
 
-		pea	a6@(-5)
-		jsr	cfn_ascii_to_hex	rc = cfn_ascii_to_hex(name)
-		addql	#4,sp
-		movl	d0,a6@(-0xc)
+                pea     a6@(-5)
+                jsr     cfn_ascii_to_hex        rc = cfn_ascii_to_hex(name)
+                addql   #4,sp
+                movl    d0,a6@(-0xc)
 
-		cmpl	#0xc000,a6@(-0xc)	if( rc < 0xc000  || rc > 0xcfff)
-		blts	L_0xd2			    
-		cmpl	#0xcfff,a6@(-0xc)
-		bgts	L_0xd2			    return;
+                cmpl    #0xc000,a6@(-0xc)       if( rc < 0xc000  || rc > 0xcfff)
+                blts    L_0xd2                      
+                cmpl    #0xcfff,a6@(-0xc)
+                bgts    L_0xd2                      return;
 
-		cmpw	#0xc,cx_pn_index	if( cx_pn_index > 0xc )
-		bgts	L_0xd2			    return;
+                cmpw    #0xc,cx_pn_index        if( cx_pn_index > 0xc )
+                bgts    L_0xd2                      return;
 
-		movw	a6@(0x12),d0
-		extl	d0
-		addl	#cx_port_active,d0	if( cx_port_active[port] )
-		movl	d0,a0		
-		tstb	a0@
-		bnes	L_0xd2			    return;
+                movw    a6@(0x12),d0
+                extl    d0
+                addl    #cx_port_active,d0      if( cx_port_active[port] )
+                movl    d0,a0           
+                tstb    a0@
+                bnes    L_0xd2                      return;
 
-		pea	4:w
-		pea	a6@(-5)
-		movw	cx_pn_index,d0
-		extl	d0
-		addl	#cx_port_names,d0
-		movl	d0,sp@-
-		jsr	blt			blt( &cx_port_names[
-							cx_pn_index],
-							name, 4)
-		lea	sp@(0xc),a7
+                pea     4:w
+                pea     a6@(-5)
+                movw    cx_pn_index,d0
+                extl    d0
+                addl    #cx_port_names,d0
+                movl    d0,sp@-
+                jsr     blt                     blt( &cx_port_names[
+                                                        cx_pn_index],
+                                                        name, 4)
+                lea     sp@(0xc),a7
 
-		movw	a6@(0x12),d0
-		movl	#cx_port_active,a0
-		movb	#1,a0@(0,d0:w)		cx_port_active[port] = 1;
+                movw    a6@(0x12),d0
+                movl    #cx_port_active,a0
+                movb    #1,a0@(0,d0:w)          cx_port_active[port] = 1;
 
-		addqw	#4,cx_pn_index		cx_pn_index += 4;
+                addqw   #4,cx_pn_index          cx_pn_index += 4;
 
-L_0xd2:		moveml	sp@,a3/a4/a5
-		unlk	a6
-		rts				}
+L_0xd2:         moveml  sp@,a3/a4/a5
+                unlk    a6
+                rts                             }

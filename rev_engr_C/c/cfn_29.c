@@ -3,49 +3,46 @@
  *  $Header:$
  *
  *  NAME
- *	cx_printpkt(bd)
+ *      cx_printpkt(bd)
  *
  *  DESCRIPTION
- *	cx_printpkt() is a debugging routine to print the data in a
- *	buffer.
+ *      cx_printpkt() is a debugging routine to print the data in a
+ *      buffer.
  *
  *  FUNCTIONS CALLED
- *	putchar
+ *      putchar
  *
  *  CALLED BY
- *	-no one-
+ *      -no one-
  *
  *  ARGUMENTS
- *	~~~~
+ *      ~~~~
  *
  *  HISTORY
- *	reversed engineering from binary, June/July 1991,
- *	by Allan M. Schwartz
+ *      reversed engineering from binary, June/July 1991,
+ *      by Allan M. Schwartz
  *
  *  BUGS
- *	none known
+ *      none known
  *
  ********************************************************************/
 
 #include "cfn.h"
 
-cx_printpkt(bd)
-    REG BD     *bd;		/* a6@(8) & a5 */
-
+cx_printpkt(REG BD *bd)         /* a6@(8), a5 */
 {
-
-    REG short   len;		/* d7 */
-    REG char   *p;		/* a4 */
+    REG short   len;            /* d7 */
+    REG char   *p;              /* a4 */
 
     for (; bd; bd = bd->bd_next) {
 
-	len = BUFLENC(bd);
-	p = (char *) BUFADDR(bd);
+        len = BUFLENC(bd);
+        p = (char *) BUFADDR(bd);
 
-	for (; len; len--) {
-	    putchar(*p++);
-	}
-	putchar('|');
+        for (; len; len--) {
+            putchar(*p++);
+        }
+        putchar('|');
     }
     putchar('\n');
 }

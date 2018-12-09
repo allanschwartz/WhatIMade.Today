@@ -1,71 +1,67 @@
-						cx_psp_reply( psp, bd1, 
-								addr, sock)
+                                                cx_psp_reply( psp, bd1, 
+                                                                addr, sock)
 
-						REG PSPPKT *psp;       a6@(8),a5
-						REG BD *bd1;	       a6@(c),a4
-						L1_ADDR addr;          a6@(0x10)
-						  addr.l1_net	       a6@(0x10)
-						  addr.l1_host         a6@(0x14)
-						  addr.l1_host.ha_word1     x14
-						  addr.l1_host.ha_word1     x16
-						  addr.l1_host.ha_word2     x18
-						  addr.l1_sock         a6@(0x1a)
-						ushort sock;	       a6@(0x1e)
+                                                REG PSPPKT *psp;       a6@(8),a5
+                                                REG BD *bd1;           a6@(c),a4
+                                                L1_ADDR addr;          a6@(0x10)
+                                                  addr.l1_net          a6@(0x10)
+                                                  addr.l1_host         a6@(0x14)
+                                                  addr.l1_host.ha_word1     x14
+                                                  addr.l1_host.ha_word1     x16
+                                                  addr.l1_host.ha_word2     x18
+                                                  addr.l1_sock         a6@(0x1a)
+                                                ushort sock;           a6@(0x1e)
+                                                {
+cfn_34:         linkw   a6,#-0x10
+                moveml  a3/a4/a5,sp@
+                                                REG PSPPKT *psp2;       a3
+                                                BD *bd2;                a6@(-4)
+                movl    a6@(8),a5
+                movl    a6@(0xc),a4
+                movl    a4@(0x12),a3            psp2 = BUFADDR(bd1);
 
-						{
+                pea     4:w                     
+                pea     a5@(3)
+                pea     a3@(7)
+                jsr     blt                     blt(psp2->7, psp->3, 4);
+                lea     sp@(0xc),a7
 
-						REG PSPPKT *psp2;	a3
-						BD *bd2;		a6@(-4)
+                pea     4:w
+                pea     a5@(7)
+                pea     a3@(3)
+                jsr     blt                     blt(psp2->3, psp->7, 4);
+                lea     sp@(0xc),a7
 
-cfn_34:		linkw	a6,#-0x10
-		moveml	a3/a4/a5,sp@
+                pea     a4@
+                jsr     copybuf                 bd2 = copybuf(bd1)
+                addql   #4,sp
+                movl    d0,a6@(-4)              
+                bnes    L_0x82                  if( bd2 == NULL )
+                                                {
+                movl    _cfn_hostaddr,sp@-
+                movl    #0x134184,sp@-
+                movl    #cfn_linebuf,sp@-       
+                jsr     sprintf                 sprintf(cfn_linebuf, 
+                                                    "%s: out of memory in copybuf"
+                lea     sp@(0xc),a7                 cfn_hostaddr )
 
-		movl	a6@(8),a5
-		movl	a6@(0xc),a4
-		movl	a4@(0x12),a3		psp2 = BUFADDR(bd1);
+                movl    #cfn_linebuf,sp@-
+                jsr     cfn_error               cfn_error(cfn_linebuf);
+                addql   #4,sp
 
-		pea	4:w			
-		pea	a5@(3)
-		pea	a3@(7)
-		jsr	blt			blt(psp2->7, psp->3, 4);
-		lea	sp@(0xc),a7
+                jsr     cfn_reboot              cfn_reboot();
+                bras    L_0xa8                  }
 
-		pea	4:w
-		pea	a5@(7)
-		pea	a3@(3)
-		jsr	blt			blt(psp2->3, psp->7, 4);
-		lea	sp@(0xc),a7
+L_0x82:         movl    a6@(0x18),sp@-
+                movl    a6@(0x14),sp@-
+                movl    a6@(0x10),sp@-
+                movw    a6@(0x1e),d0
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                movl    a6@(-4),sp@-
+                jsr     cfn_sendidpdata         cfn_sendidpdata(bd2, sock, addr)
+                lea     sp@(0x14),a7
 
-		pea	a4@
-		jsr	copybuf			bd2 = copybuf(bd1)
-		addql	#4,sp
-		movl	d0,a6@(-4)		
-		bnes	L_0x82			if( bd2 == NULL )
-						{
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x134184,sp@-
-		movl	#cfn_linebuf,sp@-	sprintf(cfn_linebuf, 
-		jsr	sprintf			"%s: out of memory in copybuf"
-		lea	sp@(0xc),a7		    cfn_hostaddr )
-
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error		cfn_error(cfn_linebuf);
-		addql	#4,sp
-
-		jsr	cfn_reboot		cfn_reboot();
-		bras	L_0xa8			}
-
-L_0x82:		movl	a6@(0x18),sp@-
-		movl	a6@(0x14),sp@-
-		movl	a6@(0x10),sp@-
-		movw	a6@(0x1e),d0
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		movl	a6@(-4),sp@-
-		jsr	cfn_sendidpdata		cfn_sendidpdata(bd2, sock,addr)
-		lea	sp@(0x14),a7
-
-L_0xa8:		moveml	sp@,a3/a4/a5
-		unlk	a6
-		rts
-
+L_0xa8:         moveml  sp@,a3/a4/a5
+                unlk    a6
+                rts                             }

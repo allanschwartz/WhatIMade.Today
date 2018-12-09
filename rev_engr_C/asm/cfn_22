@@ -1,59 +1,56 @@
-#define ETX 3
-						char 	cx_findetx(bd)
-						REG BD *bd;    	    a6@(8)
-								    a5
+                                        char    cx_findetx(bd)
+                                        REG BD *bd;         a6@(8)
+                                        {
+                                        char val;           a6@(-1)
+                                        char *str;          a6@(-8)
+                                        short flag;         a6@(-0xa)
+                                        short len;          a6@(-0xe)
+                                                
+cfn_22: linkw   a6,#-0x14
+        moveml  a5,sp@                  // bd               a5
 
-						{
-						char val;	    a6@(-1)
-						char *str; 	    a6@(-8)
-						short flag;	    a6@(-0xa)
-						short len;	    a6@(-0xe)
-						
-cfn_22:		linkw	a6,#-0x14
-		moveml	a5,sp@
+        movl    a6@(8),a5
 
-		movl	a6@(8),a5
+        clrb    a6@(-1)                 val = 0;
+        movw    #1,a6@(-0xa)            flag = 1;
+        bras    L_0x68                  for( ; bd; bd = bd->bd_fwd ) {
 
-		clrb	a6@(-1)			val = 0;
-		movw	#1,a6@(-0xa)		flag = 1;
-		bras	L_0x68			for( ; bd; bd = bd->bd_fwd ) {
+L_0x18: movw    a5@(0x1a),a6@(-0xe)     len = BUFLEN(bd);
+        movl    a5@(0x12),a6@(-8)       str = BUFADDR(bd);
+        bras    L_0x5e                  for( ; len; len-- ) {
 
-L_0x18: 	movw	a5@(0x1a),a6@(-0xe)	len = BUFLEN(bd);
-		movl	a5@(0x12),a6@(-8)	str = BUFADDR(bd);
-		bras	L_0x5e			for( ; len; len-- ) {
+L_0x26: tstw    a6@(-0xa)               if (flag) {
+        beqs    L_0x32
+        clrw    a6@(-0xa)               flag = 0;
+        bras    L_0x56                  continue;
+                                        }
+L_0x32: movl    a6@(-8),a0
+        cmpb    #3,a0@                  if( *str == ETX ) {     // ETX 0x03
+        bnes    L_0x4c
 
-L_0x26: 	tstw	a6@(-0xa)		  if (flag) {
-		beqs	L_0x32
-		clrw	a6@(-0xa)  		    flag = 0;
-		bras	L_0x56			    continue;
-						  }
-L_0x32: 	movl	a6@(-8),a0
-		cmpb	#3,a0@			  if( *str == ETX ) {
-		bnes	L_0x4c
+        movl    a6@(-8),a0              
+        movb    a0@,d0
+        eorb    d0,a6@(-1)              val ^= *str;
+        movb    a6@(-1),d0              return val;
+        bras    L_0x6e                  
+                                        }
+L_0x4c: movl    a6@(-8),a0
+        movb    a0@,d0
+        eorb    d0,a6@(-1)              val ^= *str;
 
-		movl	a6@(-8),a0		
-		movb	a0@,d0
-		eorb	d0,a6@(-1)		    val ^= *str;
-		movb	a6@(-1),d0		    return val;
-		bras	L_0x6e			
-						  }
-L_0x4c: 	movl	a6@(-8),a0
-		movb	a0@,d0
-		eorb	d0,a6@(-1)		  val ^= *str;
+L_0x56: subqw   #1,a6@(-0xe) len
+        addql   #1,a6@(-8) str
 
-L_0x56: 	subqw	#1,a6@(-0xe) len
-		addql	#1,a6@(-8) str
+L_0x5e: tstw    a6@(-0xe)               }
+        bnes    L_0x26
 
-L_0x5e: 	tstw	a6@(-0xe)		}
-		bnes	L_0x26
+        movl    a5@(0xe),a5
 
-		movl	a5@(0xe),a5
+L_0x68: movl    a5,d0
+        bnes    L_0x18                  }
 
-L_0x68: 	movl	a5,d0
-		bnes	L_0x18			}
+        clrb    d0                      return 0;
 
-		clrb	d0			return 0;
-
-L_0x6e: 	moveml	sp@,a5
-		unlk	a6
-		rts				}
+L_0x6e: moveml  sp@,a5
+        unlk    a6
+        rts                             }

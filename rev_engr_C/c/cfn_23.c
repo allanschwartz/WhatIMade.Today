@@ -3,45 +3,39 @@
  *  $Header:$
  *
  *  NAME
- *	cx_init(arg)
+ *      cx_init(arg)
  *
  *  DESCRIPTION
- *	cx_init() is the per-port process initialization code, run as
- *	the entry point for this process.  We initialize our CXDATA
- *	struction, create some mailboxes, open a socket, then return.
- *	Just wait, when events happen, cx_main() will be called with a
- *	message.
+ *      cx_init() is the per-port process initialization code, run as
+ *      the entry point for this process.  We initialize our CXDATA
+ *      struction, create some mailboxes, open a socket, then return.
+ *      Just wait, when events happen, cx_main() will be called with a
+ *      message.
  *
  *  FUNCTIONS CALLED
- *	cfn_reboot, cx_fill_ff, cfn_error, idopenskt, mboxcreate, sprintf
+ *      cfn_reboot, cx_fill_ff, cfn_error, idopenskt, mboxcreate, sprintf
  *
  *  CALLED BY
- *	-kernel-
+ *      -kernel-
  *
  *  ARGUMENTS
- *	~~~~
+ *      ~~~~
  *
  *  HISTORY
- *	reversed engineering from binary, June/July 1991,
- *	by Allan M. Schwartz
+ *      reversed engineering from binary, June/July 1991,
+ *      by Allan M. Schwartz
  *
  *  BUGS
- *	none known
+ *      none known
  *
  ********************************************************************/
 
 #include "cfn.h"
 
-cx_init(arg)
-    short       arg;		/* a6@(0xa) */
-
+cx_init(REG short index)        /* a6@(0xa), d7 */
 {
-
-    REG CXDATA *cxdata;		/* a5 */
-    REG short   index;		/* d7 */
-    REG ushort  rc;		/* d6 */
-
-    index = arg;
+    REG CXDATA *cxdata;         /* a5 */
+    REG ushort  rc;             /* d6 */
 
     cxdata = &cxDATAblk[index];
     SETDATA((ADDRESS) cxdata);
@@ -58,10 +52,9 @@ cx_init(arg)
 
     rc = idopenskt(cxdata->cx_sock, cxdata->cx_mailbox1);
     if (rc != NoError) {
-	sprintf(cfn_linebuf, "%s: cannot open socket %d",
-		cfn_hostaddr, cxdata->cx_sock);
-	cfn_error(cfn_linebuf);
-	cfn_reboot();
+        sprintf(cfn_linebuf, "%s: cannot open socket %d",
+                cfn_hostaddr, cxdata->cx_sock);
+        cfn_error(cfn_linebuf);
+        cfn_reboot();
     }
-
 }

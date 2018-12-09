@@ -1,45 +1,43 @@
-						cfn_iamhere()
-						{
+                                                cfn_iamhere()
+                                                {
+cfn_3:          linkw   a6,#-8                  
+                moveml  d7/a5,sp@
+                                                REG short rc;           /* d7 */
+                                                REG AMSG *amsg;         /* a5 */
+                movl    cfn_amsg,a5             amsg = cfn_amsg;
 
-						REG short rc;		/* d7 */
-						REG AMSG *amsg;		/* a5 */
+                clrl    a5@(0xc)                amsg->m_bufdes = NULL;
+                movw    #2,a5@(0x10)            amsg->m_prio = NORMAL;
+                movw    #0x64,a5@(0x12)         amsg->m_type = 0x64;
+                movl    #0x1d4c0,a5@(0x14)      amsg->a_timer =120000; /*msecs*/
 
-cfn_3:		linkw	a6,#-8			
-		moveml	d7/a5,sp@
-		movl	cfn_amsg,a5		amsg = cfn_amsg;
+                pea     a5@                     
+                jsr     setalarm                rc = setalarm(msg);
+                addql   #4,sp                   
 
-		clrl	a5@(0xc)		amsg->m_bufdes = NULL;
-		movw	#2,a5@(0x10)		amsg->m_prio = NORMAL;
-		movw	#0x64,a5@(0x12)		amsg->m_type = 0x64;
-		movl	#0x1d4c0,a5@(0x14)	amsg->a_timer =120000; /*msecs*/
+                movw    d0,d7
+                tstw    d7                      if ( rc != NoError ) 
+                beqs    L1                      {
 
-		pea	a5@			
-		jsr	setalarm		rc = setalarm(msg);
-		addql	#4,sp			
+                movw    d7,d0                   
+                extl    d0
+                movl    d0,sp@-
+                movl    cfn_hostaddr,sp@-
+                movl    #0x133e1a,sp@-          //"%s: could not set iamhere alarm (%d)"
+                movl    #cfn_linebuf,sp@-
+                jsr     sprintf                 sprintf( cfn_linebuf, 
+                                                        "%s: could not set iamhere alarm (%d)",
+                                                        cfn_hostaddr, rc );
+                lea     sp@(0x10),a7    
 
-		movw	d0,d7
-		tstw	d7			if ( rc != NoError ) 
-		beqs	L1			{
+                movl    #cfn_linebuf,sp@-
+                jsr     cfn_error               cfn_error(cfn_linebuf);
+                addql   #4,sp
 
-		movw	d7,d0			sprintf( cfn_linebuf, fmtstr,
-							cfn_hostaddr, rc );
-		extl	d0
-		movl	d0,sp@-
-		movl	cfn_hostaddr,sp@-
-		movl	#0x133e1a,sp@-
-		movl	#cfn_linebuf,sp@-
-		jsr	sprintf
-		lea	sp@(0x10),a7	
-
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp
-
-		jsr	cfn_reboot		cfn_reboot();
-						}
-L1:		moveml	sp@,d7/a5
-		unlk	a6
-		rts				}
+                jsr     cfn_reboot              cfn_reboot();
+                                                }
+L1:             moveml  sp@,d7/a5
+                unlk    a6
+                rts                             }
 
 
-static char fmtstr[]= "%s: could not set iamhere alarm (%d)";

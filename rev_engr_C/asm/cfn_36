@@ -1,115 +1,112 @@
-						int 	cfn_36(cxdata)
+                                                int     cfn_36(cxdata)
 
-						REG CXDATA *cxdata   a6@(8), a5
+                                                REG CXDATA *cxdata   a6@(8), a5
 
-						{
-						
-						REG short d7;
-						REG BD *bd;	     a4;
-						L1_ADDR addr;	     a6@(-0xc)
-						  addr.l1_net        a6@(-0xc)
-						  addr.l1_host       a6@(-8)
-						  addr.l1_sock       a6@(-4)
-						char buf[251];       a6@(-0x107)
-						short s1;	     a6@(-0x10a)
+                                                {
+                                                
+                                                REG short d7;
+                                                REG BD *bd;          a4;
+                                                L1_ADDR addr;        a6@(-0xc)
+                                                  addr.l1_net        a6@(-0xc)
+                                                  addr.l1_host       a6@(-8)
+                                                  addr.l1_sock       a6@(-4)
+                                                char buf[251];       a6@(-0x107)
+                                                short s1;            a6@(-0x10a)
+cfn_36:         linkw   a6,#-0x118
+                moveml  d7/a4/a5,sp@
 
-						---
+                movl    a6@(8),a5               
 
-cfn_36:		linkw	a6,#-0x118
-		moveml	d7/a4/a5,sp@
+                clrw    a5@(0xa)                cxdata->cx_datastate = 0;
 
-		movl	a6@(8),a5		
+                movw    a5@(6),d7               d7 = cxdata->6;
 
-		clrw	a5@(0xa)		cxdata->cx_datastate = 0;
+                movw    d7,d0
+                extl    d0
+                movl    d0,sp@-
+                pea     a5@(0x22)
+                pea     a6@(-0x107)
+                jsr     blt                     blt( buf, cxdata->cx_databuf, d7)
+                lea     sp@(0xc),a7
 
-		movw	a5@(6),d7		d7 = cxdata->6;
+                pea     a5@
+                lea     a5@(0x22),a0
+                movw    d7,d0
+                extl    d0
+                addl    d0,a0
+                pea     a0@
+                bsr     cfn_42                  cfn_42(&cxdata->cx_databuf[d7],cxdata)
+                addql   #8,sp
 
-		movw	d7,d0
-		extl	d0
-		movl	d0,sp@-
-		pea	a5@(0x22)
-		pea	a6@(-0x107)
-		jsr	blt			blt( buf, cxdata->cx_databuf, d7)
-		lea	sp@(0xc),a7
+                movl    d0,a5@(0x224)           cxdata->cx_dataptr = ...
 
-		pea	a5@
-		lea	a5@(0x22),a0
-		movw	d7,d0
-		extl	d0
-		addl	d0,a0
-		pea	a0@
-		bsr	cfn_42			cfn_42(&cxdata->cx_databuf[d7],cxdata)
-		addql	#8,sp
+                lea     a6@(-0x107),a0
+                movw    d7,d0
+                extl    d0
+                addl    d0,a0
+                movb    #0xff,a0@               buf[d7] = 0xff;
 
-		movl	d0,a5@(0x224)		cxdata->cx_dataptr = ...
+                cmpw    #0x11,d7                if( d7 < 17 )
+                bges    L_0x5e                  {
 
-		lea	a6@(-0x107),a0
-		movw	d7,d0
-		extl	d0
-		addl	d0,a0
-		movb	#0xff,a0@		buf[d7] = 0xff;
+                moveq   #1,d0                   return TRUE;
+                bra     L_0xfa                  }
 
-		cmpw	#0x11,d7		if( d7 < 17 )
-		bges	L_0x5e			{
+L_0x5e:         pea     1:w
+                pea     a6@(-0x107)
+                jsr     cfn_str_to_bd           bd = cfn_str_to_bd( buf, TRUE );
+                addql   #8,sp
+                movl    d0,a4
 
-		moveq	#1,d0			return TRUE;
-		bra	L_0xfa			}
+                tstl    d0                      if( bd == NULL )
+                bnes    L_0xa4                  {
 
-L_0x5e:		pea	1:w
-		pea	a6@(-0x107)
-		jsr	cfn_str_to_bd		bd = cfn_str_to_bd( buf, TRUE );
-		addql	#8,sp
-		movl	d0,a4
+                movl    _cfn_hostaddr,sp@-
+                movl    #0x134204,sp@-          
+                movl    #cfn_linebuf,sp@-
+                jsr     sprintf                 sprintf(cfn_linebuf,
+                                                    "%s: out of memory in getbuf"
+                lea     sp@(0xc),a7                 cfn_hostaddr)
 
-		tstl	d0			if( bd == NULL )
-		bnes	L_0xa4			{
+                movl    #cfn_linebuf,sp@-
+                jsr     cfn_error               cfn_error(cfn_linebuf);
+                addql   #4,sp
 
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x134204,sp@-		
-		movl	#cfn_linebuf,sp@-
-		jsr	sprintf			sprintf(cfn_linebuf,
-					   "%s: out of memory in getbuf"
-		lea	sp@(0xc),a7		   cfn_hostaddr)
+                jsr     cfn_reboot              cfn_reboot();
+                                                }
+L_0xa4:         movw    a5@(4),d0
+                extl    d0
+                movl    d0,sp@-
+                pea     a6@(-0xc)
+                pea     a4@
+                jsr     cfn_31                  cfn_31(bd, &addr, cxdata->cx_index)
+                lea     sp@(0xc),a7
 
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp
+                movw    d0,a6@(-0x10a)          s1 = ...
 
-		jsr	cfn_reboot		cfn_reboot();
-						}
-L_0xa4:		movw	a5@(4),d0
-		extl	d0
-		movl	d0,sp@-
-		pea	a6@(-0xc)
-		pea	a4@
-		jsr	cfn_31			cfn_31(bd, &addr, cxdata->cx_index)
-		lea	sp@(0xc),a7
+                tstw    a6@(-0x10a)             if( !s1 )
+                bnes    L_0xd4                  {
 
-		movw	d0,a6@(-0x10a)		s1 = ...
+                pea     a4@
+                jsr     freebuf                 freebuf(bd);
+                addql   #4,sp
 
-		tstw	a6@(-0x10a)		if( !s1 )
-		bnes	L_0xd4			{
+                moveq   #1,d0                   return TRUE;
+                bras    L_0xfa                  }
 
-		pea	a4@
-		jsr	freebuf			freebuf(bd);
-		addql	#4,sp
+L_0xd4:         movl    a6@(-4),sp@-
+                movl    a6@(-8),sp@-            
+                movl    a6@(-0xc),sp@-          
+                movw    a5@(0xc),d0             cxdata->cx_sock
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                pea     a4@
+                jsr     cfn_sendidpdata         cfn_sendidpdata(bd,     
+                                                    cxdata->cx_sock, addr)
+                lea     sp@(0x14),a7
 
-		moveq	#1,d0			return TRUE;
-		bras	L_0xfa			}
+                moveq   #1,d0                   return TRUE;
 
-L_0xd4:		movl	a6@(-4),sp@-
-		movl	a6@(-8),sp@-		
-		movl	a6@(-0xc),sp@-		
-		movw	a5@(0xc),d0		cxdata->cx_sock
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		pea	a4@
-		jsr	cfn_sendidpdata		cfn_sendidpdata(bd,	
-						    cxdata->cx_sock, addr)
-		lea	sp@(0x14),a7
-
-		moveq	#1,d0			return TRUE;
-
-L_0xfa:		moveml	sp@,d7/a4/a5
-		unlk	a6
-		rts				}
+L_0xfa:         moveml  sp@,d7/a4/a5
+                unlk    a6
+                rts                             }

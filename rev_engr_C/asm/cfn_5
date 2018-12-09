@@ -1,82 +1,82 @@
-						cfn_sendidpdata (bd, 
-								src_socket, 
-								addr)
+                                                cfn_sendidpdata (bd, 
+                                                                src_socket, 
+                                                                addr)
 
-						BD *bd;		       a6@(8)
-						short src_socket;      a6@(0xe)
-						L1_ADDR addr;          a6@(0x10)
-						  addr.l1_net	       a6@(0x10)
-						  addr.l1_host         a6@(0x14)
-						  addr.l1_host.ha_word1     x14
-						  addr.l1_host.ha_word1     x16
-						  addr.l1_host.ha_word2     x18
-						  addr.l1_sock         a6@(0x1a)
+                                                BD *bd;                a6@(8)
+                                                short src_socket;      a6@(0xe)
+                                                L1_ADDR addr;          a6@(0x10)
+                                                  addr.l1_net          a6@(0x10)
+                                                  addr.l1_host         a6@(0x14)
+                                                  addr.l1_host.ha_word1     x14
+                                                  addr.l1_host.ha_word1     x16
+                                                  addr.l1_host.ha_word2     x18
+                                                  addr.l1_sock         a6@(0x1a)
 
-						{
-						REG short rc;	       d7
-						REG MSG *msg;	       a5
-						---
+                                                {
+cfn_5:          linkw   a6,#-8
+                moveml  d7/a5,sp@
+                                                REG short rc;          d7
+                                                REG MSG *msg;          a5
 
-cfn_5:		linkw	a6,#-8
-		moveml	d7/a5,sp@
+                jsr     getmaxmsg               msg = getmaxmsg();
+                movl    d0,a5
 
-		jsr	getmaxmsg		msg = getmaxmsg();
-		movl	d0,a5
+                tstl    d0                      if( msg == NULL )
+                bnes    L1                      {
 
-		tstl	d0			if( msg == NULL )
-		bnes	L1			{
+                movl    cfn_hostaddr,sp@-       
+                movl    #0x133f60,sp@-          // "%s: out of memory in getmsg"
+                movl    #cfn_linebuf,sp@-           
+                jsr     sprintf                 sprintf( cfn_linebuf,
+                                                    "%s: out of memory in getmsg",
+                                                    fmtstr,
+                                                    cfn_hostaddr )
+                lea     sp@(0xc),a7
 
-		movl	cfn_hostaddr,sp@-	sprintf( cfn_linebuf,
-		movl	#0x133f60,sp@-		    fmtstr,
-		movl	#cfn_linebuf,sp@-	    cfn_hostaddr )
-		jsr	sprintf
-		lea	sp@(0xc),a7
+                movl    #cfn_linebuf,sp@-
+                bsr     cfn_error               cfn_error(cfn_linebuf);
+                addql   #4,sp                   
 
-		movl	#cfn_linebuf,sp@-
-		bsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp			
+                bsr     cfn_reboot              cfn_reboot();
+                                                }
 
-		bsr	cfn_reboot		cfn_reboot();
-						}
+L1:             movl    cfn_attnet,a5@(0x14)    MOVEL1ADDR(cfn_attnet,
+                movw    cfn_inrhost,a5@(0x18)      ((IDL2_SDATAMSG *)msg)->
+                                                        idsd_sadd
+                movw    cfn_inrhost+2,a5@(0x1a)
+                movw    cfn_inrhost+4,a5@(0x1c)
+                movw    cfn_inrhost+6,a5@(0x1e)
 
-L1:		movl	cfn_attnet,a5@(0x14)	MOVEL1ADDR(cfn_attnet,
-		movw	cfn_inrhost,a5@(0x18)      ((IDL2_SDATAMSG *)msg)->
-							idsd_sadd
-		movw	cfn_inrhost+2,a5@(0x1a)
-		movw	cfn_inrhost+4,a5@(0x1c)
-		movw	cfn_inrhost+6,a5@(0x1e)
+                movw    a6@(0xe),a5@(0x1e)     ((IDL2_SDATAMSG *)msg)->
+                                                        idsd_sadd.l1_sock = 
+                                                        src_socket;
 
-		movw	a6@(0xe),a5@(0x1e)     ((IDL2_SDATAMSG *)msg)->
-							idsd_sadd.l1_sock = 
-							src_socket;
+                movl    a6@(0x10),a5@(0x20)     MOVEL1ADDR(addr, 
+                movw    a6@(0x14),a5@(0x24)    ((IDL2_SDATAMSG *)msg)->idsd_dadd
+                movw    a6@(0x16),a5@(0x26)
+                movw    a6@(0x18),a5@(0x28)
+                movw    a6@(0x1a),a5@(0x2a)
 
-		movl	a6@(0x10),a5@(0x20)	MOVEL1ADDR(addr, 
-		movw	a6@(0x14),a5@(0x24)    ((IDL2_SDATAMSG *)msg)->idsd_dadd
-		movw	a6@(0x16),a5@(0x26)
-		movw	a6@(0x18),a5@(0x28)
-		movw	a6@(0x1a),a5@(0x2a)
+                movw    #0x63,a5@(0x2c)         msg->idsd_ptype = 0x63;
+                movl    a6@(8),a5@(0xc)         msg->b_bufdesc = bd
+                movw    #2,a5@(0x10)            msg->m_prio = NORMAL;
+                movw    #5,a5@(0x12)            msg->m_type = MIDSDATA;
 
-		movw	#0x63,a5@(0x2c)		msg->idsd_ptype = 0x63;
-		movl	a6@(8),a5@(0xc)		msg->b_bufdesc = bd
-		movw	#2,a5@(0x10)		msg->m_prio = NORMAL;
-		movw	#5,a5@(0x12)		msg->m_type = MIDSDATA;
+                movl    idu2nmbox,sp@-          
+                pea     a5@
+                jsr     sendmsg                 rc = sendmsg( msg, idu2nmbox );
+                addql   #8,sp
 
-		movl	idu2nmbox,sp@-		
-		pea	a5@
-		jsr	sendmsg			rc = sendmsg( msg, idu2nmbox );
-		addql	#8,sp
+                movw    d0,d7                   
+                tstw    d7                      if( rc != NoError )
+                beqs    L2                      {
 
-		movw	d0,d7			
-		tstw	d7			if( rc != NoError )
-		beqs	L2			{
-
-		pea	a5@
-		jsr	freemsg			freemsg(msg);
-		addql	#4,sp
-						}
-L2:		moveml	sp@,d7/a5
-		unlk	a6
-		rts				}
+                pea     a5@
+                jsr     freemsg                 freemsg(msg);
+                addql   #4,sp
+                                                }
+L2:             moveml  sp@,d7/a5
+                unlk    a6
+                rts                             }
 
 
-static char fmtstr[]="%s: out of memory in getmsg"

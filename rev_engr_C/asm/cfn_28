@@ -1,105 +1,102 @@
-						cx_IDPdatamsg(msg)
+                                                cx_IDPdatamsg(msg)
+                                                MSG *msg;               a6@(8)
+                                                {
+                                                REG CXDATA *cxdata;     a5
+                                                REG BD *bd;             a4
+                                                REG short myport;       d7
+                                                REG short rc;           d6
+                                                ushort mysock;          a6@(-2)
+cfn_28:         linkw   a6,#-0x14
+                moveml  d6/d7/a4/a5,sp@
 
-						MSG *msg;		a6@(8)
+                movl    _currprocess,a0
+                movl    a0@(0x54),a5            cxdata = (CXDATA *)MYDATA();
 
-						{
-						REG CXDATA *cxdata; 	a5
-						REG BD *bd;		a4
-						REG short myport;	d7
-						REG short rc;		d6
-						ushort mysock;		a6@(-2)
+                movw    a5@(4),d7               myport = cxdata->cx_index;
 
-cfn_28:		linkw	a6,#-0x14
-		moveml	d6/d7/a4/a5,sp@
+                movl    a6@(8),a0               
+                movl    a0@(0xc),a4             bd = msg->m_bufdes;
 
-		movl	_currprocess,a0
-		movl	a0@(0x54),a5		cxdata = (CXDATA *)MYDATA();
+                movw    a5@(0xc),a6@(-2)        mysock = cxdata->cx_sock;
 
-		movw	a5@(4),d7		myport = cxdata->cx_index;
+                movl    a6@(8),a0
+                cmpw    #0x63,a0@(0x2c)         if( ((IDL2_RDATAMSG *)msg)->
+                                                        idrd_ptype != 0x63 )
+                beqs    L_0x3e                  {
+                                                ignore:
 
-		movl	a6@(8),a0		
-		movl	a0@(0xc),a4		bd = msg->m_bufdes;
+L_0x30:         movl    a6@(8),sp@-
+                jsr     freemsg                 freemsg(msg);
+                bra     L_0xf4                  return;
+                                                }
+L_0x3e:         movw    a6@(-2),d0              
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                movl    a6@(8),a0
+                movl    a0@(0x28),sp@-
+                movl    a0@(0x24),sp@-
+                movl    a0@(0x20),sp@-
+                pea     a4@
+                bsr     cx_xr_packet            rc = cx_xr_packet(bd, 
+                lea     sp@(0x14),a7                ((IDL2_RDATAMSG *)msg)->
+                                                        idrd_sadd, mysock );
 
-		movw	a5@(0xc),a6@(-2)	mysock = cxdata->cx_sock;
+                movw    d0,d6
+                tstw    d6                      if( rc == 0 ) 
+                bnes    L_0x6c                  {
+                bras    L_0x30                  goto ignore;
+                                                }
+L_0x6c:         movl    a6@(8),a0
+                movw    #2,a0@(0x10)            msg->m_prio = 2;
 
-		movl	a6@(8),a0
-		cmpw	#0x63,a0@(0x2c)		if( ((IDL2_RDATAMSG *)msg)->
-							idrd_ptype != 0x63 )
-		beqs	L_0x3e			{
-						ignore:
+                movl    a6@(8),a0
+                movw    #0x702,a0@(0x12)        msg->m_type = MT2LDATA;
 
-L_0x30:		movl	a6@(8),sp@-
-		jsr	freemsg			freemsg(msg);
-		bra	L_0xf4			return;
-						}
-L_0x3e:		movw	a6@(-2),d0		
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		movl	a6@(8),a0
-		movl	a0@(0x28),sp@-
-		movl	a0@(0x24),sp@-
-		movl	a0@(0x20),sp@-
-		pea	a4@
-		bsr	cx_xr_packet		rc = cx_xr_packet(bd, 
-		lea	sp@(0x14),a7		    ((IDL2_RDATAMSG *)msg)->
-							idrd_sadd, mysock );
+                movl    a6@(8),a0
+                movw    d7,a0@(0x14)            ((VT_DATA *)msg)->portid = 
+                                                                myport;
 
-		movw	d0,d6
-		tstw	d6			if( rc == 0 ) 
-		bnes	L_0x6c			{
-		bras	L_0x30			goto ignore;
-						}
-L_0x6c:		movl	a6@(8),a0
-		movw	#2,a0@(0x10)		msg->m_prio = 2;
+                movl    a6@(8),a0
+                clrw    a0@(0x16)               ((VT_DATA *)msg)->eom = 0;
 
-		movl	a6@(8),a0
-		movw	#0x702,a0@(0x12)	msg->m_type = MT2LDATA;
+                movl    a6@(8),a0
+                clrw    a0@(0x18)               ((VT_DATA *)msg)->reason = 0;
 
-		movl	a6@(8),a0
-		movw	d7,a0@(0x14)		((VT_DATA *)msg)->portid = 
-								myport;
+                movl    a6@(8),a0
+                clrw    a0@(0x1a)               ((VT_DATA *)msg)->delivery = 
+                                                        VT_DATA_NORMAL;
 
-		movl	a6@(8),a0
-		clrw	a0@(0x16)		((VT_DATA *)msg)->eom = 0;
+                movl    a5@(0x12),sp@-
+                movl    a6@(8),sp@-
+                jsr     sendmsg                 rc = sendmsg(msg, 
+                                                        cxdata->cx_sadmbox);
+                addql   #8,sp
 
-		movl	a6@(8),a0
-		clrw	a0@(0x18)		((VT_DATA *)msg)->reason = 0;
+                movw    d0,d6                   
+                beqs    L_0xf6                  if( ... != NoError )
+                                                {
+                movl    a6@(8),sp@-
+                jsr     freemsg                 freemsg(msg);
+                addql   #4,sp
 
-		movl	a6@(8),a0
-		clrw	a0@(0x1a)		((VT_DATA *)msg)->delivery = 
-							VT_DATA_NORMAL;
+                movw    d6,d0
+                extl    d0
+                movl    d0,sp@-
+                movw    d7,d0
+                extl    d0
+                movl    d0,sp@-
+                movl    _cfn_hostaddr,sp@-
+                movl    #0x134134,sp@-          sprintf( cfn_linebuf, fmt,
+                movl    #cfn_linebuf,sp@-           cfn_hostaddr, myport, rc )
+                jsr     sprintf
+                lea     sp@(0x14),a7
 
-		movl	a5@(0x12),sp@-
-		movl	a6@(8),sp@-
-		jsr	sendmsg			rc = sendmsg(msg, 
-							cxdata->cx_sadmbox);
-		addql	#8,sp
-
-		movw	d0,d6			
-		beqs	L_0xf6			if( ... != NoError )
-						{
-		movl	a6@(8),sp@-
-		jsr	freemsg			freemsg(msg);
-		addql	#4,sp
-
-		movw	d6,d0
-		extl	d0
-		movl	d0,sp@-
-		movw	d7,d0
-		extl	d0
-		movl	d0,sp@-
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x134134,sp@-		sprintf( cfn_linebuf, fmt,
-		movl	#cfn_linebuf,sp@-	    cfn_hostaddr, myport, rc )
-		jsr	sprintf
-		lea	sp@(0x14),a7
-
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-L_0xf4:		addql	#4,sp
-						}
-L_0xf6:		moveml	sp@,d6/d7/a4/a5
-		unlk	a6			return;
-		rts				}
+                movl    #cfn_linebuf,sp@-
+                jsr     cfn_error               cfn_error(cfn_linebuf);
+L_0xf4:         addql   #4,sp
+                                                }
+L_0xf6:         moveml  sp@,d6/d7/a4/a5
+                unlk    a6                      return;
+                rts                             }
 
 static char fmt[]="%s: data for port %d, sendmsg fails on %d"

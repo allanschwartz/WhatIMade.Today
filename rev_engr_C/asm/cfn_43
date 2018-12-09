@@ -1,75 +1,71 @@
-						BOOL 	cfn_43( bd, cxdata )
+                                                BOOL    cfn_43( bd, cxdata )
 
-						REG BD *bd;	     a6@(8),a5
-						REG CXDATA *cxdata;  a6@(0xc),a4
+                                                REG BD *bd;          a6@(8),a5
+                                                REG CXDATA *cxdata;  a6@(0xc),a4
+                                                {
+cfn_43:         linkw   a6,#-0x14
+                moveml  d6/d7/a3/a4/a5,sp@
+                                                REG int bdlen;       d7
+                                                REG int len;         d6
+                                                REG char *dptr;      a3
+                movl    a6@(8),a5
+                movl    a6@(0xc),a4
 
-						{
+                pea     a5@
+                jsr     buflen:l                bdlen = buflen( bd );
+                addql   #4,sp
+                movw    d0,d7
 
-						REG int bdlen;	     d7
-						REG int len;	     d6
-						REG char *dptr;	     a3
+                pea     a4@(0x22)
+                bsrs    cx_countbytes           cx_countbytes( cxdata->cx_databuf )
+                addql   #4,sp
 
-cfn_43:		linkw	a6,#-0x14
-		moveml	d6/d7/a3/a4/a5,sp@
+                extl    d0
+                lea     a4@(0x22),a0            
+                addl    d0,a0
+                movl    a0,a3                   dptr = &cxdata->cx_databuf + ...;
 
-		movl	a6@(8),a5
-		movl	a6@(0xc),a4
+                movw    d7,d0
+                extl    d0
+                addl    a3,d0
+                lea     a4@(0x223),a0
+                cmpl    a0,d0                   if( bdlen+dptr < &cx_databuf[513] )
+                blss    L_0x62
 
-		pea	a5@
-		jsr	buflen:l		bdlen = buflen( bd );
-		addql	#4,sp
-		movw	d0,d7
-
-		pea	a4@(0x22)
-		bsrs	cx_countbytes		cx_countbytes( cxdata->cx_databuf )
-		addql	#4,sp
-
-		extl	d0
-		lea	a4@(0x22),a0		
-		addl	d0,a0
-		movl	a0,a3			dptr = &cxdata->cx_databuf + ...;
-
-		movw	d7,d0
-		extl	d0
-		addl	a3,d0
-		lea	a4@(0x223),a0
-		cmpl	a0,d0			if( bdlen+dptr < &cx_databuf[513] )
-		blss	L_0x62
-
-		bras	L_0x6a			{
+                bras    L_0x6a                  {
 
 
-						for(; bd; bd = bd->bd_next )
-						{
-L_0x3e: 	movw	a5@(0x1a),d6		len = BUFLEN( bd );
-		movw	d6,d0
-		extl	d0
-		movl	d0,sp@-
-		movl	a5@(0x12),sp@-
-		pea	a3@
-		jsr	blt:l			blt( dptr, BUFADDR( bd ), len );
-		lea	sp@(0xc),a7
+                                                for(; bd; bd = bd->bd_next )
+                                                {
+L_0x3e:         movw    a5@(0x1a),d6            len = BUFLEN( bd );
+                movw    d6,d0
+                extl    d0
+                movl    d0,sp@-
+                movl    a5@(0x12),sp@-
+                pea     a3@
+                jsr     blt:l                   blt( dptr, BUFADDR( bd ), len );
+                lea     sp@(0xc),a7
 
-		movw	d6,d0
-		extl	d0
-		addl	d0,a3			dptr += len;
+                movw    d6,d0
+                extl    d0
+                addl    d0,a3                   dptr += len;
 
-						}
-		movl	a5@(0xe),a5		bd = bd->bd_fwd;
+                                                }
+                movl    a5@(0xe),a5             bd = bd->bd_fwd;
 
-L_0x62: 	movl	a5,d0		
-		bnes	L_0x3e
+L_0x62:         movl    a5,d0           
+                bnes    L_0x3e
 
-		moveq	#1,d0			return TRUE;
-		bras	L_0x74			
+                moveq   #1,d0                   return TRUE;
+                bras    L_0x74                  
 
-						}
-L_0x6a: 	pea	a4@			
-		bsr	cfn_37			cfn_37( cxdata );
-		addql	#4,sp
+                                                }
+L_0x6a:         pea     a4@                     
+                bsr     cfn_37                  cfn_37( cxdata );
+                addql   #4,sp
 
-		clrw	d0			return FALSE;
+                clrw    d0                      return FALSE;
 
-L_0x74: 	moveml	sp@,d6/d7/a3/a4/a5
-		unlk	a6
-		rts				}
+L_0x74:         moveml  sp@,d6/d7/a3/a4/a5
+                unlk    a6
+                rts                             }

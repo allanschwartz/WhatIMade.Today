@@ -1,92 +1,92 @@
-						char * 
-						cfn_fmt_txt_pkt(dst,
-								txt1,
-								txt2)
+                                                char * 
+                                                cfn_fmt_txt_pkt(dst,
+                                                                txt1,
+                                                                txt2)
 
-						REG char *dst;	      a6@(8)
-								      a5
-						REG char *txt1;	      a6@(0xc)
-								      a4
-						REG char *txt2;	      a6@(0x10)
-								      a3
+                                                REG char *dst;        a6@(8)
+                                                                      a5
+                                                REG char *txt1;       a6@(0xc)
+                                                                      a4
+                                                REG char *txt2;       a6@(0x10)
+                                                                      a3
 
-						{
-						char tmp[3];	      a6@(-3)
-						reg short len;
+                                                {
+                                                char tmp[3];          a6@(-3)
+                                                reg short len;
 
-cfn_7:		linkw	a6,#-0x14
-		moveml	d7/a3/a4/a5,sp@
+cfn_7:          linkw   a6,#-0x14
+                moveml  d7/a3/a4/a5,sp@
 
-		movl	a6@(8),a5		dst
-		movl	a6@(0xc),a4		txt1
-		movl	a6@(0x10),a3		txt2
+                movl    a6@(8),a5               dst
+                movl    a6@(0xc),a4             txt1
+                movl    a6@(0x10),a3            txt2
 
-		pea	a3@
-		jsr	strlen			len = strlen( txt2 );
-		addql	#4,sp
-		movw	d0,d7
+                pea     a3@
+                jsr     strlen                  len = strlen( txt2 );
+                addql   #4,sp
+                movw    d0,d7
 
-		pea	0x11:w
-		pea	a4@		
-		pea	a5@		
-		jsr	blt			blt( dst, txt1, 17 );
-		lea	sp@(0xc),a7
+                pea     0x11:w
+                pea     a4@             
+                pea     a5@             
+                jsr     blt                     blt( dst, txt1, 17 );
+                lea     sp@(0xc),a7
 
-		movw	d7,d0
-		extl	d0
-		addql	#3,d0
-		movl	d0,sp@-
-		movl	#0x133f7c,sp@-
-		pea	a6@(-3)			sprintf( tmp, "%2x", len+3 );
-		jsr	sprintf	
-		lea	sp@(0xc),a7
+                movw    d7,d0
+                extl    d0
+                addql   #3,d0
+                movl    d0,sp@-
+                movl    #0x133f7c,sp@-
+                pea     a6@(-3)                 sprintf( tmp, "%2x", len+3 );
+                jsr     sprintf 
+                lea     sp@(0xc),a7
 
-		pea	2:w
-		pea	a6@(-3)
-		pea	a5@(1)	
-		jsr	blt			blt( &dst[1], tmp, 2 );
-		lea	sp@(0xc),a7
+                pea     2:w
+                pea     a6@(-3)
+                pea     a5@(1)  
+                jsr     blt                     blt( &dst[1], tmp, 2 );
+                lea     sp@(0xc),a7
 
-		movw	d7,d0
-		extl	d0
-		addql	#3,d0
-		moveq	#0xf,d1
-		cmpl	d1,d0			if( len+3 <= 15 )
-		bgt	L_0x76			{
-		movb	#0x30,a5@(1)		dst[1] = '0';
-						}
-L_0x76:		movw	d7,d0
-		extl	d0
-		movl	d0,sp@-
-		pea	a3@	
-		pea	a5@(0x11)	
-		jsr	blt			blt( &dst[17], txt2, len );
-		lea	sp@(0xc),a7
+                movw    d7,d0
+                extl    d0
+                addql   #3,d0
+                moveq   #0xf,d1
+                cmpl    d1,d0                   if( len+3 <= 15 )
+                bgt     L_0x76                  {
+                movb    #0x30,a5@(1)            dst[1] = '0';
+                                                }
+L_0x76:         movw    d7,d0
+                extl    d0
+                movl    d0,sp@-
+                pea     a3@     
+                pea     a5@(0x11)       
+                jsr     blt                     blt( &dst[17], txt2, len );
+                lea     sp@(0xc),a7
 
-		movw	d7,d0
-		extl	d0
-		addl	a5,d0		
-		movl	d0,a0
-		movb	#0x16,a0@(0x11)		dst[len+17] = 0x16;	SYN
+                movw    d7,d0
+                extl    d0
+                addl    a5,d0           
+                movl    d0,a0
+                movb    #0x16,a0@(0x11)         dst[len+17] = 0x16;     SYN
 
-		movw	d7,d0
-		extl	d0
-		addl	a5,d0		
-		movl	d0,a0
-		movb	#3,a0@(0x12)		dst[len+18] = 3;	ETX
+                movw    d7,d0
+                extl    d0
+                addl    a5,d0           
+                movl    d0,a0
+                movb    #3,a0@(0x12)            dst[len+18] = 3;        ETX
 
-		pea	a5@(1)	
-		bsr	cfn_cksum
-		addql	#4,sp
+                pea     a5@(1)  
+                bsr     cfn_cksum
+                addql   #4,sp
 
-		movw	d7,d1
-		extl	d1
-		addl	a5,d1		
-		movl	d1,a0
-		movb	d0,a0@(0x13)		dst[len+19] = 
-							cfn_cksum(&dst[1]);
+                movw    d7,d1
+                extl    d1
+                addl    a5,d1           
+                movl    d1,a0
+                movb    d0,a0@(0x13)            dst[len+19] = 
+                                                        cfn_cksum(&dst[1]);
 
-		movl	a5,d0		 	return dst;
-		moveml	sp@,d7/a3/a4/a5
-		unlk	a6
-		rts				}
+                movl    a5,d0                   return dst;
+                moveml  sp@,d7/a3/a4/a5
+                unlk    a6
+                rts                             }

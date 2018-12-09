@@ -1,148 +1,148 @@
-						cx_SAdatamsg(msg)
+                                                cx_SAdatamsg(msg)
 
-						MSG *msg;		a6@(8)
+                                                MSG *msg;               a6@(8)
 
-						{
-						REG CXDATA *cxdata; 	a5
-						REG BD *bd;  		a4
-						REG ushort myport;	d7
-						REG ushort portid; 	d6
-						REG short flag;		d5
+                                                {
+                                                REG CXDATA *cxdata;     a5
+                                                REG BD *bd;             a4
+                                                REG ushort myport;      d7
+                                                REG ushort portid;      d6
+                                                REG short flag;         d5
 
-cfn_35:		linkw	a6,#-0x14
-		moveml	d5/d6/d7/a4/a5,sp@
+cfn_35:         linkw   a6,#-0x14
+                moveml  d5/d6/d7/a4/a5,sp@
 
-		movl	_currprocess,a0
-		movl	a0@(0x54),a5		cxdata = (CXDATA *)MYDATA();
+                movl    _currprocess,a0
+                movl    a0@(0x54),a5            cxdata = (CXDATA *)MYDATA();
 
-		movl	msg,a0
-		movl	a0@(0xc),a4		bd = msg->m_bufdesc;
+                movl    msg,a0
+                movl    a0@(0xc),a4             bd = msg->m_bufdesc;
 
-		movw	a5@(4),d7		myport = cxdata->cx_index;
+                movw    a5@(4),d7               myport = cxdata->cx_index;
 
-		movl	msg,a0
-		movw	a0@(0x14),d6		portid = msg->0x14;
+                movl    msg,a0
+                movw    a0@(0x14),d6            portid = msg->0x14;
 
-		moveq	#1,d5			flag = 1;
+                moveq   #1,d5                   flag = 1;
 
-		cmpw	d6,d7			if( myport == portid )
-		beqs	L_0x86			goto L_0x86:
-						else {
-		movw	d7,d0
-		extl	d0
-		movl	d0,sp@-
-		movw	d6,d0
-		extl	d0
-		movl	d0,sp@-
-		movl	_cfn_hostaddr,sp@-
-		movl	#0x1341dc,sp@-		sprintf(cfn_linebuf, fmt,
-		movl	#cfn_linebuf,sp@-	    cfn_hostaddr, 
-		jsr	sprintf			    portid, myport )
-		lea	sp@(0x14),a7
+                cmpw    d6,d7                   if( myport == portid )
+                beqs    L_0x86                  goto L_0x86:
+                                                else {
+                movw    d7,d0
+                extl    d0
+                movl    d0,sp@-
+                movw    d6,d0
+                extl    d0
+                movl    d0,sp@-
+                movl    _cfn_hostaddr,sp@-
+                movl    #0x1341dc,sp@-          sprintf(cfn_linebuf, fmt,
+                movl    #cfn_linebuf,sp@-           cfn_hostaddr, 
+                jsr     sprintf                     portid, myport )
+                lea     sp@(0x14),a7
 
-		movl	#cfn_linebuf,sp@-
-		jsr	cfn_error	cfn_error(cfn_linebuf);
-		addql	#4,sp
+                movl    #cfn_linebuf,sp@-
+                jsr     cfn_error               cfn_error(cfn_linebuf);
+                addql   #4,sp
 
-		movl	msg,sp@-
-		jsr	freemsg			freemsg(msg);
-		bras	L_0x80			return
-						}
-						L_0x6e:
-						{
-L_0x6e: 	movl	msg,sp@-
-		jsr	freemsg			freemsg(msg);
-		addql	#4,sp
+                movl    msg,sp@-
+                jsr     freemsg                 freemsg(msg);
+                bras    L_0x80                  return
+                                                }
+                                                L_0x6e:
+                                                {
+L_0x6e:         movl    msg,sp@-
+                jsr     freemsg                 freemsg(msg);
+                addql   #4,sp
 
-L_0x7a: 	pea	a5@
-		bsr	cfn_37			cfn_37(cxdata);
-L_0x80: 	addql	#4,sp
+L_0x7a:         pea     a5@
+                bsr     cfn_37                  cfn_37(cxdata);
+L_0x80:         addql   #4,sp
 
-		bra	L_0x118			return;
-						{
-L_0x86: 	pea	a5@
-		pea	a4@
-		bsr	cfn_43			if(cfn_43(bd, cxdata)!=1)
-		addql	#8,sp
-		cmpw	#1,d0
-		bnes	L_0x6e			goto L_0x6e;
+                bra     L_0x118                 return;
+                                                {
+L_0x86:         pea     a5@
+                pea     a4@
+                bsr     cfn_43                  if(cfn_43(bd, cxdata)!=1)
+                addql   #8,sp
+                cmpw    #1,d0
+                bnes    L_0x6e                  goto L_0x6e;
 
-		movl	msg,sp@-
-		jsr	freemsg			freemsg(msg);
-		addql	#4,sp
+                movl    msg,sp@-
+                jsr     freemsg                 freemsg(msg);
+                addql   #4,sp
 
 
-		bras	L_0x114			while( flag )
-						{
-L_0xa4: 	movw	a5@(0xa),d0		switch( cxdata->cx_datastate )
-		cmpw	#0xd,d0
-		bhis	L_0x110
-		addw	d0,d0
-		addw	d0,d0
-		movl	#0x1341a4,a0
-		movl	a0@(0,d0:w),a0
-		jmp	a0@			{
+                bras    L_0x114                 while( flag )
+                                                {
+L_0xa4:         movw    a5@(0xa),d0             switch( cxdata->cx_datastate )
+                cmpw    #0xd,d0
+                bhis    L_0x110
+                addw    d0,d0
+                addw    d0,d0
+                movl    #0x1341a4,a0
+                movl    a0@(0,d0:w),a0
+                jmp     a0@                     {
 
-L_0xbe: 	pea	a5@			case 0: case 2:
-		bsr	cfn_38			    flag = cfn_38(cxdata);
-L_0xc4: 	addql	#4,sp			    break;
-		movw	d0,d5
-		bras	L_0x114
+L_0xbe:         pea     a5@                     case 0: case 2:
+                bsr     cfn_38                      flag = cfn_38(cxdata);
+L_0xc4:         addql   #4,sp                       break;
+                movw    d0,d5
+                bras    L_0x114
 
-L_0xca: 	movw	#4,a5@(0xa)		case 1: case 3:
-		bras	L_0x118			    cxdata->cx_datastate = 4;
-						    return;
+L_0xca:         movw    #4,a5@(0xa)             case 1: case 3:
+                bras    L_0x118                     cxdata->cx_datastate = 4;
+                                                    return;
 
-		pea	a5@			case 8:
-		bsr	cfn_39			    flag = cfn_39(cxdata);
-		bras	L_0xc4			    break;
+                pea     a5@                     case 8:
+                bsr     cfn_39                      flag = cfn_39(cxdata);
+                bras    L_0xc4                      break;
 
-		movw	#0xa,a5@(0xa)		case 9:
-						    cxdata->cx_datastate = 0xa;
-		bras	L_0x118			    return;
+                movw    #0xa,a5@(0xa)           case 9:
+                                                    cxdata->cx_datastate = 0xa;
+                bras    L_0x118                     return;
 
-		pea	a5@			case 10:
-		bsr	cfn_40			    flag = cfn_40(cxdata);
-		bras	L_0xc4			    break;
+                pea     a5@                     case 10:
+                bsr     cfn_40                      flag = cfn_40(cxdata);
+                bras    L_0xc4                      break;
 
-		pea	a5@			case 11:
-		bsrs	cfn_36			    flag = cfn_36(cxdata);
-		bras	L_0xc4			    break;
-						
-		bras	L_0xbe			case 2: 
-						    goto L_0xbe;
+                pea     a5@                     case 11:
+                bsrs    cfn_36                      flag = cfn_36(cxdata);
+                bras    L_0xc4                      break;
+                                                
+                bras    L_0xbe                  case 2: 
+                                                    goto L_0xbe;
 
-		bras	L_0xca			case 3:
-						    goto L_0xca;
+                bras    L_0xca                  case 3:
+                                                    goto L_0xca;
 
-L_0xf4: 	pea	a5@			case 4: case 6:
-		bsr	cfn_41			    flag = cfn_41(cxdata)
-		bras	L_0xc4			    break;
+L_0xf4:         pea     a5@                     case 4: case 6:
+                bsr     cfn_41                      flag = cfn_41(cxdata)
+                bras    L_0xc4                      break;
 
-		movw	#6,a5@(0xa)		case 5:
-						    cxdata->cx_datastate = 6;
-		bras	L_0x118		  	    return;
+                movw    #6,a5@(0xa)             case 5:
+                                                    cxdata->cx_datastate = 6;
+                bras    L_0x118                     return;
 
-		bras	L_0xf4			case 6:
-						    goto L_0xf4;
+                bras    L_0xf4                  case 6:
+                                                    goto L_0xf4;
 
-L_0x106:	movw	#8,a5@(0xa)		case 7:	case 12:
-						    cxdata->cx_datastate = 8
-		bras	L_0x118			    return;
+L_0x106:        movw    #8,a5@(0xa)             case 7: case 12:
+                                                    cxdata->cx_datastate = 8
+                bras    L_0x118                     return;
 
-		bras	L_0x106			case 12:
-						    goto L_0x106;
+                bras    L_0x106                 case 12:
+                                                    goto L_0x106;
 
-						case 13:
-						default:
-L_0x110:	bra	cfn_35+0x7a		    goto L_0x7a;
-						}
-L_0x114:	tstw	d5
-		bnes	L_0xa4			}
+                                                case 13:
+                                                default:
+L_0x110:        bra     cfn_35+0x7a                 goto L_0x7a;
+                                                }
+L_0x114:        tstw    d5
+                bnes    L_0xa4                  }
 
-L_0x118:	moveml	sp@,d5/d6/d7/a4/a5
-		unlk	a6			return;
-		rts				}
+L_0x118:        moveml  sp@,d5/d6/d7/a4/a5
+                unlk    a6                      return;
+                rts                             }
 
 static char fmt[]="%s: SA data for port %d went to port %d"
 "

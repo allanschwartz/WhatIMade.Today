@@ -1,72 +1,72 @@
-						int cfn_ascii_to_hex(p)
+                                                int cfn_ascii_to_hex(p)
 
-						REG uchar *p;	        a6@(8)
-									a5
+                                                REG uchar *p;           a6@(8)
+                                                                        a5
 
-						{
-						REG int sum;		d7
-						REG int digit;		d6
+                                                {
+                                                REG int sum;            d7
+                                                REG int digit;          d6
 
-cfn_9:		linkw	a6,#-0xc
-		moveml	d6/d7/a5,sp@
-		movl	a6@(8),a5
+cfn_9:          linkw   a6,#-0xc
+                moveml  d6/d7/a5,sp@
+                movl    a6@(8),a5
 
-		clrl	d7			sum = 0;
-		bras	L_68
-						for( ; *p; p++ ) {
-L_10:		movb	a5@,d0
-		extw	d0
-		extl	d0
-		subl	#0x30,d0		switch(*p) {
-		moveq	#0x36,d1
-		cmpl	d1,d0
-		bhis	L_5e			
-						
-		addw	d0,d0			
-		addw	d0,d0
-		movl	#0x133e6e,a0
-		movl	a0@(0,d0:w),a0
-		jmp	a0@
-						case '0': case '1': case '2':
-						case '3': case '4': case '5':
-						case '6': case '7': case '8'
-						case '9'"
-		movb	a5@,d0			
-		extw	d0				digit = *p-'0';
-		extl	d0
-		subl	#0x30,d0
+                clrl    d7                      sum = 0;
+                bras    L_68
+                                                for( ; *p; p++ ) {
+L_10:           movb    a5@,d0
+                extw    d0
+                extl    d0
+                subl    #0x30,d0                switch(*p) {
+                moveq   #0x36,d1
+                cmpl    d1,d0
+                bhis    L_5e                    
+                                                
+                addw    d0,d0                   
+                addw    d0,d0
+                movl    #0x133e6e,a0
+                movl    a0@(0,d0:w),a0
+                jmp     a0@
+                                                case '0': case '1': case '2':
+                                                case '3': case '4': case '5':
+                                                case '6': case '7': case '8'
+                                                case '9'"
+                movb    a5@,d0                  
+                extw    d0                              digit = *p-'0';
+                extl    d0
+                subl    #0x30,d0
 
-L_3e:		movl	d0,d6				
-		bras	L_62				break;
+L_3e:           movl    d0,d6                           
+                bras    L_62                            break;
 
-						case 'a': case 'b': case 'c':
-						case 'd': case 'e': case 'f':
-		movb	a5@,d0				digit = *p-'a'+10;
-		extw	d0
-		extl	d0
-		subl	#0x57,d0
-		bras	L_3e				break;
-						case 'A': case 'B': case 'C':
-						case 'D': case 'E': case 'F':
-		movb	a5@,d0				digit = *p-'A'+10
-		extw	d0
-		extl	d0
-		subl	#0x37,d0
-		bras	L_3e				break;
-						default:
-							return -1;
-L_5e:		moveq	#-1,d0			
-		bras	L_6e
-						}
-L_62:		asll	#4,d7			sum <<= 4;
-		addl	d6,d7			sum += digit;
-		addql	#1,a5			
+                                                case 'a': case 'b': case 'c':
+                                                case 'd': case 'e': case 'f':
+                movb    a5@,d0                          digit = *p-'a'+10;
+                extw    d0
+                extl    d0
+                subl    #0x57,d0
+                bras    L_3e                            break;
+                                                case 'A': case 'B': case 'C':
+                                                case 'D': case 'E': case 'F':
+                movb    a5@,d0                          digit = *p-'A'+10
+                extw    d0
+                extl    d0
+                subl    #0x37,d0
+                bras    L_3e                            break;
+                                                default:
+                                                        return -1;
+L_5e:           moveq   #-1,d0                  
+                bras    L_6e
+                                                }
+L_62:           asll    #4,d7                   sum <<= 4;
+                addl    d6,d7                   sum += digit;
+                addql   #1,a5                   
 
-L_68:		tstb	a5@
-		bnes	L_10			}
+L_68:           tstb    a5@
+                bnes    L_10                    }
 
-		movl	d7,d0			return sum;
+                movl    d7,d0                   return sum;
 
-L_6e:		moveml	sp@,d6/d7/a5
-		unlk	a6
-		rts				}
+L_6e:           moveml  sp@,d6/d7/a5
+                unlk    a6
+                rts                             }

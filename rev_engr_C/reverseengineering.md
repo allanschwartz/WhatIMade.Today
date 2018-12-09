@@ -535,11 +535,11 @@ Here are all 45 Assembly, reverse-engineered C files, and calling signatures:
 |[cfn_8](asm/cfn_8)|[cfn_8.c](c/cfn_8.c)|`uchar cfn_cksum(uchar *p)`|
 |[cfn_9](asm/cfn_9)|[cfn_9.c](c/cfn_9.c)|`int cfn_ascii_to_hex(uchar *p)`|
 |[cfn_10](asm/cfn_10)|[cfn_10.c](c/cfn_10.c)|`int cfn_gethash(uchar *str)`|
-|[cfn_11](asm/cfn_11)|[cfn_11.c](c/cfn_11.c)|`void cfn_tcreate(int i, char *nm, L1_ADDR addr)`|
+|[cfn_11](asm/cfn_11)|[cfn_11.c](c/cfn_11.c)|`void cfn_tcreate(int i, char *name, L1_ADDR addr)`|
 |[cfn_12](asm/cfn_12)|[cfn_12.c](c/cfn_12.c)|`void cfn_update(int index, L1_ADDR addr)`|
 |[cfn_13](asm/cfn_13)|[cfn_13.c](c/cfn_13.c)|`BD *cfn_str_to_bd(char *str, short flag)`|
 |[cfn_14](asm/cfn_14)|[cfn_14.c](c/cfn_14.c)|`void cfn_panic(char *str)`|
-|[cfn_15](asm/cfn_15)|[cfn_15.c](c/cfn_15.c)|`void cfn_panic2(char *str)`|
+|[cfn_15](asm/cfn_15)|[cfn_15.c](c/cfn_15.c)|`void cfn_panic2(char *str,arg2)`|
 
 
 #### Table (continued) of Asm files, C files, and calling signatures
@@ -553,7 +553,7 @@ Here are all 45 Assembly, reverse-engineered C files, and calling signatures:
 |[cfn_20](asm/cfn_20)|[cfn_20.c](c/cfn_20.c)|`void cx_psp_packet(BD *bd, short flag)`|
 |[cfn_21](asm/cfn_21)|[cfn_21.c](c/cfn_21.c)|`int cx_atoh_n(char *str, short count)`|
 |[cfn_22](asm/cfn_22)|[cfn_22.c](c/cfn_22.c)|`uchar cx_psp_cksum(BD *bd)`|
-|[cfn_23](asm/cfn_23)|[cfn_23.c](c/cfn_23.c)|`void cx_init(short arg)`|
+|[cfn_23](asm/cfn_23)|[cfn_23.c](c/cfn_23.c)|`void cx_init(short index)`|
 |[cfn_24](asm/cfn_24)|[cfn_24.c](c/cfn_24.c)|`void cx_main(MSG *msg, MBID mbid)`|
 |[cfn_25](asm/cfn_25)|[cfn_25.c](c/cfn_25.c)|`void cx_listenmsg(MSG *msg)`|
 |[cfn_26](asm/cfn_26)|[cfn_26.c](c/cfn_26.c)|`void cx_connectmsg(MSG *msg)`|

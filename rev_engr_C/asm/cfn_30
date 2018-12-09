@@ -1,157 +1,156 @@
-						BOOL 	cx_xr_packet(
-							    bd, addr, sock)
+                                                BOOL    cx_xr_packet(
+                                                            bd, addr, sock)
 
-						REG BD *bd;           a6@(8)
-								      a5
-						L1_ADDR addr;          a6@(0xc)
-						  addr.l1_net	       a6@(0xc)
-						  addr.l1_host         a6@(0x10)
-						  addr.l1_host.ha_word1     x10
-						  addr.l1_host.ha_word1     x12
-						  addr.l1_host.ha_word2     x14
-						  addr.l1_sock         a6@(0x16)
+                                                REG BD *bd;           a6@(8)
+                                                                      a5
+                                                L1_ADDR addr;          a6@(0xc)
+                                                  addr.l1_net          a6@(0xc)
+                                                  addr.l1_host         a6@(0x10)
+                                                  addr.l1_host.ha_word1     x10
+                                                  addr.l1_host.ha_word1     x12
+                                                  addr.l1_host.ha_word2     x14
+                                                  addr.l1_sock         a6@(0x16)
 
-						ushort sock;	       a6@(0x18)
+                                                ushort sock;           a6@(0x18)
 
-						{
-						REG int index;		d7
-						REG PSPPKT *psp;	a4
-						char name[]		a6@(-9)
-						       name[1]	        a6@(-8)
-						       name[4]		a6@(-5)
-						short flag;		a6@(-2)
+                                                {
+                                                REG int index;          d7
+                                                REG PSPPKT *psp;        a4
+                                                char name[]             a6@(-9)
+                                                       name[1]          a6@(-8)
+                                                       name[4]          a6@(-5)
+                                                short flag;             a6@(-2)
+cfn_30:         linkw   a6,#-0x18
+                moveml  d7/a4/a5,sp@
 
-cfn_30:		linkw	a6,#-0x18
-		moveml	d7/a4/a5,sp@
+                movl    a6@(8),a5
+                clrw    a6@(-2)                 flag = FALSE;
 
-		movl	a6@(8),a5
-		clrw	a6@(-2)			flag = FALSE;
+                pea     1:w
+                pea     a5@
+                jsr     cx_psp_packet           psp = cx_psp_packet(bd, 1);
+                addql   #8,sp
 
-		pea	1:w
-		pea	a5@
-		jsr	cx_psp_packet		psp = cx_psp_packet(bd, 1);
-		addql	#8,sp
+                movl    d0,a4                   if( ... == NULL )
+                tstl    d0
+                bnes    L_0x2a                  {
 
-		movl	d0,a4			if( ... == NULL )
-		tstl	d0
-		bnes	L_0x2a			{
+L_0x24:         clrw    d0                      return FALSE;
+                bra     L_0x164                 }
 
-L_0x24: 	clrw	d0			return FALSE;
-		bra	L_0x164			}
+L_0x2a:         pea     4:w                     
+                pea     a4@(3)
+                pea     a6@(-9)
+                jsr     blt                     blt(name, psp->psp_name, 4);
+                lea     sp@(0xc),a7
 
-L_0x2a: 	pea	4:w			
-		pea	a4@(3)
-		pea	a6@(-9)
-		jsr	blt			blt(name, psp->psp_name, 4);
-		lea	sp@(0xc),a7
+                pea     4:w
+                movl    #0x13415e,sp@-
+                pea     a6@(-9)
+                jsr     strncmp                 if( strncmp(name, "D000", 4) 
+                lea     sp@(0xc),a7
+                tstl    d0                              == 0 )
+                bnes    L_0xbc                  {
 
-		pea	4:w
-		movl	#0x13415e,sp@-
-		pea	a6@(-9)
-		jsr	strncmp			if( strncmp(name, "D000", 4) 
-		lea	sp@(0xc),a7
-		tstl	d0				== 0 )
-		bnes	L_0xbc			{
+                clrl    sp@-
+                pea     a5@
+                jsr     cx_psp_packet           psp = cx_psp_packet(bd, 0)
+                addql   #8,sp
 
-		clrl	sp@-
-		pea	a5@
-		jsr	cx_psp_packet		psp = cx_psp_packet(bd, 0)
-		addql	#8,sp
+                movl    d0,a4                   
+                tstl    d0                      if( ... == NULL )
+                bnes    L_0x70                  {
 
-		movl	d0,a4			
-		tstl	d0			if( ... == NULL )
-		bnes	L_0x70			{
+                bras    L_0x24                  return FALSE;
+                                                }
+L_0x70:         movl    a6@(0x14),sp@-
+                movl    a6@(0x10),sp@-
+                movl    a6@(0xc),sp@-
+                pea     a5@
+                pea     a4@                     cx_xr_psp_valid( psp, bd, addr);
+                bsr     cx_xr_psp_valid
+                lea     sp@(0x14),a7
 
-		bras	L_0x24			return FALSE;
-						}
-L_0x70: 	movl	a6@(0x14),sp@-
-		movl	a6@(0x10),sp@-
-		movl	a6@(0xc),sp@-
-		pea	a5@
-		pea	a4@			cx_xr_psp_valid( psp, bd, addr);
-		bsr	cx_xr_psp_valid
-		lea	sp@(0x14),a7
+                cmpw    #1,d0                   if( ... == TRUE )
+                bnes    L_0xb8                  {
 
-		cmpw	#1,d0			if( ... == TRUE )
-		bnes	L_0xb8			{
+                movw    #0x271a,a6@(0x16)       addr.l1_sock = 0x271a;
 
-		movw	#0x271a,a6@(0x16)	addr.l1_sock = 0x271a;
+                movw    a6@(0x1a),d0            
+                andl    #0xffff,d0
+                movl    d0,sp@-
+                movl    a6@(0x14),sp@-
+                movl    a6@(0x10),sp@-
+                movl    a6@(0xc),sp@-
+                pea     a5@
+                pea     a4@                         
+                bsr     cx_psp_reply            cx_psp_reply(psp, bd,addr,sock);
+                lea     sp@(0x18),a7            
+                                                }
+L_0xb8:         bra     L_0x24                  return FALSE;
+                                                }
+                                                else 
+                                                {
+L_0xbc:         pea     4:w
+                pea     a4@(7)
+                pea     a6@(-9)
+                jsr     blt                     blt(name, psp->psp_name2, 4);
+                lea     sp@(0xc),a7
 
-		movw	a6@(0x1a),d0		
-		andl	#0xffff,d0
-		movl	d0,sp@-
-		movl	a6@(0x14),sp@-
-		movl	a6@(0x10),sp@-
-		movl	a6@(0xc),sp@-
-		pea	a5@
-		pea	a4@			    
-		bsr	cx_psp_reply		cx_psp_reply(psp, bd,addr,sock);
-		lea	sp@(0x18),a7		
-						}
-L_0xb8: 	bra	L_0x24			return FALSE;
-						}
-						else 
-						{
-L_0xbc: 	pea	4:w
-		pea	a4@(7)
-		pea	a6@(-9)
-		jsr	blt			blt(name, psp->psp_name2, 4);
-		lea	sp@(0xc),a7
+                clrb    a6@(-5)                 name[4] = 0;
+                cmpb    #0x41,a6@(-9)           if ((name[0] != 'A' ) ||
+                bnes    L_0xe6
 
-		clrb	a6@(-5)			name[4] = 0;
-		cmpb	#0x41,a6@(-9)		if ((name[0] != 'A' ) ||
-		bnes	L_0xe6
+                cmpb    #0x30,a6@(-8)              ( name[1] != '0' ))
+                beqs    L_0xf4                  {
 
-		cmpb	#0x30,a6@(-8)		   ( name[1] != '0' ))
-		beqs	L_0xf4			{
+L_0xe6:         cmpb    #0x42,a6@(-9)           if( name[0] != 'B' )
+                bnes    L_0x10e                     return FALSE;
 
-L_0xe6: 	cmpb	#0x42,a6@(-9)		if( name[0] != 'B' )
-		bnes	L_0x10e			    return FALSE;
+                movw    #1,a6@(-2)              flag = TRUE;
+                                                }
+L_0xf4:         tstw    a6@(-2)                 if( flag ) 
+                bnes    L_0x162                 return TRUE;
 
-		movw	#1,a6@(-2)		flag = TRUE;
-						}
-L_0xf4: 	tstw	a6@(-2)			if( flag ) 
-		bnes	L_0x162			return TRUE;
+                pea     a6@(-9)
+                jsr     cfn_gethash             index = cfn_gethash( name );
+                addql   #4,sp
+                movl    d0,d7                   
+                bges    L_0x112                 if( ... < 0 )
+                                                {
+                bra     L_0x24                  return FALSE;
+L_0x10e:        bra     L_0x24                  
 
-		pea	a6@(-9)
-		jsr	cfn_gethash		index = cfn_gethash( name );
-		addql	#4,sp
-		movl	d0,d7			
-		bges	L_0x112			if( ... < 0 )
-						{
-		bra	L_0x24			return FALSE;
-L_0x10e:	bra	L_0x24			
-
-						}
-L_0x112:	pea	0x12:w
-		movl	d7,sp@-
-		jsr	__lmul
-		addql	#8,sp			
-		addl	#table+5,d0		
-		movl	d0,a0
-		tstb	a0@			if( table[index].t_inuse == 0)
-		bnes	L_0x14a
-						{
-		movl	a6@(0x14),sp@-
-		movl	a6@(0x10),sp@-
-		movl	a6@(0xc),sp@-
-		pea	a6@(-9)
-		movl	d7,sp@-
-		jsr	cfn_tcreate		cfn_tcreate( index, name, addr )
-		lea	sp@(0x14),a7
-		bras	L_0x162			}
-						else
-						{
-L_0x14a:	movl	a6@(0x14),sp@-
-		movl	a6@(0x10),sp@-
-		movl	a6@(0xc),sp@-
-		movl	d7,sp@-
-		jsr	cfn_update		cfn_update(index, addr)
-		lea	sp@(0x10),a7
-						}
-L_0x162:	moveq	#1,d0			return TRUE;
-						}
-L_0x164:	moveml	sp@,d7/a4/a5		
-		unlk	a6
-		rts				}
+                                                }
+L_0x112:        pea     0x12:w
+                movl    d7,sp@-
+                jsr     __lmul
+                addql   #8,sp                   
+                addl    #table+5,d0             
+                movl    d0,a0
+                tstb    a0@                     if( table[index].t_inuse == 0)
+                bnes    L_0x14a
+                                                {
+                movl    a6@(0x14),sp@-
+                movl    a6@(0x10),sp@-
+                movl    a6@(0xc),sp@-
+                pea     a6@(-9)
+                movl    d7,sp@-
+                jsr     cfn_tcreate             cfn_tcreate( index, name, addr )
+                lea     sp@(0x14),a7
+                bras    L_0x162                 }
+                                                else
+                                                {
+L_0x14a:        movl    a6@(0x14),sp@-
+                movl    a6@(0x10),sp@-
+                movl    a6@(0xc),sp@-
+                movl    d7,sp@-
+                jsr     cfn_update              cfn_update(index, addr)
+                lea     sp@(0x10),a7
+                                                }
+L_0x162:        moveq   #1,d0                   return TRUE;
+                                                }
+L_0x164:        moveml  sp@,d7/a4/a5            
+                unlk    a6
+                rts                             }
 

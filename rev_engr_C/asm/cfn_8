@@ -1,26 +1,21 @@
-						uchar cfn_cksum(txt)
+                                                uchar cfn_cksum(uchar *txt) a6@(8)
+                                                {
+cfn_8:          linkw   a6,#-4
 
-						char *txt;		a6@(8)
+                clrb    a6@(-1) 
+                                                uchar sum;              a6@(-1)
 
-						{
-						uchar sum;		a6@(-1)
-						---
+                bras    L2                      for( sum = 0; *txt; ) {
 
-cfn_8:		linkw	a6,#-4
+L1:             movl    a6@(8),a0               
+                movb    a0@,d0
+                eorb    d0,a6@(-1)              sum ^= *txt++;
+                addql   #1,a6@(8)               
 
-		clrb	a6@(-1)	
+L2:             movl    a6@(8),a0               
+                tstb    a0@
+                bnes    L1                      }
 
-		bras	L2			for( sum = 0; *txt; ) {
-
-L1:		movl	a6@(8),a0		
-		movb	a0@,d0
-		eorb	d0,a6@(-1)		sum ^= *txt++;
-		addql	#1,a6@(8)		
-
-L2:		movl	a6@(8),a0		
-		tstb	a0@
-		bnes	L1			}
-
-		movb	a6@(-1),d0		return sum;
-		unlk	a6
-		rts				}
+                movb    a6@(-1),d0              return sum;
+                unlk    a6
+                rts                             }

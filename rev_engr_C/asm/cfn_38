@@ -1,94 +1,94 @@
-						BOOL 	cfn_38(cxdata)
-						REG CXDATA *cxdata;     a6@(8)
-									a5
-						{
-						REG char *pp;		a4;
-						short s1;		a6@(-2)
-						---
+                                                BOOL    cfn_38(cxdata)
+                                                REG CXDATA *cxdata;     a6@(8)
+                                                                        a5
+                                                {
+                                                REG char *pp;           a4;
+                                                short s1;               a6@(-2)
+                                                ---
 
-cfn_38:		linkw	a6,#-0xc
-		moveml	a4/a5,sp@
+cfn_38:         linkw   a6,#-0xc
+                moveml  a4/a5,sp@
 
-		movl	a6@(8),a5		cxdata
-		movl	a5@(0x224),a4		pp = cxdata->cx_dataptr;
+                movl    a6@(8),a5               cxdata
+                movl    a5@(0x224),a4           pp = cxdata->cx_dataptr;
 
-		clrw	a6@(-2)			s1 = 0;
-		bras	L_0x6a			
+                clrw    a6@(-2)                 s1 = 0;
+                bras    L_0x6a                  
 
-L_0x16: 	pea	a5@
-		pea	a4@
-		bsr	cfn_42			pp = cfn_42( pp, cxdata )
-		addql	#8,sp
-		movl	d0,a4
+L_0x16:         pea     a5@
+                pea     a4@
+                bsr     cfn_42                  pp = cfn_42( pp, cxdata )
+                addql   #8,sp
+                movl    d0,a4
 
-		bras	L_0x62			
+                bras    L_0x62                  
 
-L_0x24: 	cmpw	#1,a6@(-2)		( s1 == 1 )
-		bnes	L_0x40			
+L_0x24:         cmpw    #1,a6@(-2)              ( s1 == 1 )
+                bnes    L_0x40                  
 
-		pea	a5@
-		pea	a4@
-		bsr	cfn_42			pp = cfn_42( pp, cxdata )
-		addql	#8,sp
-		movl	d0,a4
+                pea     a5@
+                pea     a4@
+                bsr     cfn_42                  pp = cfn_42( pp, cxdata )
+                addql   #8,sp
+                movl    d0,a4
 
-		movw	#3,a5@(0xa)		cxdata->cx_datastate = 3
-		bras	L_0x68
-						
+                movw    #3,a5@(0xa)             cxdata->cx_datastate = 3
+                bras    L_0x68
+                                                
 
-L_0x40: 	movw	#1,a6@(-2)		s1 = 1;
-		bras	L_0x68
+L_0x40:         movw    #1,a6@(-2)              s1 = 1;
+                bras    L_0x68
 
 
-L_0x48: 	tstw	a5@(0xa)		(cxdata->cx_datastate == 0)
-		beqs	L_0x16
+L_0x48:         tstw    a5@(0xa)                (cxdata->cx_datastate == 0)
+                beqs    L_0x16
 
-		cmpw	#2,a5@(0xa)		(cxdata->cx_datastate == 2)
-		beqs	L_0x24
+                cmpw    #2,a5@(0xa)             (cxdata->cx_datastate == 2)
+                beqs    L_0x24
 
-		pea	a5@
-		pea	a4@
-		bsr	cfn_42			pp = cfn_42( pp, cxdata )
-		addql	#8,sp
-		movl	d0,a4
+                pea     a5@
+                pea     a4@
+                bsr     cfn_42                  pp = cfn_42( pp, cxdata )
+                addql   #8,sp
+                movl    d0,a4
 
-L_0x62: 	movw	#1,a5@(0xa)		cxdata->cx_datastate = 1;
-						}
-						
-L_0x68: 	addql	#1,a4			pp++
+L_0x62:         movw    #1,a5@(0xa)             cxdata->cx_datastate = 1;
+                                                }
+                                                
+L_0x68:         addql   #1,a4                   pp++
 
-L_0x6a: 	cmpb	#0xff,a4@		(*pp == 0xff)
-		beqs	L_0x9a
+L_0x6a:         cmpb    #0xff,a4@               (*pp == 0xff)
+                beqs    L_0x9a
 
-		cmpb	#1,a4@			(*pp == 1)
-		beqs	L_0x48
+                cmpb    #1,a4@                  (*pp == 1)
+                beqs    L_0x48
 
-		cmpw	#1,a5@(0xa)		(cxdata->cx_datastate == 1)
-		beqs	L_0x86
+                cmpw    #1,a5@(0xa)             (cxdata->cx_datastate == 1)
+                beqs    L_0x86
 
-		cmpw	#3,a5@(0xa)		(cxdata->cx_datastate == 3)
-		bnes	L_0x68
+                cmpw    #3,a5@(0xa)             (cxdata->cx_datastate == 3)
+                bnes    L_0x68
 
-L_0x86: 	movw	#4,a5@(0xa)		cxdata->cx_datastate = 4;
+L_0x86:         movw    #4,a5@(0xa)             cxdata->cx_datastate = 4;
 
-		movl	a4,a5@(0x224)		cxdata->cx_dataptr = pp;
+                movl    a4,a5@(0x224)           cxdata->cx_dataptr = pp;
 
-		pea	a5@
-		bsr	cfn_41			return  cfn_41( cxdata );
-		addql	#4,sp
-		bras	L_0xb4	
+                pea     a5@
+                bsr     cfn_41                  return  cfn_41( cxdata );
+                addql   #4,sp
+                bras    L_0xb4  
 
-L_0x9a: 	tstw	a5@(0xa)		(cxdata->cx_datastate == 0)
-		beqs	L_0xa8
+L_0x9a:         tstw    a5@(0xa)                (cxdata->cx_datastate == 0)
+                beqs    L_0xa8
 
-		cmpw	#2,a5@(0xa)		(cxdata->cx_datastate == 2)
-		bnes	L_0xae
+                cmpw    #2,a5@(0xa)             (cxdata->cx_datastate == 2)
+                bnes    L_0xae
 
-L_0xa8: 	movw	#0xd,a5@(0xa)		cxdata->cx_datastate = 0xd;
+L_0xa8:         movw    #0xd,a5@(0xa)           cxdata->cx_datastate = 0xd;
 
-L_0xae: 	movl	a4,a5@(0x224)		cxdata->cx_dataptr = pp;
-		moveq	#1,d0			return TRUE;
+L_0xae:         movl    a4,a5@(0x224)           cxdata->cx_dataptr = pp;
+                moveq   #1,d0                   return TRUE;
 
-L_0xb4: 	moveml	sp@,a4/a5
-		unlk	a6
-		rts				}
+L_0xb4:         moveml  sp@,a4/a5
+                unlk    a6
+                rts                             }

@@ -1,113 +1,112 @@
-						PSPDATA	    cx_psp_packet(
-								a_bd, flag)
+                                        PSPDATA     cx_psp_packet(
+                                                                a_bd, flag)
 
-						BD *a_bd;	      a6@(8)
-						short flag;	      a6@(0xe)
+                                        BD *a_bd;             a6@(8)
+                                        short flag;           a6@(0xe)
 
-						{
-						long k;	    	      a6@(-0xe)
-						char *ba;	      a6@(-0xa)
-						short len;	      a6@(-6)
-						short cnt;	      a6@(-2)
-						REG BD *bd;	      a5
+                                        {
+                                        long k;               a6@(-0xe)
+                                        char *ba;             a6@(-0xa)
+                                        short len;            a6@(-6)
+                                        short cnt;            a6@(-2)
+                                        REG BD *bd;           a5
 
-cfn_20:		linkw	a6,#-0x14
-		moveml	a5,sp@
+cfn_20: linkw   a6,#-0x14
+        moveml  a5,sp@
 
-		movl	a6@(8),a5		bd = a_bd;
+        movl    a6@(8),a5               bd = a_bd;
 
-		clrw	a6@(-2)			cnt = 0;
+        clrw    a6@(-2)                 cnt = 0;
 
-		bra	L_0xee
-						for( ; bd; bd = bd->bd_next )
-						{
-L_0x14: 	movw	a5@(0x1a),a6@(-6)	len = BUFLENC(bd);
-		movl	a5@(0x12),a6@(-0xa)	ba = BUFADDR(bd);
-		bra	L_0xe2
-						for( ;len; bd++,len--,cnt++)
-						{
+        bra     L_0xee
+                                        for( ; bd; bd = bd->bd_next )
+                                        {
+L_0x14: movw    a5@(0x1a),a6@(-6)       len = BUFLENC(bd);
+        movl    a5@(0x12),a6@(-0xa)     ba = BUFADDR(bd);
+        bra     L_0xe2
+                                        for( ;len; bd++,len--,cnt++)
+                                        {
 
-L_0x24: 	cmpw	#0xf,a6@(-2)		if( cnt < 15 )
-		bges	L_0x40			{
+L_0x24: cmpw    #0xf,a6@(-2)            if( cnt < 15 )
+        bges    L_0x40                  {
 
-		movl	a6@(-0xa),a0		
-		movw	a6@(-2),d0		
-		extl	d0
-		addl	#0x133f4a,d0		  cx_psp_pkt.u.psp_data[count]
-		bra	L_0xd2				= *ba;
-						}
-						else 
-						{
-L_0x40: 	cmpw	#0xf,a6@(-2)		  if ( cnt == 15 )
-		bnes	L_0x72		     	  {
+        movl    a6@(-0xa),a0            
+        movw    a6@(-2),d0              
+        extl    d0
+        addl    #0x133f4a,d0            cx_psp_pkt.u.psp_data[count]
+        bra     L_0xd2                          = *ba;
+                                        }
+                                        else {
+L_0x40: cmpw    #0xf,a6@(-2)            if ( cnt == 15 )
+        bnes    L_0x72                  {
 
-		cmpw	#1,a6@(0xe)		    if ( flag == 1 )
-		bnes	L_0x54			       
-		bra	L_0xf4			       return ( &cx_psp_pkt );
+        cmpw    #1,a6@(0xe)             if ( flag == 1 )
+        bnes    L_0x54                         
+        bra     L_0xf4                  return ( &cx_psp_pkt );
 
-L_0x54: 	movl	a6@(-0xa),cx_save_ba	    cx_psp_pkt.save_ba = ba;
+L_0x54: movl    a6@(-0xa),cx_save_ba    cx_psp_pkt.save_ba = ba;
 
-		pea	2:w
-		movl	#0x133f4b,sp@-
-		bsr	cx_atoh_n		    k = cx_atoh_n(
-		addql	#8,sp			       &cx_psp_pkt.psp_data[1], 
-		movl	d0,a6@(-0xe)			2)
+        pea     2:w
+        movl    #0x133f4b,sp@-
+        bsr     cx_atoh_n               k = cx_atoh_n(
+        addql   #8,sp                       &cx_psp_pkt.psp_data[1], 
+        movl    d0,a6@(-0xe)                2)
 
-		bras	L_0xd6			    continue;
-						  }
+        bras    L_0xd6                  continue;
+                                        }
 
-L_0x72: 	cmpw	#0xf,a6@(-2)		  else if( cnt >= 15 )
-		bles	L_0x8e			  {
+L_0x72: cmpw    #0xf,a6@(-2)            else if( cnt >= 15 )
+        bles    L_0x8e                  {
 
-		movw	a6@(-2),d0		
-		extl	d0
-		movl	a6@(-0xe),d1
-		addl	#0xf,d1			
-		cmpl	d1,d0			    if( cnt < k + 15 )
-		blts	L_0xd6			    continue;
-						  }
-						  else
-						  {
-L_0x8e: 	movw	a6@(-2),d0
-		extl	d0
-		movl	a6@(-0xe),d1
-		addl	#0xf,d1
-		cmpl	d1,d0			  if( cnt <= k + 15 )
-		bles	L_0xd6			    continue;
+        movw    a6@(-2),d0              
+        extl    d0
+        movl    a6@(-0xe),d1
+        addl    #0xf,d1                 
+        cmpl    d1,d0                   if( cnt < k + 15 )
+        blts    L_0xd6                  continue;
+                                        }
+                                        else
+                                        {
+L_0x8e: movw    a6@(-2),d0
+        extl    d0
+        movl    a6@(-0xe),d1
+        addl    #0xf,d1
+        cmpl    d1,d0                   if( cnt <= k + 15 )
+        bles    L_0xd6                  continue;
 
-		movw	a6@(-2),d0
-		extl	d0
-		movl	a6@(-0xe),d1
-		addl	#0x11,d1
-		cmpl	d1,d0			  if( cnt > k + 17 )
-		bgts	L_0xd6			    continue;
+        movw    a6@(-2),d0
+        extl    d0
+        movl    a6@(-0xe),d1
+        addl    #0x11,d1
+        cmpl    d1,d0                   if( cnt > k + 17 )
+        bgts    L_0xd6                  continue;
 
-		movl	a6@(-0xa),a0		
-		movl	a6@(-0xe),d0	
-		addl	#0x11,d0
-		movw	a6@(-2),d1		
-		extl	d1
-		subl	d1,d0		
-		addl	#cfn_d6,d0		   &cfn_d6 + k + 17 - cnt)
+        movl    a6@(-0xa),a0            
+        movl    a6@(-0xe),d0    
+        addl    #0x11,d0
+        movw    a6@(-2),d1              
+        extl    d1
+        subl    d1,d0           
+        addl    #cfn_d6,d0              //&cfn_d6 + k + 17 - cnt)
 
-L_0xd2: 	movl	d0,a1
-		movb	a0@,a1@			   *(&cfn_d6 + k + 17 - cnt) = 
-								*ba
-					           }
-						}
-L_0xd6: 	addql	#1,a6@(-0xa)		ba++
-		subqw	#1,a6@(-6)		len--
-		addqw	#1,a6@(-2)		cnt++
+L_0xd2: movl    d0,a1
+        movb    a0@,a1@                 *(&cfn_d6 + k + 17 - cnt) = 
+                                                                *ba
+                                        }
+                                        }
+L_0xd6: addql   #1,a6@(-0xa)            ba++
+        subqw   #1,a6@(-6)              len--
+        addqw   #1,a6@(-2)              cnt++
 
-L_0xe2: 	tstw	a6@(-6)			len
-		bne	L_0x24			}	/* end for ( ; len; ) */
+L_0xe2: tstw    a6@(-6)                 len
+        bne     L_0x24                  }       /* end for ( ; len; ) */
 
-		movl	a5@(0xe),a5		bd = bd->bd_next;
+        movl    a5@(0xe),a5             bd = bd->bd_next;
 
-L_0xee: 	movl	a5,d0			(bd == NULL)
-		bne	L_0x14			}	/* end for ( ; bd; ) */
+L_0xee: movl    a5,d0                   (bd == NULL)
+        bne     L_0x14                  }       /* end for ( ; bd; ) */
 
-L_0xf4: 	movl	#cx_psp_pkt,d0		return ( &cx_psp_pkt );
-		moveml	sp@,a5
-		unlk	a6
-		rts				}
+L_0xf4: movl    #cx_psp_pkt,d0          return ( &cx_psp_pkt );
+        moveml  sp@,a5
+        unlk    a6
+        rts                             }

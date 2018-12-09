@@ -3,42 +3,39 @@
  *  $Header:$
  *
  *  NAME
- *	cx_fill_ff(p, cnt)
+ *      cx_fill_ff(p, cnt)
  *
  *  DESCRIPTION
- *	cx_fill_ff() fills the string pointed to by "p" with
- *	0xff bytes, for a length of "cnt".
+ *      cx_fill_ff() fills the string pointed to by "p" with
+ *      0xff bytes, for a length of "cnt".
  *
  *  FUNCTIONS CALLED
- *	-none-
+ *      -none-
  *
  *  CALLED BY
- *	cx_init, cfn_37, cfn_42
+ *      cx_init, cfn_37, cfn_42
  *
  *  ARGUMENTS
- *	~~~
+ *      ~~~
  *
  *  HISTORY
- *	reversed engineering from binary, June/July 1991,
- *	by Allan M. Schwartz
+ *      reversed engineering from binary, June/July 1991,
+ *      by Allan M. Schwartz
  *
  *  BUGS
- *	none known
+ *      none known
  *
  ********************************************************************/
 
 #include "cfn.h"
 
-cx_fill_ff(p, cnt)
-    REG uchar  *p;		/* a5 */
-    short       cnt;		/* a6@(0xe) */
-
+cx_fill_ff(
+    REG uchar  *p,              /* a5 */
+    short       cnt)            /* a6@(0xe) */
 {
-
     REG short   k;
 
     for (k = 0; k < cnt; k++) {
-	*p++ = 0xff;
+        *p++ = 0xff;
     }
-
 }
