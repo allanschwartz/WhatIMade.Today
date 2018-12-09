@@ -408,7 +408,7 @@ We also see how the compiler generates references to members within the structur
 ```asm
                                         ;BOOL  cfn_40(register CXDATA *cxdata)
                                         ;{
-cfn_40: linkw a6,#-8
+cfn_40: linkw   a6,#-8
         moveml  a4/a5,sp@               ;register char *p;        // a4
   
         movl    a6@(8),a5
@@ -453,7 +453,7 @@ This example doesn’t teach us anything new about code generation. However, we 
 ```asm
                                         ;short cx_countbytes(REG uchar *p)
                                         ;{
-cfn_44: linkw a6,#-8
+cfn_44: linkw   a6,#-8
         moveml  d7/a5,sp@               ;REG short k;                  // d7
   
         movl    a6@(8),a5               ;// p                          // a5
@@ -496,7 +496,7 @@ Over the next month, I reverse-engineered the other 40 functions into C code. As
 
 The list of symbol names continued to be added to the file *symbols.sorted*. This was again used as input to the program *unstrip*. I would insert these names back into the object binary with *unstrip*, and then disassemble then whole layer again. Or, I would use [this sed script](tools/edit_cmds) to change to names in the source codes.
 
-In the end, I had a rather complete symbol table, ([reference/symbols.sorted](https://github.com/allanschwartz/WhatIMade.Today/blob/master/rev_eng_C/reference/symbols.sorted)), derived from not only all the function names I discovered in my disassembly, but also other globals referenced in the code.
+In the end, I had a rather complete symbol table, [reference/symbols.sorted](reference/symbols.sorted), derived from not only all the function names I discovered in my disassembly, but also other globals referenced in the code.
 
 As a final example, here is an assembly code function of more average length and complexity. We notice that the `L1_ADDR` structure `addr` is call by value, so the entire structure is on the stack.
 
@@ -600,21 +600,22 @@ I also analyzed the task message flow and built state tables. (See [c/msg_types]
 
 Did I find bugs? Absolutely. When you examine every line of code, from the machine level code on up, you are studying all cross references, and carefully reconstructing the control flow, the bugs leap off the page and scream at you. In my C listing, I identify a number of bugs, memory leaks, and other issues.
 
-In short, there are a couple of error conditions or corner cases which were not well tested. These errors often led to a memory leak of the msg space, and eventually getmsg() would fail. In reporting getmsg() failing, more memory would be leaked … and very soon the machine would crash and reboot.
+In short, there are a couple of error conditions or corner cases which were not well tested. These errors often led to a memory leak of the msg space, and eventually *getmsg()* would fail. In reporting *getmsg()* failing, more memory would be leaked … and very soon the machine would crash and reboot.
 
 
 ### Epiphanies
-
 
 1.  In retrospect, this was the best hack of my career.
 2.  The Sun 3/80 was a way-cool Unix machine. I’m sorry I got rid of that machine.
 3.  No consulting job is too hard.
 4.  ***We should never complain about debugging.***
+
         -   *Now* we have sophisticated tools.
         -   *Now*, we have the customer’s exact runtime environment.
         -   *Now*, we have (or should have) unit-tests.
         -   *Now* we have a supportive team.
         -   And, most significantly, *now* we have ***source code*** to work with.
+
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbLTExOTE3Njk1MF19
 -->
