@@ -1,4 +1,7 @@
-﻿# Reverse Engineering a Stripped Binary
+﻿<head>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/themes/prism.css" rel="stylesheet" />
+</head>
+# Reverse Engineering a Stripped Binary
 #### by Allan Schwartz
 
 
@@ -511,6 +514,71 @@ After quite a bit of study, clean-up, and documentation, the corresponding C cod
 
 - [c/cfn_5.c](c/cfn_5.c)
 
+```C
+/********************************************************************* *
+ *  $Header:$
+ *
+ *  NAME
+ *      cfn_sendidpdata(bd, src_socket, addr)
+ *
+ *  DESCRIPTION
+ *      cfn_sendidpdata() sends an IDP packet to the specified destination
+ *      address.
+ *
+ *  FUNCTIONS CALLED
+ *      cfn_reboot, cfn_error, freemsg, getmaxmsg, sendmsg, sprintf
+ *
+ *  CALLED BY
+ *      cfn_34, cfn_36, cfn_send2sock, cfn_error
+ *
+ *  ARGUMENTS
+ *      ~~~
+ *
+ *  HISTORY
+ *      reversed engineering from binary, June/July 1991,
+ *      by Allan M. Schwartz
+ *
+ *  BUGS
+ *      If there are no messages, this routine will be called recursively.
+ *
+ ********************************************************************/
+
+#include "cfn.h"
+
+cfn_sendidpdata(bd, src_socket, addr)
+    BD         *bd;             /* a6@(8) */
+    short       src_socket;     /* a6@(0xe) */
+    L1_ADDR     addr;           /* a6@(0x10) */
+{
+    REG short   rc;             /* d7 */
+    REG MSG    *msg;            /* a5 */
+
+    if ((msg = getmaxmsg()) == NULL) {
+        sprintf(cfn_linebuf, "%s: out of memory in getmsg", 
+            cfn_hostaddr);
+        cfn_error(cfn_linebuf);
+        cfn_reboot();
+    }
+
+    MOVEL1ADDR(((IDL2_SDATAMSG *) msg)->idsd_sadd, cfn_attnet);
+
+    ((IDL2_SDATAMSG *) msg)->idsd_sadd.l1_sock = src_socket;
+
+    MOVEL1ADDR(((IDL2_SDATAMSG *) msg)->idsd_dadd, addr);
+
+    ((IDL2_SDATAMSG *) msg)->idsd_ptype = 0x63; /* protocol type */
+    msg->m_bufdes = bd;
+    msg->m_prio = NORMAL;
+    msg->m_type = MIDSDATA;     /* IDP send data */
+
+    rc = sendmsg(msg, idu2nmbox);
+
+    if (rc != NoError) {
+        freemsg(msg);
+    }
+}
+```
+
 
 ## Resulting ASM and C Files
 
@@ -621,6 +689,10 @@ In short, there are a couple of error conditions or corner cases which were not 
     -   *Now* we have a supportive team.
     -   And, most significantly, *now* we have ***source code*** to work with.
 
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/prism.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/components/prism-bash.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/components/prism-c.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/components/prism-python.js"></script>
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbLTExOTE3Njk1MF19
 -->
