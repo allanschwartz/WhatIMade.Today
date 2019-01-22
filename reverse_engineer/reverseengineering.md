@@ -1,8 +1,5 @@
-﻿<head>
-    <link href="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/themes/prism.css" rel="stylesheet" />
-</head>
-# Reverse Engineering a Stripped Binary
-#### by Allan Schwartz
+﻿# Reverse Engineering a Stripped Binary
+#### by Allan Schwartz, ams613@gmail.com
 
 
 Because I was inspired by Alon Fleiss’ [recent blog](https://blogcodevalue.wordpress.com/2018/10/08/code-archaeology-how-to-revive-a-more-then-30-years-old-game/), I want to share my story also about binary code, and also from roughly 30 years ago.
@@ -689,10 +686,12 @@ In short, there are a couple of error conditions or corner cases which were not 
     -   *Now* we have a supportive team.
     -   And, most significantly, *now* we have ***source code*** to work with.
 
+<!--
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/prism.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/components/prism-bash.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/components/prism-c.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prism/1.15.0/components/prism-python.js"></script>
+-->
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbLTExOTE3Njk1MF19
 -->
